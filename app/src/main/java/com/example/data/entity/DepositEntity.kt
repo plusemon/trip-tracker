@@ -18,7 +18,7 @@ import androidx.room.PrimaryKey
             entity = MemberEntity::class,
             parentColumns = ["id"],
             childColumns = ["memberId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.SET_NULL
         )
     ],
     indices = [
@@ -30,8 +30,13 @@ data class DepositEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val tripId: Long,
-    val memberId: Long,
+    val memberId: Long? = null,
+    val contributorName: String = "",
     val amount: Double,
+    val originalAmount: Double = amount,
+    val currencyCode: String = "BDT",
+    val exchangeRate: Double = 1.0,
+    val categoryName: String = "Common Fund Deposit",
     val date: Long = System.currentTimeMillis(),
     val notes: String = ""
 )

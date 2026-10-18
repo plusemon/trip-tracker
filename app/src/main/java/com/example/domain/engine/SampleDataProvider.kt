@@ -12,6 +12,7 @@ import com.example.data.entity.MemberEntity
 import com.example.data.entity.PayerType
 import com.example.data.entity.SplitMode
 import com.example.data.entity.TripEntity
+import com.example.data.entity.TripStatus
 
 object SampleDataProvider {
 
@@ -33,6 +34,8 @@ object SampleDataProvider {
                 endDate = now + 2 * dayMillis,
                 budget = 80000.0,
                 currencySymbol = "৳",
+                baseCurrency = "BDT",
+                status = TripStatus.ACTIVE,
                 managerName = "Emon (Tour Lead)"
             )
         )
@@ -57,6 +60,10 @@ object SampleDataProvider {
                     tripId = tripId,
                     memberId = mId,
                     amount = 6000.0,
+                    originalAmount = 6000.0,
+                    currencyCode = "BDT",
+                    exchangeRate = 1.0,
+                    categoryName = "Common Fund Deposit",
                     date = now - 2 * dayMillis,
                     notes = "Advance Tour Fund (চাঁদা Round 1)"
                 )
@@ -69,6 +76,9 @@ object SampleDataProvider {
             tripId = tripId,
             title = "Saintmartin Paribahan AC Bus (Dhaka -> Bandarban)",
             amount = 12000.0,
+            originalAmount = 12000.0,
+            currencyCode = "BDT",
+            exchangeRate = 1.0,
             category = ExpenseCategory.TRANSPORTATION,
             date = now - 2 * dayMillis + 3600000L,
             payerType = PayerType.COMMON_FUND,
@@ -85,6 +95,9 @@ object SampleDataProvider {
             tripId = tripId,
             title = "Nilgiri Eco Resort (2 Cottages, 1 Night)",
             amount = 16000.0,
+            originalAmount = 16000.0,
+            currencyCode = "BDT",
+            exchangeRate = 1.0,
             category = ExpenseCategory.LODGING,
             date = now - 1 * dayMillis,
             payerType = PayerType.COMMON_FUND,
@@ -101,6 +114,9 @@ object SampleDataProvider {
             tripId = tripId,
             title = "Chander Gari Reserve (3 Days Mountain Tour)",
             amount = 18000.0,
+            originalAmount = 18000.0,
+            currencyCode = "BDT",
+            exchangeRate = 1.0,
             category = ExpenseCategory.TRANSPORTATION,
             date = now - 1 * dayMillis + 7200000L,
             payerType = PayerType.COMMON_FUND,
@@ -117,6 +133,9 @@ object SampleDataProvider {
             tripId = tripId,
             title = "Thanchi BGB Permission & Guide Honorarium",
             amount = 4500.0,
+            originalAmount = 4500.0,
+            currencyCode = "BDT",
+            exchangeRate = 1.0,
             category = ExpenseCategory.GUIDE_PERMISSIONS,
             date = now - 1 * dayMillis + 14400000L,
             payerType = PayerType.COMMON_FUND,
@@ -133,6 +152,9 @@ object SampleDataProvider {
             tripId = tripId,
             title = "Traditional Bamboo Chicken Dinner @ Boga Lake",
             amount = 4800.0,
+            originalAmount = 4800.0,
+            currencyCode = "BDT",
+            exchangeRate = 1.0,
             category = ExpenseCategory.FOOD,
             date = now - 12 * 3600000L,
             payerType = PayerType.MEMBER,
@@ -151,6 +173,9 @@ object SampleDataProvider {
             tripId = tripId,
             title = "Engine Boat Ride (Thanchi to Remakri)",
             amount = 3600.0,
+            originalAmount = 3600.0,
+            currencyCode = "BDT",
+            exchangeRate = 1.0,
             category = ExpenseCategory.TRANSPORTATION,
             date = now - 6 * 3600000L,
             payerType = PayerType.COMMON_FUND,
@@ -167,6 +192,9 @@ object SampleDataProvider {
             tripId = tripId,
             title = "Hilltop Raw Cha & Fresh Papaya Snacks",
             amount = 800.0,
+            originalAmount = 800.0,
+            currencyCode = "BDT",
+            exchangeRate = 1.0,
             category = ExpenseCategory.SNACKS_PERSONAL,
             date = now - 2 * 3600000L,
             payerType = PayerType.MEMBER,

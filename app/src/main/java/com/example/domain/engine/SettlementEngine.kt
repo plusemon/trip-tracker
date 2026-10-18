@@ -2,6 +2,7 @@ package com.example.domain.engine
 
 import com.example.data.entity.DepositEntity
 import com.example.data.entity.ExpenseEntity
+import com.example.data.entity.ExpensePayerEntity
 import com.example.data.entity.ExpenseSplitEntity
 import com.example.data.entity.MemberEntity
 import com.example.data.entity.PayerType
@@ -26,21 +27,40 @@ object SettlementEngine {
         members: List<MemberEntity>,
         deposits: List<DepositEntity>,
         expenses: List<ExpenseEntity>,
-        splits: List<ExpenseSplitEntity>
+        splits: List<ExpenseSplitEntity>,
+        payers: List<ExpensePayerEntity> = emptyList()
     ): List<MemberBalance> {
         val memberMap = members.associateBy { it.id }
 
         // Sum deposits per member
         val depositTotals = mutableMapOf<Long, Double>()
         for (d in deposits) {
-            depositTotals[d.memberId] = (depositTotals[d.memberId] ?: 0.0) + d.amount
+            if (d.memberId != null) {
+                depositTotals[d.memberId] = (depositTotals[d.memberId] ?: 0.0) + d.amount
+            }
         }
 
         // Sum pocket expenses paid per member
         val pocketTotals = mutableMapOf<Long, Double>()
-        for (e in expenses) {
-            if (e.payerType == PayerType.MEMBER && e.payerMemberId != null) {
-                pocketTotals[e.payerMemberId] = (pocketTotals[e.payerMemberId] ?: 0.0) + e.amount
+        val nonIncomeExpenses = expenses.filter { !it.isIncome }
+        val payersByExpense = payers.groupBy { it.expenseId }
+
+        for (e in nonIncomeExpenses) {
+            when (e.payerType) {
+                PayerType.MEMBER -> {
+                    if (e.payerMemberId != null) {
+                        pocketTotals[e.payerMemberId] = (pocketTotals[e.payerMemberId] ?: 0.0) + e.amount
+                    }
+                }
+                PayerType.MULTI_PAYER -> {
+                    val expPayers = payersByExpense[e.id] ?: emptyList()
+                    for (p in expPayers) {
+                        pocketTotals[p.memberId] = (pocketTotals[p.memberId] ?: 0.0) + p.amountPaid
+                    }
+                }
+                PayerType.COMMON_FUND -> {
+                    // Paid from common fund pool
+                }
             }
         }
 
@@ -69,16 +89,17 @@ object SettlementEngine {
         deposits: List<DepositEntity>,
         expenses: List<ExpenseEntity>,
         splits: List<ExpenseSplitEntity>,
-        settledRecords: List<SettlementRecordEntity> = emptyList()
+        settledRecords: List<SettlementRecordEntity> = emptyList(),
+        payers: List<ExpensePayerEntity> = emptyList()
     ): List<SettlementTransaction> {
         if (members.isEmpty()) return emptyList()
 
-        val memberBalances = calculateMemberBalances(members, deposits, expenses, splits)
+        val memberBalances = calculateMemberBalances(members, deposits, expenses, splits, payers)
         val memberMap = members.associateBy { it.id }
 
         // Total cash remaining in Common Fund
         val totalDeposits = deposits.sumOf { it.amount }
-        val commonFundSpent = expenses.filter { it.payerType == PayerType.COMMON_FUND }.sumOf { it.amount }
+        val commonFundSpent = expenses.filter { !it.isIncome && it.payerType == PayerType.COMMON_FUND }.sumOf { it.amount }
         val remainingCommonFund = totalDeposits - commonFundSpent
 
         // Net balances map
@@ -103,7 +124,6 @@ object SettlementEngine {
         }
 
         // Separate into Debtors (< -0.5) and Creditors (> 0.5)
-        // Using max-heaps based on magnitude
         data class Node(val id: Long, var amount: Double)
 
         val debtors = PriorityQueue<Node> { a, b -> b.amount.compareTo(a.amount) }

@@ -13,6 +13,8 @@ data class TripEntity(
     val endDate: Long,
     val budget: Double = 0.0,
     val currencySymbol: String = "৳",
+    val baseCurrency: String = "BDT",
+    val status: TripStatus = TripStatus.ACTIVE,
     val managerName: String = "Tour Manager",
     val createdAt: Long = System.currentTimeMillis()
 )

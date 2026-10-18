@@ -1,5 +1,9 @@
 package com.example.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,6 +15,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,7 +27,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Groups
@@ -40,16 +47,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,34 +68,53 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.example.data.entity.CategoryEntity
+import com.example.data.entity.CategoryIconHelper
+import com.example.data.entity.ExchangeRateEntity
 import com.example.data.entity.ExpenseCategory
+import com.example.data.entity.ExpensePayerEntity
+import com.example.data.entity.ExpenseSplitEntity
 import com.example.data.entity.MemberEntity
 import com.example.data.entity.PayerType
 import com.example.data.entity.SplitMode
 import com.example.domain.model.CurrencyFormatter
+import com.example.domain.model.CurrencyPresets
 import com.example.ui.components.MemberAvatar
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddExpenseDialog(
     members: List<MemberEntity>,
+    categories: List<CategoryEntity>,
+    exchangeRates: List<ExchangeRateEntity>,
+    baseCurrency: String,
     currencySymbol: String,
     onDismiss: () -> Unit,
+    onOpenCreateCategory: () -> Unit,
     onAddExpense: (
         title: String,
         amount: Double,
+        originalAmount: Double,
+        currencyCode: String,
+        exchangeRate: Double,
         category: ExpenseCategory,
-        date: Long,
+        customCatName: String?,
+        customCatIcon: String?,
+        customCatColor: String?,
         payerType: PayerType,
         payerMemberId: Long?,
         splitMode: SplitMode,
-        customShares: Map<Long, Double>,
-        selectedMemberIds: Set<Long>,
+        splits: List<ExpenseSplitEntity>,
+        payers: List<ExpensePayerEntity>,
+        photoUris: List<Uri>,
         notes: String
     ) -> Unit
 ) {
@@ -93,44 +122,70 @@ fun AddExpenseDialog(
 
     var title by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf(ExpenseCategory.TRANSPORTATION) }
-    var payerType by remember { mutableStateOf(PayerType.COMMON_FUND) } // Default Common Fund as confirmed
-    var selectedPayerMemberId by remember { mutableStateOf(members.firstOrNull()?.id) }
+
+    // Multi-Currency & Rate
+    var selectedCurrency by remember { mutableStateOf(baseCurrency) }
+    var customRateText by remember {
+        val initialRate = exchangeRates.find { it.fromCurrency == baseCurrency }?.rate ?: 1.0
+        mutableStateOf(initialRate.toString())
+    }
+
+    // Category
+    var selectedStandardCategory by remember { mutableStateOf<ExpenseCategory?>(ExpenseCategory.FOOD) }
+    var selectedCustomCategory by remember { mutableStateOf<CategoryEntity?>(null) }
+
+    // Payer
+    var payerType by remember { mutableStateOf(PayerType.COMMON_FUND) }
+    var selectedSinglePayerId by remember { mutableStateOf(members.firstOrNull()?.id) }
+    val jointPayerAmounts = remember { mutableStateMapOf<Long, String>() }
+
+    // Split
     var splitMode by remember { mutableStateOf(SplitMode.EQUAL) }
+    val selectedMemberIds = remember {
+        mutableStateListOf<Long>().apply { addAll(members.map { it.id }) }
+    }
+    val customShareTexts = remember { mutableStateMapOf<Long, String>() }
+
+    // Attachments
+    val attachedUris = remember { mutableStateListOf<Uri>() }
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(5)
+    ) { uris ->
+        uris.forEach { uri ->
+            if (!attachedUris.contains(uri)) attachedUris.add(uri)
+        }
+    }
+
     var notes by remember { mutableStateOf("") }
 
-    // Selected members for Selective Split (default all selected)
-    val selectedMembersForSplit = remember {
-        mutableStateMapOf<Long, Boolean>().apply {
-            members.forEach { put(it.id, true) }
-        }
+    // Currency conversion calculation
+    val originalAmount = amountText.toDoubleOrNull() ?: 0.0
+    val exchangeRate = if (selectedCurrency == baseCurrency) 1.0 else (customRateText.toDoubleOrNull() ?: 1.0)
+    val convertedBaseAmount = originalAmount * exchangeRate
+
+    // Joint payer total check
+    val jointTotalPaid = remember(jointPayerAmounts.toMap(), convertedBaseAmount) {
+        jointPayerAmounts.values.sumOf { it.toDoubleOrNull() ?: 0.0 }
     }
 
-    // Custom exact amounts per member
-    val customAmounts = remember {
-        mutableStateMapOf<Long, String>().apply {
-            members.forEach { put(it.id, "") }
-        }
-    }
-
-    val totalAmount = amountText.toDoubleOrNull() ?: 0.0
-
-    // Quick suggestion titles for Bangladeshi tours
-    val quickSuggestions = listOf(
-        "Chander Gari", "Bamboo Chicken", "Resort Cottage",
-        "Engine Boat", "Army Entry Fee", "Cha & Snacks"
-    )
+    // Validation
+    val isAmountValid = originalAmount > 0.0
+    val isTitleValid = title.isNotBlank()
+    val isJointValid = payerType != PayerType.MULTI_PAYER || kotlin.math.abs(jointTotalPaid - convertedBaseAmount) < 0.5
+    val canSubmit = isAmountValid && isTitleValid && isJointValid
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        dragHandle = null
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp)
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Header
             Row(
@@ -139,327 +194,522 @@ fun AddExpenseDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Log Tour Expense",
+                    text = "Log Group Expense",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-                IconButton(onClick = onDismiss, modifier = Modifier.testTag("close_expense_dialog")) {
+                IconButton(onClick = onDismiss) {
                     Icon(Icons.Default.Close, contentDescription = "Close")
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Quick suggestion chips
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                quickSuggestions.forEach { suggestion ->
-                    Surface(
-                        modifier = Modifier.clickable {
-                            title = suggestion
-                            when (suggestion) {
-                                "Chander Gari" -> selectedCategory = ExpenseCategory.TRANSPORTATION
-                                "Bamboo Chicken" -> selectedCategory = ExpenseCategory.FOOD
-                                "Resort Cottage" -> selectedCategory = ExpenseCategory.LODGING
-                                "Engine Boat" -> selectedCategory = ExpenseCategory.TRANSPORTATION
-                                "Army Entry Fee" -> selectedCategory = ExpenseCategory.GUIDE_PERMISSIONS
-                                "Cha & Snacks" -> selectedCategory = ExpenseCategory.SNACKS_PERSONAL
-                            }
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                    ) {
-                        Text(
-                            text = suggestion,
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Title & Amount
+            // Title Input
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Expense Title (e.g. Chander Gari, Lunch)") },
+                label = { Text("Expense Title") },
+                placeholder = { Text("e.g., Resort Cottage, Bamboo Chicken, Fuel") },
                 leadingIcon = { Icon(Icons.Default.Title, contentDescription = null) },
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag("expense_title_input"),
-                singleLine = true
+                    .testTag("expense_title_input")
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = amountText,
-                onValueChange = { amountText = it },
-                label = { Text("Amount ($currencySymbol BDT)") },
-                leadingIcon = { Icon(Icons.Default.Paid, contentDescription = null) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("expense_amount_input"),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Category Chips
-            Text(
-                text = "Expense Category",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                ExpenseCategory.values().forEach { cat ->
-                    FilterChip(
-                        selected = selectedCategory == cat,
-                        onClick = { selectedCategory = cat },
-                        label = { Text(cat.displayName) },
-                        leadingIcon = {
-                            Icon(cat.getIcon(), contentDescription = null, modifier = Modifier.size(16.dp))
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-            Divider()
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Who Paid? (Payer Source)
-            Text(
-                text = "Who Paid for this?",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                SegmentedButton(
-                    selected = payerType == PayerType.COMMON_FUND,
-                    onClick = { payerType = PayerType.COMMON_FUND },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
-                ) {
-                    Icon(Icons.Default.AccountBalanceWallet, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Common Fund")
-                }
-                SegmentedButton(
-                    selected = payerType == PayerType.MEMBER,
-                    onClick = { payerType = PayerType.MEMBER },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
-                ) {
-                    Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Member Pocket")
-                }
-            }
-
-            // Member selector if Member Pocket is selected
-            if (payerType == PayerType.MEMBER) {
-                Spacer(modifier = Modifier.height(10.dp))
+            // Currency & Amount Row
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    members.forEach { m ->
-                        FilterChip(
-                            selected = selectedPayerMemberId == m.id,
-                            onClick = { selectedPayerMemberId = m.id },
-                            label = { Text(m.name) },
-                            leadingIcon = {
-                                MemberAvatar(member = m, size = 20.dp)
+                    OutlinedTextField(
+                        value = amountText,
+                        onValueChange = { amountText = it },
+                        label = { Text("Amount ($selectedCurrency)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier
+                            .weight(1.3f)
+                            .testTag("expense_amount_input")
+                    )
+
+                    // Currency Code Picker Chip Row
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Currency", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            listOf(baseCurrency, "USD", "THB", "INR", "MYR", "EUR").distinct().forEach { code ->
+                                FilterChip(
+                                    selected = selectedCurrency == code,
+                                    onClick = {
+                                        selectedCurrency = code
+                                        val existingRate = exchangeRates.find { it.fromCurrency == code }?.rate
+                                            ?: CurrencyPresets.PRESETS.find { it.code == code }?.defaultRateToBdt ?: 1.0
+                                        customRateText = existingRate.toString()
+                                    },
+                                    label = { Text(code) }
+                                )
                             }
+                        }
+                    }
+                }
+
+                // If non-base currency, show exchange rate and preview
+                if (selectedCurrency != baseCurrency) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "1 $selectedCurrency = ",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                OutlinedTextField(
+                                    value = customRateText,
+                                    onValueChange = { customRateText = it },
+                                    singleLine = true,
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                    modifier = Modifier.width(90.dp)
+                                )
+                                Text(
+                                    text = " $baseCurrency",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                            Text(
+                                text = "≈ ${CurrencyFormatter.formatCurrency(convertedBaseAmount, currencySymbol)}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Categories Selector
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Category", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    TextButton(onClick = onOpenCreateCategory) {
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Custom Category", fontSize = 12.sp)
+                    }
+                }
+
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Standard categories
+                    ExpenseCategory.values().forEach { cat ->
+                        val isSelected = selectedStandardCategory == cat && selectedCustomCategory == null
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = {
+                                selectedStandardCategory = cat
+                                selectedCustomCategory = null
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = cat.getIcon(),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            },
+                            label = { Text(cat.displayName) }
+                        )
+                    }
+
+                    // Custom categories
+                    categories.filter { !it.isIncome }.forEach { customCat ->
+                        val isSelected = selectedCustomCategory?.id == customCat.id
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = {
+                                selectedCustomCategory = customCat
+                                selectedStandardCategory = null
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = CategoryIconHelper.getIconForName(customCat.iconName),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = Color(android.graphics.Color.parseColor(customCat.colorHex))
+                                )
+                            },
+                            label = { Text(customCat.name) }
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
-            Divider()
-            Spacer(modifier = Modifier.height(16.dp))
+            // Payer Source Selector
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Paid By", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = payerType == PayerType.COMMON_FUND,
+                        onClick = { payerType = PayerType.COMMON_FUND },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3)
+                    ) {
+                        Text("Common Fund", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    }
+                    SegmentedButton(
+                        selected = payerType == PayerType.MEMBER,
+                        onClick = { payerType = PayerType.MEMBER },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3)
+                    ) {
+                        Text("Single Member", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    }
+                    SegmentedButton(
+                        selected = payerType == PayerType.MULTI_PAYER,
+                        onClick = { payerType = PayerType.MULTI_PAYER },
+                        shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3)
+                    ) {
+                        Text("Joint / Split", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    }
+                }
+
+                when (payerType) {
+                    PayerType.COMMON_FUND -> {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Paid directly from the group Common Fund pool (\"চাঁদা\"). Deducts cash in hand.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.padding(12.dp)
+                            )
+                        }
+                    }
+                    PayerType.MEMBER -> {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            members.forEach { m ->
+                                val isSelected = selectedSinglePayerId == m.id
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { selectedSinglePayerId = m.id },
+                                    leadingIcon = { MemberAvatar(member = m, size = 20.dp) },
+                                    label = { Text(m.name) }
+                                )
+                            }
+                        }
+                    }
+                    PayerType.MULTI_PAYER -> {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Enter amount paid out-of-pocket by each member (Total must equal ${CurrencyFormatter.formatCurrency(convertedBaseAmount, currencySymbol)}):",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                members.forEach { m ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            MemberAvatar(member = m, size = 24.dp)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(m.name, style = MaterialTheme.typography.bodyMedium)
+                                        }
+                                        OutlinedTextField(
+                                            value = jointPayerAmounts[m.id] ?: "",
+                                            onValueChange = { jointPayerAmounts[m.id] = it },
+                                            placeholder = { Text("0") },
+                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                            singleLine = true,
+                                            modifier = Modifier.width(110.dp)
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = "Current Sum: ${CurrencyFormatter.formatCurrency(jointTotalPaid, currencySymbol)} / ${CurrencyFormatter.formatCurrency(convertedBaseAmount, currencySymbol)}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isJointValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             // Split Mode Selector
-            Text(
-                text = "Splitting Method",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Split Between", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                SplitMode.values().forEachIndexed { index, mode ->
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     SegmentedButton(
-                        selected = splitMode == mode,
-                        onClick = { splitMode = mode },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = SplitMode.values().size)
+                        selected = splitMode == SplitMode.EQUAL,
+                        onClick = { splitMode = SplitMode.EQUAL },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3)
                     ) {
+                        Text("Equal All", fontSize = 12.sp)
+                    }
+                    SegmentedButton(
+                        selected = splitMode == SplitMode.SELECTIVE,
+                        onClick = { splitMode = SplitMode.SELECTIVE },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3)
+                    ) {
+                        Text("Selective", fontSize = 12.sp)
+                    }
+                    SegmentedButton(
+                        selected = splitMode == SplitMode.CUSTOM,
+                        onClick = { splitMode = SplitMode.CUSTOM },
+                        shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3)
+                    ) {
+                        Text("Custom", fontSize = 12.sp)
+                    }
+                }
+
+                when (splitMode) {
+                    SplitMode.EQUAL -> {
+                        val share = if (members.isNotEmpty()) convertedBaseAmount / members.size else 0.0
                         Text(
-                            when (mode) {
-                                SplitMode.EQUAL -> "Equal"
-                                SplitMode.SELECTIVE -> "Selective"
-                                SplitMode.CUSTOM -> "Custom Exact"
-                            }
+                            text = "Split equally among all ${members.size} members (${CurrencyFormatter.formatCurrency(share, currencySymbol)} each).",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
                         )
+                    }
+                    SplitMode.SELECTIVE -> {
+                        val participating = members.filter { selectedMemberIds.contains(it.id) }
+                        val share = if (participating.isNotEmpty()) convertedBaseAmount / participating.size else 0.0
+                        Text(
+                            text = "Split equally among ${participating.size} selected members (${CurrencyFormatter.formatCurrency(share, currencySymbol)} each):",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            members.forEach { m ->
+                                val isChecked = selectedMemberIds.contains(m.id)
+                                FilterChip(
+                                    selected = isChecked,
+                                    onClick = {
+                                        if (isChecked) {
+                                            if (selectedMemberIds.size > 1) selectedMemberIds.remove(m.id)
+                                        } else {
+                                            selectedMemberIds.add(m.id)
+                                        }
+                                    },
+                                    leadingIcon = { MemberAvatar(member = m, size = 20.dp) },
+                                    label = { Text(m.name) }
+                                )
+                            }
+                        }
+                    }
+                    SplitMode.CUSTOM -> {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            members.forEach { m ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        MemberAvatar(member = m, size = 24.dp)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(m.name, style = MaterialTheme.typography.bodyMedium)
+                                    }
+                                    OutlinedTextField(
+                                        value = customShareTexts[m.id] ?: "",
+                                        onValueChange = { customShareTexts[m.id] = it },
+                                        placeholder = { Text("0") },
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                        singleLine = true,
+                                        modifier = Modifier.width(110.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            // Photo Attachments Section
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Receipt Photos & Memories", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    OutlinedButton(
+                        onClick = {
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                        modifier = Modifier.height(34.dp)
+                    ) {
+                        Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Add Photos", fontSize = 12.sp)
+                    }
+                }
 
-            // Splitting Details based on mode
-            when (splitMode) {
-                SplitMode.EQUAL -> {
-                    val share = if (members.isNotEmpty() && totalAmount > 0) totalAmount / members.size else 0.0
+                if (attachedUris.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        attachedUris.forEach { uri ->
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+                            ) {
+                                AsyncImage(
+                                    model = uri,
+                                    contentDescription = "Attached receipt",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                IconButton(
+                                    onClick = { attachedUris.remove(uri) },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .size(22.dp)
+                                        .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Remove", tint = Color.White, modifier = Modifier.size(14.dp))
+                                }
+                            }
+                        }
+                    }
+                } else {
                     Text(
-                        text = "Split equally among all ${members.size} members: ${CurrencyFormatter.formatTaka(share, currencySymbol)} each",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "Optional: Attach receipt bills, tickets, or tour photos saved locally offline.",
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outline
                     )
                 }
-
-                SplitMode.SELECTIVE -> {
-                    val selectedCount = selectedMembersForSplit.values.count { it }
-                    val share = if (selectedCount > 0 && totalAmount > 0) totalAmount / selectedCount else 0.0
-                    Text(
-                        text = "Select who participated ($selectedCount of ${members.size}): ${CurrencyFormatter.formatTaka(share, currencySymbol)} each",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    members.forEach { member ->
-                        val isChecked = selectedMembersForSplit[member.id] ?: true
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { selectedMembersForSplit[member.id] = !isChecked }
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = isChecked,
-                                onCheckedChange = { selectedMembersForSplit[member.id] = it }
-                            )
-                            MemberAvatar(member = member, size = 26.dp)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(member.name, style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
-                }
-
-                SplitMode.CUSTOM -> {
-                    val allocatedSum = customAmounts.values.mapNotNull { it.toDoubleOrNull() }.sum()
-                    val diff = totalAmount - allocatedSum
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Allocated: ${CurrencyFormatter.formatTaka(allocatedSum, currencySymbol)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = if (kotlin.math.abs(diff) < 0.1) "✓ Balanced" else "Remaining: ${CurrencyFormatter.formatTaka(diff, currencySymbol)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (kotlin.math.abs(diff) < 0.1) Color(0xFF1B6D24) else MaterialTheme.colorScheme.error,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    members.forEach { member ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            MemberAvatar(member = member, size = 26.dp)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(member.name, modifier = Modifier.weight(1f))
-                            OutlinedTextField(
-                                value = customAmounts[member.id] ?: "",
-                                onValueChange = { customAmounts[member.id] = it },
-                                placeholder = { Text("0") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier.width(110.dp),
-                                singleLine = true
-                            )
-                        }
-                    }
-                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Submit Button
-            val canSubmit = title.isNotBlank() && totalAmount > 0.0 && (
-                splitMode != SplitMode.SELECTIVE || selectedMembersForSplit.values.any { it }
+            // Notes field
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                label = { Text("Notes / Description (Optional)") },
+                placeholder = { Text("e.g. Paid cash to driver, slip #42") },
+                modifier = Modifier.fillMaxWidth()
             )
 
+            // Submit Button
             Button(
                 onClick = {
-                    val customMap = when (splitMode) {
-                        SplitMode.CUSTOM -> customAmounts.mapNotNull { (mId, text) ->
-                            val amt = text.toDoubleOrNull() ?: 0.0
-                            if (amt > 0) mId to amt else null
-                        }.toMap()
-                        else -> emptyMap()
-                    }
-                    val selectedSet = selectedMembersForSplit.filter { it.value }.keys
+                    if (canSubmit) {
+                        // Calculate splits
+                        val splitsToSave = when (splitMode) {
+                            SplitMode.EQUAL -> {
+                                val share = convertedBaseAmount / members.size
+                                members.map {
+                                    ExpenseSplitEntity(expenseId = 0, memberId = it.id, assignedAmount = share)
+                                }
+                            }
+                            SplitMode.SELECTIVE -> {
+                                val active = members.filter { selectedMemberIds.contains(it.id) }
+                                val share = if (active.isNotEmpty()) convertedBaseAmount / active.size else 0.0
+                                active.map {
+                                    ExpenseSplitEntity(expenseId = 0, memberId = it.id, assignedAmount = share)
+                                }
+                            }
+                            SplitMode.CUSTOM -> {
+                                members.mapNotNull { m ->
+                                    val amt = customShareTexts[m.id]?.toDoubleOrNull() ?: 0.0
+                                    if (amt > 0) ExpenseSplitEntity(expenseId = 0, memberId = m.id, assignedAmount = amt)
+                                    else null
+                                }
+                            }
+                        }
 
-                    onAddExpense(
-                        title.trim(),
-                        totalAmount,
-                        selectedCategory,
-                        System.currentTimeMillis(),
-                        payerType,
-                        if (payerType == PayerType.MEMBER) selectedPayerMemberId else null,
-                        splitMode,
-                        customMap,
-                        selectedSet,
-                        notes.trim()
-                    )
+                        // Calculate multi-payers
+                        val payersToSave = if (payerType == PayerType.MULTI_PAYER) {
+                            members.mapNotNull { m ->
+                                val amt = jointPayerAmounts[m.id]?.toDoubleOrNull() ?: 0.0
+                                if (amt > 0) ExpensePayerEntity(expenseId = 0, memberId = m.id, amountPaid = amt)
+                                else null
+                            }
+                        } else emptyList()
+
+                        val resolvedCategory = selectedStandardCategory ?: ExpenseCategory.FOOD
+                        val customCatName = selectedCustomCategory?.name
+                        val customCatIcon = selectedCustomCategory?.iconName
+                        val customCatColor = selectedCustomCategory?.colorHex
+
+                        onAddExpense(
+                            title.trim(),
+                            convertedBaseAmount,
+                            originalAmount,
+                            selectedCurrency,
+                            exchangeRate,
+                            resolvedCategory,
+                            customCatName,
+                            customCatIcon,
+                            customCatColor,
+                            payerType,
+                            selectedSinglePayerId,
+                            splitMode,
+                            splitsToSave,
+                            payersToSave,
+                            attachedUris.toList(),
+                            notes.trim()
+                        )
+                    }
                 },
+                enabled = canSubmit,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-                    .testTag("save_expense_button"),
-                enabled = canSubmit
+                    .height(48.dp)
+                    .testTag("save_expense_button")
             ) {
-                Icon(Icons.Default.Check, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Save Expense", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("Save Expense", fontWeight = FontWeight.Bold)
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

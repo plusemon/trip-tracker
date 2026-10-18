@@ -1,13 +1,20 @@
 package com.example.data.repository
 
 import com.example.data.db.AppDatabase
+import com.example.data.entity.CategoryEntity
 import com.example.data.entity.DepositEntity
+import com.example.data.entity.ExchangeRateEntity
+import com.example.data.entity.ExpenseCategory
 import com.example.data.entity.ExpenseEntity
+import com.example.data.entity.ExpensePayerEntity
 import com.example.data.entity.ExpenseSplitEntity
 import com.example.data.entity.MemberEntity
+import com.example.data.entity.ReceiptAttachmentEntity
 import com.example.data.entity.SettlementRecordEntity
 import com.example.data.entity.TripEntity
-import com.example.domain.engine.SampleDataProvider
+import com.example.domain.model.CurrencyPresets
+import com.example.domain.model.NewMemberInfo
+import com.example.export.TripBackupBundle
 import kotlinx.coroutines.flow.Flow
 
 class TripSplitRepository(private val db: AppDatabase) {
@@ -18,8 +25,45 @@ class TripSplitRepository(private val db: AppDatabase) {
 
     suspend fun getTripOnce(tripId: Long): TripEntity? = db.tripDao().getTripByIdOnce(tripId)
 
-    suspend fun createTripWithDetailedMembers(trip: TripEntity, membersList: List<com.example.domain.model.NewMemberInfo>): Long {
+    suspend fun updateTrip(trip: TripEntity) = db.tripDao().updateTrip(trip)
+
+    suspend fun deleteTrip(trip: TripEntity) = db.tripDao().deleteTrip(trip)
+
+    suspend fun createTripWithDetailedMembers(
+        trip: TripEntity,
+        membersList: List<NewMemberInfo>
+    ): Long {
         val tripId = db.tripDao().insertTrip(trip)
+
+        // Seed default categories for this trip
+        val defaultCategories = listOf(
+            CategoryEntity(tripId = tripId, name = "Transportation", iconName = "bus", colorHex = "#00658E", isIncome = false),
+            CategoryEntity(tripId = tripId, name = "Lodging & Resort", iconName = "hotel", colorHex = "#7B1FA2", isIncome = false),
+            CategoryEntity(tripId = tripId, name = "Food & Dining", iconName = "food", colorHex = "#E65100", isIncome = false),
+            CategoryEntity(tripId = tripId, name = "Guide & Permissions", iconName = "policy", colorHex = "#00796B", isIncome = false),
+            CategoryEntity(tripId = tripId, name = "Sightseeing & Tickets", iconName = "ticket", colorHex = "#006C4C", isIncome = false),
+            CategoryEntity(tripId = tripId, name = "Snacks & Refreshment", iconName = "snack", colorHex = "#835400", isIncome = false),
+            // Default income categories
+            CategoryEntity(tripId = tripId, name = "Common Fund Deposit", iconName = "money", colorHex = "#FFBA35", isIncome = true),
+            CategoryEntity(tripId = tripId, name = "Sponsorship / Gift", iconName = "gift", colorHex = "#2E7D32", isIncome = true),
+            CategoryEntity(tripId = tripId, name = "Refund / Cashback", iconName = "ticket", colorHex = "#0288D1", isIncome = true)
+        )
+        db.categoryDao().insertCategories(defaultCategories)
+
+        // Seed default exchange rates
+        val defaultRates = CurrencyPresets.PRESETS.filter { it.code != trip.baseCurrency }.map { preset ->
+            ExchangeRateEntity(
+                tripId = tripId,
+                fromCurrency = preset.code,
+                toCurrency = trip.baseCurrency,
+                rate = preset.defaultRateToBdt
+            )
+        }
+        if (defaultRates.isNotEmpty()) {
+            db.exchangeRateDao().insertRates(defaultRates)
+        }
+
+        // Members insertion
         val defaultColors = listOf(
             "#006C4C", "#00658E", "#835400", "#7B1FA2",
             "#C2185B", "#00796B", "#E65100", "#303F9F",
@@ -54,7 +98,12 @@ class TripSplitRepository(private val db: AppDatabase) {
                     DepositEntity(
                         tripId = tripId,
                         memberId = memberId,
+                        contributorName = info.name,
                         amount = info.initialDeposit,
+                        originalAmount = info.initialDeposit,
+                        currencyCode = trip.baseCurrency,
+                        exchangeRate = 1.0,
+                        categoryName = "Common Fund Deposit",
                         notes = "Initial Advance চাঁদা"
                     )
                 )
@@ -67,7 +116,7 @@ class TripSplitRepository(private val db: AppDatabase) {
         return createTripWithDetailedMembers(
             trip = trip,
             membersList = memberNames.mapIndexed { idx, name ->
-                com.example.domain.model.NewMemberInfo(
+                NewMemberInfo(
                     name = name,
                     isManager = (idx == 0)
                 )
@@ -75,57 +124,140 @@ class TripSplitRepository(private val db: AppDatabase) {
         )
     }
 
-    suspend fun deleteTrip(trip: TripEntity) = db.tripDao().deleteTrip(trip)
-
     // Members
     fun getMembers(tripId: Long): Flow<List<MemberEntity>> = db.memberDao().getMembersForTrip(tripId)
-
     suspend fun getMembersOnce(tripId: Long): List<MemberEntity> = db.memberDao().getMembersForTripOnce(tripId)
-
     suspend fun addMember(member: MemberEntity): Long = db.memberDao().insertMember(member)
-
     suspend fun deleteMember(member: MemberEntity) = db.memberDao().deleteMember(member)
 
-    // Deposits
+    // Deposits / Inflow
     fun getDeposits(tripId: Long): Flow<List<DepositEntity>> = db.depositDao().getDepositsForTrip(tripId)
-
     suspend fun getDepositsOnce(tripId: Long): List<DepositEntity> = db.depositDao().getDepositsForTripOnce(tripId)
-
     suspend fun addDeposit(deposit: DepositEntity): Long = db.depositDao().insertDeposit(deposit)
-
     suspend fun deleteDeposit(deposit: DepositEntity) = db.depositDao().deleteDeposit(deposit)
 
     // Expenses & Splits
     fun getExpenses(tripId: Long): Flow<List<ExpenseEntity>> = db.expenseDao().getExpensesForTrip(tripId)
-
     suspend fun getExpensesOnce(tripId: Long): List<ExpenseEntity> = db.expenseDao().getExpensesForTripOnce(tripId)
+    suspend fun getExpenseById(expenseId: Long): ExpenseEntity? = db.expenseDao().getExpenseById(expenseId)
+
+    suspend fun addExpenseWithDetails(
+        expense: ExpenseEntity,
+        splits: List<ExpenseSplitEntity>,
+        payers: List<ExpensePayerEntity> = emptyList(),
+        attachments: List<ReceiptAttachmentEntity> = emptyList()
+    ): Long {
+        val expenseId = db.expenseDao().insertExpenseWithSplitsAndPayers(expense, splits, payers)
+        if (attachments.isNotEmpty()) {
+            val attachmentsWithId = attachments.map { it.copy(expenseId = expenseId) }
+            db.attachmentDao().insertAttachments(attachmentsWithId)
+        }
+        return expenseId
+    }
+
+    suspend fun deleteExpense(expense: ExpenseEntity) {
+        db.expenseDao().deleteExpenseAndAllRelations(expense)
+        db.attachmentDao().deleteAttachmentsForExpense(expense.id)
+    }
 
     fun getAllSplits(tripId: Long): Flow<List<ExpenseSplitEntity>> = db.expenseDao().getAllSplitsForTrip(tripId)
-
     suspend fun getAllSplitsOnce(tripId: Long): List<ExpenseSplitEntity> = db.expenseDao().getAllSplitsForTripOnce(tripId)
 
-    suspend fun addExpenseWithSplits(expense: ExpenseEntity, splits: List<ExpenseSplitEntity>): Long =
-        db.expenseDao().insertExpenseWithSplits(expense, splits)
+    fun getAllPayers(tripId: Long): Flow<List<ExpensePayerEntity>> = db.expenseDao().getAllPayersForTrip(tripId)
+    suspend fun getAllPayersOnce(tripId: Long): List<ExpensePayerEntity> = db.expenseDao().getAllPayersForTripOnce(tripId)
 
-    suspend fun deleteExpense(expense: ExpenseEntity) = db.expenseDao().deleteExpenseAndSplits(expense)
+    // Attachments
+    fun getAllAttachments(tripId: Long): Flow<List<ReceiptAttachmentEntity>> = db.attachmentDao().getAllAttachmentsForTrip(tripId)
+    suspend fun addAttachment(attachment: ReceiptAttachmentEntity): Long = db.attachmentDao().insertAttachment(attachment)
+    suspend fun deleteAttachment(attachment: ReceiptAttachmentEntity) = db.attachmentDao().deleteAttachment(attachment)
+
+    // Categories
+    fun getCategories(tripId: Long): Flow<List<CategoryEntity>> = db.categoryDao().getCategoriesForTrip(tripId)
+    suspend fun getCategoriesOnce(tripId: Long): List<CategoryEntity> = db.categoryDao().getCategoriesForTripOnce(tripId)
+    suspend fun addCategory(category: CategoryEntity): Long = db.categoryDao().insertCategory(category)
+    suspend fun deleteCategory(category: CategoryEntity) = db.categoryDao().deleteCategory(category)
+
+    // Exchange Rates
+    fun getExchangeRates(tripId: Long): Flow<List<ExchangeRateEntity>> = db.exchangeRateDao().getRatesForTrip(tripId)
+    suspend fun getExchangeRatesOnce(tripId: Long): List<ExchangeRateEntity> = db.exchangeRateDao().getRatesForTripOnce(tripId)
+    suspend fun saveExchangeRate(rate: ExchangeRateEntity): Long = db.exchangeRateDao().insertRate(rate)
 
     // Settlements
-    fun getSettlements(tripId: Long): Flow<List<SettlementRecordEntity>> =
-        db.settlementDao().getSettlementRecordsForTrip(tripId)
+    fun getSettlements(tripId: Long): Flow<List<SettlementRecordEntity>> = db.settlementDao().getSettlementRecordsForTrip(tripId)
+    suspend fun getSettlementsOnce(tripId: Long): List<SettlementRecordEntity> = db.settlementDao().getSettlementRecordsForTripOnce(tripId)
+    suspend fun addSettlement(record: SettlementRecordEntity): Long = db.settlementDao().insertSettlementRecord(record)
+    suspend fun deleteSettlement(record: SettlementRecordEntity) = db.settlementDao().deleteSettlementRecord(record)
 
-    suspend fun recordSettlement(record: SettlementRecordEntity): Long =
-        db.settlementDao().insertSettlementRecord(record)
+    // Import Backup Bundle
+    suspend fun importTripBundle(bundle: TripBackupBundle): Long {
+        val newTripId = db.tripDao().insertTrip(bundle.trip.copy(id = 0))
 
-    suspend fun deleteSettlement(record: SettlementRecordEntity) =
-        db.settlementDao().deleteSettlementRecord(record)
+        // Insert categories
+        val categories = bundle.categories.map { it.copy(id = 0, tripId = newTripId) }
+        if (categories.isNotEmpty()) {
+            db.categoryDao().insertCategories(categories)
+        }
 
-    // Sample data loader
-    suspend fun loadBandarbanSample(): Long {
-        return SampleDataProvider.populateBandarbanTour(
-            tripDao = db.tripDao(),
-            memberDao = db.memberDao(),
-            depositDao = db.depositDao(),
-            expenseDao = db.expenseDao()
-        )
+        // Insert exchange rates
+        val rates = bundle.exchangeRates.map { it.copy(id = 0, tripId = newTripId) }
+        if (rates.isNotEmpty()) {
+            db.exchangeRateDao().insertRates(rates)
+        }
+
+        // Insert members and map old originalId -> new insertedId
+        val memberMap = mutableMapOf<Long, Long>()
+        bundle.members.forEach { m ->
+            val oldId = m.id
+            val newId = db.memberDao().insertMember(m.copy(id = 0, tripId = newTripId))
+            memberMap[oldId] = newId
+        }
+
+        // Insert deposits
+        bundle.deposits.forEach { d ->
+            val mappedMemberId = d.memberId?.let { memberMap[it] }
+            db.depositDao().insertDeposit(
+                d.copy(id = 0, tripId = newTripId, memberId = mappedMemberId)
+            )
+        }
+
+        // Insert expenses, splits, payers
+        bundle.expenses.forEach { exp ->
+            val mappedPayerId = exp.payerMemberId?.let { memberMap[it] }
+            val newExpId = db.expenseDao().insertExpense(
+                exp.copy(id = 0, tripId = newTripId, payerMemberId = mappedPayerId)
+            )
+
+            // Splits for this expense
+            val splitsForExp = bundle.splits.filter { it.expenseId == exp.id }
+            val mappedSplits = splitsForExp.mapNotNull { s ->
+                val newMemberId = memberMap[s.memberId] ?: return@mapNotNull null
+                ExpenseSplitEntity(
+                    id = 0,
+                    expenseId = newExpId,
+                    memberId = newMemberId,
+                    assignedAmount = s.assignedAmount
+                )
+            }
+            if (mappedSplits.isNotEmpty()) {
+                db.expenseDao().insertSplits(mappedSplits)
+            }
+
+            // Payers for this expense
+            val payersForExp = bundle.payers.filter { it.expenseId == exp.id }
+            val mappedPayers = payersForExp.mapNotNull { p ->
+                val newMemberId = memberMap[p.memberId] ?: return@mapNotNull null
+                ExpensePayerEntity(
+                    id = 0,
+                    expenseId = newExpId,
+                    memberId = newMemberId,
+                    amountPaid = p.amountPaid
+                )
+            }
+            if (mappedPayers.isNotEmpty()) {
+                db.expenseDao().insertPayers(mappedPayers)
+            }
+        }
+
+        return newTripId
     }
 }

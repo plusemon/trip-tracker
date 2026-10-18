@@ -5,15 +5,22 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.data.dao.AttachmentDao
+import com.example.data.dao.CategoryDao
 import com.example.data.dao.DepositDao
+import com.example.data.dao.ExchangeRateDao
 import com.example.data.dao.ExpenseDao
 import com.example.data.dao.MemberDao
 import com.example.data.dao.SettlementDao
 import com.example.data.dao.TripDao
+import com.example.data.entity.CategoryEntity
 import com.example.data.entity.DepositEntity
+import com.example.data.entity.ExchangeRateEntity
 import com.example.data.entity.ExpenseEntity
+import com.example.data.entity.ExpensePayerEntity
 import com.example.data.entity.ExpenseSplitEntity
 import com.example.data.entity.MemberEntity
+import com.example.data.entity.ReceiptAttachmentEntity
 import com.example.data.entity.SettlementRecordEntity
 import com.example.data.entity.TripEntity
 
@@ -24,9 +31,13 @@ import com.example.data.entity.TripEntity
         DepositEntity::class,
         ExpenseEntity::class,
         ExpenseSplitEntity::class,
-        SettlementRecordEntity::class
+        SettlementRecordEntity::class,
+        CategoryEntity::class,
+        ExchangeRateEntity::class,
+        ReceiptAttachmentEntity::class,
+        ExpensePayerEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -36,6 +47,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun depositDao(): DepositDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun settlementDao(): SettlementDao
+    abstract fun categoryDao(): CategoryDao
+    abstract fun exchangeRateDao(): ExchangeRateDao
+    abstract fun attachmentDao(): AttachmentDao
 
     companion object {
         @Volatile

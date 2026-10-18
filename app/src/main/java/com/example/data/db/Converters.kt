@@ -4,8 +4,16 @@ import androidx.room.TypeConverter
 import com.example.data.entity.ExpenseCategory
 import com.example.data.entity.PayerType
 import com.example.data.entity.SplitMode
+import com.example.data.entity.TripStatus
 
 class Converters {
+    @TypeConverter
+    fun fromTripStatus(value: TripStatus?): String? = value?.name
+
+    @TypeConverter
+    fun toTripStatus(value: String?): TripStatus? =
+        value?.let { runCatching { TripStatus.valueOf(it) }.getOrDefault(TripStatus.ACTIVE) }
+
     @TypeConverter
     fun fromExpenseCategory(value: ExpenseCategory?): String? = value?.name
 
