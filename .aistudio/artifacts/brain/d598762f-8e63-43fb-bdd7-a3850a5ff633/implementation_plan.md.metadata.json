@@ -1,0 +1,6 @@
+{
+  "summary": "Architectural blueprint and implementation plan for TripSplit BD, a dedicated offline-first group travel expense and shared wallet manager with Room persistence, Minimum Cash Flow settlement engine, Common Fund tracking, and PDF/WhatsApp export.",
+  "updatedAt": "2026-10-18T11:51:20.261459256Z",
+  "requestFeedback": true,
+  "userFacing": true
+}
