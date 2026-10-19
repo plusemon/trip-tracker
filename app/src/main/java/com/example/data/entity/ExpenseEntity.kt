@@ -31,10 +31,7 @@ data class ExpenseEntity(
     val id: Long = 0,
     val tripId: Long,
     val title: String,
-    val amount: Double, // in base currency
-    val originalAmount: Double = amount,
-    val currencyCode: String = "BDT",
-    val exchangeRate: Double = 1.0,
+    val amount: Double,
     val category: ExpenseCategory = ExpenseCategory.FOOD,
     val customCategoryName: String? = null,
     val customCategoryIcon: String? = null,

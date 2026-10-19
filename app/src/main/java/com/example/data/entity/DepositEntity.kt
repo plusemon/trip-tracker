@@ -33,9 +33,6 @@ data class DepositEntity(
     val memberId: Long? = null,
     val contributorName: String = "",
     val amount: Double,
-    val originalAmount: Double = amount,
-    val currencyCode: String = "BDT",
-    val exchangeRate: Double = 1.0,
     val categoryName: String = "Common Fund Deposit",
     val date: Long = System.currentTimeMillis(),
     val notes: String = ""

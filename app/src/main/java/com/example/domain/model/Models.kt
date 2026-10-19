@@ -68,32 +68,22 @@ data class TripSummary(
     val expenseCount: Int
 )
 
+fun formatBDT(amount: Double): String {
+    val formatter = java.text.NumberFormat.getNumberInstance(java.util.Locale("bn", "BD"))
+    return "৳${formatter.format(amount)}"
+}
+
 object CurrencyFormatter {
-    fun formatTaka(amount: Double, symbol: String = "৳"): String = formatCurrency(amount, symbol)
+    fun formatTaka(amount: Double, symbol: String = "৳"): String = formatBDT(amount)
     fun formatSignedTaka(amount: Double, symbol: String = "৳"): String = formatSignedCurrency(amount, symbol)
 
-    fun formatCurrency(amount: Double, symbol: String = "৳"): String {
-        val formatter = NumberFormat.getNumberInstance(Locale.US).apply {
-            maximumFractionDigits = 0
-            minimumFractionDigits = 0
-        }
-        val formattedNumber = formatter.format(amount)
-        return "$symbol$formattedNumber"
-    }
-
-    fun formatCurrencyDecimal(amount: Double, symbol: String = "৳"): String {
-        val formatter = NumberFormat.getNumberInstance(Locale.US).apply {
-            maximumFractionDigits = 2
-            minimumFractionDigits = 0
-        }
-        val formattedNumber = formatter.format(amount)
-        return "$symbol$formattedNumber"
-    }
+    fun formatCurrency(amount: Double, symbol: String = "৳"): String = formatBDT(amount)
+    fun formatCurrencyDecimal(amount: Double, symbol: String = "৳"): String = formatBDT(amount)
 
     fun formatSignedCurrency(amount: Double, symbol: String = "৳"): String {
         val sign = if (amount > 0.01) "+" else if (amount < -0.01) "-" else ""
         val absAmount = kotlin.math.abs(amount)
-        return "$sign${formatCurrency(absAmount, symbol)}"
+        return "$sign${formatBDT(absAmount)}"
     }
 }
 
@@ -104,24 +94,3 @@ data class NewMemberInfo(
     val isManager: Boolean = false,
     val initialDeposit: Double = 0.0
 )
-
-data class CurrencyPreset(
-    val code: String,
-    val name: String,
-    val symbol: String,
-    val defaultRateToBdt: Double
-)
-
-object CurrencyPresets {
-    val PRESETS = listOf(
-        CurrencyPreset("BDT", "Bangladeshi Taka", "৳", 1.0),
-        CurrencyPreset("USD", "US Dollar", "$", 122.0),
-        CurrencyPreset("THB", "Thai Baht", "฿", 3.6),
-        CurrencyPreset("INR", "Indian Rupee", "₹", 1.45),
-        CurrencyPreset("MYR", "Malaysian Ringgit", "RM", 28.0),
-        CurrencyPreset("EUR", "Euro", "€", 132.0),
-        CurrencyPreset("SGD", "Singapore Dollar", "S$", 92.0),
-        CurrencyPreset("AED", "UAE Dirham", "AED", 33.2),
-        CurrencyPreset("SAR", "Saudi Riyal", "SAR", 32.5)
-    )
-}

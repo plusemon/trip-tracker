@@ -653,7 +653,7 @@ private fun TripDetailsStep(
                 OutlinedTextField(
                     value = budgetText,
                     onValueChange = onBudgetTextChange,
-                    label = { Text("Target Tour Budget ($currencySymbol)") },
+                    label = { Text("Target Tour Budget (৳)") },
                     leadingIcon = { Icon(Icons.Default.AccountBalanceWallet, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
@@ -675,22 +675,6 @@ private fun TripDetailsStep(
                         ) {
                             Text("৳${amount.toInt() / 1000}k", fontSize = 11.sp)
                         }
-                    }
-                }
-
-                // Currency selector
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Currency:", style = MaterialTheme.typography.labelMedium)
-                    listOf("৳" to "BDT (৳)", "$" to "USD ($)", "€" to "EUR (€)").forEach { (sym, lbl) ->
-                        FilterChip(
-                            selected = currencySymbol == sym,
-                            onClick = { onCurrencyChange(sym) },
-                            label = { Text(lbl, fontSize = 11.sp) }
-                        )
                     }
                 }
             }

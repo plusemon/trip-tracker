@@ -2,7 +2,6 @@ package com.example.export
 
 import com.example.data.entity.CategoryEntity
 import com.example.data.entity.DepositEntity
-import com.example.data.entity.ExchangeRateEntity
 import com.example.data.entity.ExpenseCategory
 import com.example.data.entity.ExpenseEntity
 import com.example.data.entity.ExpensePayerEntity
@@ -24,7 +23,6 @@ data class TripBackupBundle(
     val splits: List<ExpenseSplitEntity>,
     val payers: List<ExpensePayerEntity> = emptyList(),
     val categories: List<CategoryEntity> = emptyList(),
-    val exchangeRates: List<ExchangeRateEntity> = emptyList(),
     val settlements: List<SettlementRecordEntity> = emptyList()
 )
 
@@ -72,9 +70,6 @@ object JsonBackupManager {
                 put("memberOriginalId", d.memberId ?: -1L)
                 put("contributorName", d.contributorName)
                 put("amount", d.amount)
-                put("originalAmount", d.originalAmount)
-                put("currencyCode", d.currencyCode)
-                put("exchangeRate", d.exchangeRate)
                 put("categoryName", d.categoryName)
                 put("date", d.date)
                 put("notes", d.notes)
@@ -90,9 +85,6 @@ object JsonBackupManager {
                 put("originalId", exp.id)
                 put("title", exp.title)
                 put("amount", exp.amount)
-                put("originalAmount", exp.originalAmount)
-                put("currencyCode", exp.currencyCode)
-                put("exchangeRate", exp.exchangeRate)
                 put("category", exp.category.name)
                 put("customCategoryName", exp.customCategoryName ?: "")
                 put("customCategoryIcon", exp.customCategoryIcon ?: "")
@@ -143,17 +135,6 @@ object JsonBackupManager {
         }
         root.put("categories", cArray)
 
-        // Exchange Rates
-        val rArray = JSONArray()
-        bundle.exchangeRates.forEach { r ->
-            rArray.put(JSONObject().apply {
-                put("fromCurrency", r.fromCurrency)
-                put("toCurrency", r.toCurrency)
-                put("rate", r.rate)
-            })
-        }
-        root.put("exchangeRates", rArray)
-
         return root.toString(2)
     }
 
@@ -167,8 +148,8 @@ object JsonBackupManager {
                 startDate = tObj.optLong("startDate", System.currentTimeMillis()),
                 endDate = tObj.optLong("endDate", System.currentTimeMillis() + 86400000L),
                 budget = tObj.optDouble("budget", 50000.0),
-                currencySymbol = tObj.optString("currencySymbol", "৳"),
-                baseCurrency = tObj.optString("baseCurrency", "BDT"),
+                currencySymbol = "৳",
+                baseCurrency = "BDT",
                 status = runCatching { TripStatus.valueOf(tObj.optString("status", "ACTIVE")) }.getOrDefault(TripStatus.ACTIVE),
                 managerName = tObj.optString("managerName", "Tour Manager")
             )
@@ -176,13 +157,12 @@ object JsonBackupManager {
             // Members
             val mArray = root.optJSONArray("members") ?: JSONArray()
             val members = mutableListOf<MemberEntity>()
-            val idMapping = mutableMapOf<Long, Long>() // old originalId -> dummy negative temp id or index
 
             for (i in 0 until mArray.length()) {
                 val mObj = mArray.getJSONObject(i)
                 val oldId = mObj.optLong("originalId", (i + 1).toLong())
                 val member = MemberEntity(
-                    id = oldId, // temporary placeholder for re-mapping
+                    id = oldId,
                     tripId = 0,
                     name = mObj.optString("name", "Member ${i + 1}"),
                     phoneNumber = mObj.optString("phoneNumber", ""),
@@ -205,9 +185,6 @@ object JsonBackupManager {
                         memberId = memberId,
                         contributorName = dObj.optString("contributorName", ""),
                         amount = dObj.optDouble("amount", 0.0),
-                        originalAmount = dObj.optDouble("originalAmount", dObj.optDouble("amount", 0.0)),
-                        currencyCode = dObj.optString("currencyCode", "BDT"),
-                        exchangeRate = dObj.optDouble("exchangeRate", 1.0),
                         categoryName = dObj.optString("categoryName", "Common Fund Deposit"),
                         date = dObj.optLong("date", System.currentTimeMillis()),
                         notes = dObj.optString("notes", "")
@@ -231,9 +208,6 @@ object JsonBackupManager {
                     tripId = 0,
                     title = eObj.optString("title", "Expense"),
                     amount = eObj.optDouble("amount", 0.0),
-                    originalAmount = eObj.optDouble("originalAmount", eObj.optDouble("amount", 0.0)),
-                    currencyCode = eObj.optString("currencyCode", "BDT"),
-                    exchangeRate = eObj.optDouble("exchangeRate", 1.0),
                     category = runCatching { ExpenseCategory.valueOf(eObj.optString("category", "FOOD")) }.getOrDefault(ExpenseCategory.FOOD),
                     customCategoryName = eObj.optString("customCategoryName").ifBlank { null },
                     customCategoryIcon = eObj.optString("customCategoryIcon").ifBlank { null },
@@ -290,21 +264,6 @@ object JsonBackupManager {
                 )
             }
 
-            // Exchange rates
-            val rArray = root.optJSONArray("exchangeRates") ?: JSONArray()
-            val exchangeRates = mutableListOf<ExchangeRateEntity>()
-            for (i in 0 until rArray.length()) {
-                val rObj = rArray.getJSONObject(i)
-                exchangeRates.add(
-                    ExchangeRateEntity(
-                        tripId = 0,
-                        fromCurrency = rObj.optString("fromCurrency", "USD"),
-                        toCurrency = rObj.optString("toCurrency", "BDT"),
-                        rate = rObj.optDouble("rate", 120.0)
-                    )
-                )
-            }
-
             TripBackupBundle(
                 trip = trip,
                 members = members,
@@ -312,8 +271,7 @@ object JsonBackupManager {
                 expenses = expenses,
                 splits = splits,
                 payers = payers,
-                categories = categories,
-                exchangeRates = exchangeRates
+                categories = categories
             )
         }.getOrNull()
     }

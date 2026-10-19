@@ -6,7 +6,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,15 +29,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddPhotoAlternate
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -55,7 +50,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -75,7 +69,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.data.entity.CategoryEntity
 import com.example.data.entity.CategoryIconHelper
-import com.example.data.entity.ExchangeRateEntity
 import com.example.data.entity.ExpenseCategory
 import com.example.data.entity.ExpensePayerEntity
 import com.example.data.entity.ExpenseSplitEntity
@@ -83,26 +76,18 @@ import com.example.data.entity.MemberEntity
 import com.example.data.entity.PayerType
 import com.example.data.entity.SplitMode
 import com.example.domain.model.CurrencyFormatter
-import com.example.domain.model.CurrencyPresets
 import com.example.ui.components.MemberAvatar
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddExpenseDialog(
     members: List<MemberEntity>,
     categories: List<CategoryEntity>,
-    exchangeRates: List<ExchangeRateEntity>,
-    baseCurrency: String,
-    currencySymbol: String,
     onDismiss: () -> Unit,
     onOpenCreateCategory: () -> Unit,
     onAddExpense: (
         title: String,
         amount: Double,
-        originalAmount: Double,
-        currencyCode: String,
-        exchangeRate: Double,
         category: ExpenseCategory,
         customCatName: String?,
         customCatIcon: String?,
@@ -120,13 +105,6 @@ fun AddExpenseDialog(
 
     var title by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
-
-    // Multi-Currency & Rate
-    var selectedCurrency by remember { mutableStateOf(baseCurrency) }
-    var customRateText by remember {
-        val initialRate = exchangeRates.find { it.fromCurrency == baseCurrency }?.rate ?: 1.0
-        mutableStateOf(initialRate.toString())
-    }
 
     // Category
     var selectedStandardCategory by remember { mutableStateOf<ExpenseCategory?>(ExpenseCategory.FOOD) }
@@ -156,20 +134,17 @@ fun AddExpenseDialog(
 
     var notes by remember { mutableStateOf("") }
 
-    // Currency conversion calculation
-    val originalAmount = amountText.toDoubleOrNull() ?: 0.0
-    val exchangeRate = if (selectedCurrency == baseCurrency) 1.0 else (customRateText.toDoubleOrNull() ?: 1.0)
-    val convertedBaseAmount = originalAmount * exchangeRate
+    val amount = amountText.toDoubleOrNull() ?: 0.0
 
     // Joint payer total check
-    val jointTotalPaid = remember(jointPayerAmounts.toMap(), convertedBaseAmount) {
+    val jointTotalPaid = remember(jointPayerAmounts.toMap(), amount) {
         jointPayerAmounts.values.sumOf { it.toDoubleOrNull() ?: 0.0 }
     }
 
     // Validation
-    val isAmountValid = originalAmount > 0.0
+    val isAmountValid = amount > 0.0
     val isTitleValid = title.isNotBlank()
-    val isJointValid = payerType != PayerType.MULTI_PAYER || kotlin.math.abs(jointTotalPaid - convertedBaseAmount) < 0.5
+    val isJointValid = payerType != PayerType.MULTI_PAYER || kotlin.math.abs(jointTotalPaid - amount) < 0.5
     val canSubmit = isAmountValid && isTitleValid && isJointValid
 
     ModalBottomSheet(
@@ -216,92 +191,25 @@ fun AddExpenseDialog(
                     .testTag("expense_title_input")
             )
 
-            // Currency & Amount Row
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    OutlinedTextField(
-                        value = amountText,
-                        onValueChange = { amountText = it },
-                        label = { Text("Amount ($selectedCurrency)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine = true,
-                        modifier = Modifier
-                            .weight(1.3f)
-                            .testTag("expense_amount_input")
+            // Amount Input with Permanent ৳ Prefix
+            OutlinedTextField(
+                value = amountText,
+                onValueChange = { amountText = it },
+                label = { Text("Amount (৳)") },
+                leadingIcon = {
+                    Text(
+                        text = "৳",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 12.dp, end = 4.dp)
                     )
-
-                    // Currency Code Picker Chip Row
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Currency", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            listOf(baseCurrency, "USD", "THB", "INR", "MYR", "EUR").distinct().forEach { code ->
-                                FilterChip(
-                                    selected = selectedCurrency == code,
-                                    onClick = {
-                                        selectedCurrency = code
-                                        val existingRate = exchangeRates.find { it.fromCurrency == code }?.rate
-                                            ?: CurrencyPresets.PRESETS.find { it.code == code }?.defaultRateToBdt ?: 1.0
-                                        customRateText = existingRate.toString()
-                                    },
-                                    label = { Text(code) }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // If non-base currency, show exchange rate and preview
-                if (selectedCurrency != baseCurrency) {
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "1 $selectedCurrency = ",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                OutlinedTextField(
-                                    value = customRateText,
-                                    onValueChange = { customRateText = it },
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                                    modifier = Modifier.width(90.dp)
-                                )
-                                Text(
-                                    text = " $baseCurrency",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                            Text(
-                                text = "≈ ${CurrencyFormatter.formatCurrency(convertedBaseAmount, currencySymbol)}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                }
-            }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("expense_amount_input")
+            )
 
             // Categories Selector
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -437,7 +345,7 @@ fun AddExpenseDialog(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
-                                    text = "Enter amount paid out-of-pocket by each member (Total must equal ${CurrencyFormatter.formatCurrency(convertedBaseAmount, currencySymbol)}):",
+                                    text = "Enter amount paid out-of-pocket by each member (Total must equal ${CurrencyFormatter.formatCurrency(amount)}):",
                                     style = MaterialTheme.typography.bodySmall
                                 )
                                 members.forEach { m ->
@@ -455,14 +363,14 @@ fun AddExpenseDialog(
                                             value = jointPayerAmounts[m.id] ?: "",
                                             onValueChange = { jointPayerAmounts[m.id] = it },
                                             placeholder = { Text("0") },
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                             singleLine = true,
                                             modifier = Modifier.width(110.dp)
                                         )
                                     }
                                 }
                                 Text(
-                                    text = "Current Sum: ${CurrencyFormatter.formatCurrency(jointTotalPaid, currencySymbol)} / ${CurrencyFormatter.formatCurrency(convertedBaseAmount, currencySymbol)}",
+                                    text = "Current Sum: ${CurrencyFormatter.formatCurrency(jointTotalPaid)} / ${CurrencyFormatter.formatCurrency(amount)}",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = if (isJointValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
@@ -503,18 +411,18 @@ fun AddExpenseDialog(
 
                 when (splitMode) {
                     SplitMode.EQUAL -> {
-                        val share = if (members.isNotEmpty()) convertedBaseAmount / members.size else 0.0
+                        val share = if (members.isNotEmpty()) amount / members.size else 0.0
                         Text(
-                            text = "Split equally among all ${members.size} members (${CurrencyFormatter.formatCurrency(share, currencySymbol)} each).",
+                            text = "Split equally among all ${members.size} members (${CurrencyFormatter.formatCurrency(share)} each).",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.outline
                         )
                     }
                     SplitMode.SELECTIVE -> {
                         val participating = members.filter { selectedMemberIds.contains(it.id) }
-                        val share = if (participating.isNotEmpty()) convertedBaseAmount / participating.size else 0.0
+                        val share = if (participating.isNotEmpty()) amount / participating.size else 0.0
                         Text(
-                            text = "Split equally among ${participating.size} selected members (${CurrencyFormatter.formatCurrency(share, currencySymbol)} each):",
+                            text = "Split equally among ${participating.size} selected members (${CurrencyFormatter.formatCurrency(share)} each):",
                             style = MaterialTheme.typography.bodySmall
                         )
                         FlowRow(
@@ -555,7 +463,7 @@ fun AddExpenseDialog(
                                         value = customShareTexts[m.id] ?: "",
                                         onValueChange = { customShareTexts[m.id] = it },
                                         placeholder = { Text("0") },
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                         singleLine = true,
                                         modifier = Modifier.width(110.dp)
                                     )
@@ -647,14 +555,14 @@ fun AddExpenseDialog(
                         // Calculate splits
                         val splitsToSave = when (splitMode) {
                             SplitMode.EQUAL -> {
-                                val share = convertedBaseAmount / members.size
+                                val share = amount / members.size
                                 members.map {
                                     ExpenseSplitEntity(expenseId = 0, memberId = it.id, assignedAmount = share)
                                 }
                             }
                             SplitMode.SELECTIVE -> {
                                 val active = members.filter { selectedMemberIds.contains(it.id) }
-                                val share = if (active.isNotEmpty()) convertedBaseAmount / active.size else 0.0
+                                val share = if (active.isNotEmpty()) amount / active.size else 0.0
                                 active.map {
                                     ExpenseSplitEntity(expenseId = 0, memberId = it.id, assignedAmount = share)
                                 }
@@ -684,10 +592,7 @@ fun AddExpenseDialog(
 
                         onAddExpense(
                             title.trim(),
-                            convertedBaseAmount,
-                            originalAmount,
-                            selectedCurrency,
-                            exchangeRate,
+                            amount,
                             resolvedCategory,
                             customCatName,
                             customCatIcon,

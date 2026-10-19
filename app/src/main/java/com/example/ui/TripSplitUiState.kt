@@ -2,7 +2,6 @@ package com.example.ui
 
 import com.example.data.entity.CategoryEntity
 import com.example.data.entity.DepositEntity
-import com.example.data.entity.ExchangeRateEntity
 import com.example.data.entity.ExpenseEntity
 import com.example.data.entity.ExpensePayerEntity
 import com.example.data.entity.ExpenseSplitEntity
@@ -26,7 +25,6 @@ enum class ActiveDialog {
     MANAGE_TRIPS,
     MANAGE_CATEGORIES,
     CREATE_CATEGORY,
-    MANAGE_EXCHANGE_RATES,
     EXPORT,
     BACKUP_RESTORE,
     RECORD_SETTLEMENT,
@@ -45,7 +43,6 @@ data class TripSplitUiState(
     val payers: List<ExpensePayerEntity> = emptyList(),
     val attachments: List<ReceiptAttachmentEntity> = emptyList(),
     val categories: List<CategoryEntity> = emptyList(),
-    val exchangeRates: List<ExchangeRateEntity> = emptyList(),
     val settlements: List<SettlementRecordEntity> = emptyList(),
     val memberBalances: List<MemberBalance> = emptyList(),
     val settlementSteps: List<SettlementTransaction> = emptyList(),

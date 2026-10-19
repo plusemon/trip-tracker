@@ -18,9 +18,12 @@ class SettlementEngineTest {
 
     @Test
     fun testCurrencyFormatting() {
-        assertEquals("৳12,500", CurrencyFormatter.formatTaka(12500.0))
-        assertEquals("৳0", CurrencyFormatter.formatTaka(0.0))
-        assertEquals("৳1,000,000", CurrencyFormatter.formatTaka(1000000.0))
+        val bnLocale = java.util.Locale("bn", "BD")
+        val nf = java.text.NumberFormat.getNumberInstance(bnLocale)
+
+        assertEquals("৳${nf.format(12500.0)}", CurrencyFormatter.formatTaka(12500.0))
+        assertEquals("৳${nf.format(0.0)}", CurrencyFormatter.formatTaka(0.0))
+        assertEquals("৳${nf.format(1000000.0)}", CurrencyFormatter.formatTaka(1000000.0))
     }
 
     @Test

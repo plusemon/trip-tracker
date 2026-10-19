@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Place
@@ -50,7 +49,6 @@ fun DashboardScreen(
     onExportClick: () -> Unit,
     onViewAllExpensesClick: () -> Unit,
     onNewTripClick: () -> Unit,
-    onOpenExchangeRates: () -> Unit,
     onOpenSettleDebts: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -512,22 +510,10 @@ fun DashboardScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         OutlinedButton(
-                            onClick = onOpenExchangeRates,
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp)
-                        ) {
-                            Icon(Icons.Default.CurrencyExchange, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Currency Rates", fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
-                        }
-
-                        OutlinedButton(
                             onClick = onExportClick,
                             shape = RoundedCornerShape(14.dp),
                             modifier = Modifier
-                                .weight(1f)
+                                .fillMaxWidth()
                                 .height(50.dp)
                         ) {
                             Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))

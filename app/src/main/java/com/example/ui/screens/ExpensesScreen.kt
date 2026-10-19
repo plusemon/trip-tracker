@@ -236,13 +236,6 @@ fun ExpensesScreen(
                                     fontWeight = FontWeight.ExtraBold,
                                     color = MaterialTheme.colorScheme.secondary
                                 )
-                                if (deposit.currencyCode != "BDT" && deposit.originalAmount != deposit.amount) {
-                                    Text(
-                                        text = "${deposit.originalAmount} ${deposit.currencyCode}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.outline
-                                    )
-                                }
                             }
                         }
                     }
@@ -338,13 +331,6 @@ fun ExpensesScreen(
                                         fontWeight = FontWeight.ExtraBold,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
-                                    if (expense.currencyCode != "BDT" && expense.originalAmount != expense.amount) {
-                                        Text(
-                                            text = "${expense.originalAmount} ${expense.currencyCode}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.outline
-                                        )
-                                    }
                                     IconButton(
                                         onClick = { expenseToDelete = expense },
                                         modifier = Modifier.size(24.dp)

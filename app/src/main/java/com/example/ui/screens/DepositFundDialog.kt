@@ -22,11 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -50,10 +47,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.entity.CategoryEntity
-import com.example.data.entity.ExchangeRateEntity
 import com.example.data.entity.MemberEntity
-import com.example.domain.model.CurrencyFormatter
-import com.example.domain.model.CurrencyPresets
+import com.example.domain.model.formatBDT
 import com.example.ui.components.MemberAvatar
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -61,15 +56,9 @@ import com.example.ui.components.MemberAvatar
 fun DepositFundDialog(
     members: List<MemberEntity>,
     categories: List<CategoryEntity>,
-    exchangeRates: List<ExchangeRateEntity>,
-    baseCurrency: String,
-    currencySymbol: String,
     onDismiss: () -> Unit,
     onAddIncome: (
         amount: Double,
-        originalAmount: Double,
-        currencyCode: String,
-        exchangeRate: Double,
         contributorName: String,
         memberId: Long?,
         categoryName: String,
@@ -84,22 +73,14 @@ fun DepositFundDialog(
     var externalContributor by remember { mutableStateOf("") }
 
     var amountText by remember { mutableStateOf("") }
-    var selectedCurrency by remember { mutableStateOf(baseCurrency) }
-    var customRateText by remember {
-        val r = exchangeRates.find { it.fromCurrency == baseCurrency }?.rate ?: 1.0
-        mutableStateOf(r.toString())
-    }
-
-    var selectedCategoryName by remember { mutableStateOf("Common Fund Deposit") }
+    var selectedCategoryName by remember { mutableStateOf("Common Fund Deposit (\"চাঁদা\")") }
     var notes by remember { mutableStateOf("") }
 
     val quickAmounts = listOf("1000", "2000", "3000", "5000", "10000")
 
-    val originalAmount = amountText.toDoubleOrNull() ?: 0.0
-    val exchangeRate = if (selectedCurrency == baseCurrency) 1.0 else (customRateText.toDoubleOrNull() ?: 1.0)
-    val convertedBaseAmount = originalAmount * exchangeRate
+    val amount = amountText.toDoubleOrNull() ?: 0.0
 
-    val canSubmit = originalAmount > 0 && (if (isFromMember) selectedMemberId != null else externalContributor.isNotBlank())
+    val canSubmit = amount > 0 && (if (isFromMember) selectedMemberId != null else externalContributor.isNotBlank())
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -221,48 +202,25 @@ fun DepositFundDialog(
                 }
             }
 
-            // Currency & Amount
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                OutlinedTextField(
-                    value = amountText,
-                    onValueChange = { amountText = it },
-                    label = { Text("Amount ($selectedCurrency)") },
-                    leadingIcon = { Icon(Icons.Default.Payments, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier
-                        .weight(1.3f)
-                        .testTag("deposit_amount_input")
-                )
-
-                // Currency selector
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Currency", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        listOf(baseCurrency, "USD", "THB", "INR", "MYR", "EUR").distinct().forEach { code ->
-                            FilterChip(
-                                selected = selectedCurrency == code,
-                                onClick = {
-                                    selectedCurrency = code
-                                    val r = exchangeRates.find { it.fromCurrency == code }?.rate
-                                        ?: CurrencyPresets.PRESETS.find { it.code == code }?.defaultRateToBdt ?: 1.0
-                                    customRateText = r.toString()
-                                },
-                                label = { Text(code) }
-                            )
-                        }
-                    }
-                }
-            }
+            // Amount Field
+            OutlinedTextField(
+                value = amountText,
+                onValueChange = { amountText = it },
+                label = { Text("Amount (৳)") },
+                leadingIcon = {
+                    Text(
+                        text = "৳",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 12.dp, end = 4.dp)
+                    )
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("deposit_amount_input")
+            )
 
             // Quick amounts
             Row(
@@ -272,52 +230,18 @@ fun DepositFundDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 quickAmounts.forEach { qAmt ->
+                    val qDouble = qAmt.toDoubleOrNull() ?: 0.0
                     Surface(
                         modifier = Modifier.clickable { amountText = qAmt },
                         shape = RoundedCornerShape(14.dp),
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                     ) {
                         Text(
-                            text = "$currencySymbol$qAmt",
+                            text = formatBDT(qDouble),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
-                    }
-                }
-            }
-
-            // Currency conversion preview if non-base
-            if (selectedCurrency != baseCurrency) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("1 $selectedCurrency = ", style = MaterialTheme.typography.bodySmall)
-                            OutlinedTextField(
-                                value = customRateText,
-                                onValueChange = { customRateText = it },
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                                modifier = Modifier.width(90.dp)
-                            )
-                            Text(" $baseCurrency", style = MaterialTheme.typography.bodySmall)
-                        }
-                        Text(
-                            text = "≈ ${CurrencyFormatter.formatCurrency(convertedBaseAmount, currencySymbol)}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -344,10 +268,7 @@ fun DepositFundDialog(
                         val mId = if (isFromMember) selectedMemberId else null
 
                         onAddIncome(
-                            convertedBaseAmount,
-                            originalAmount,
-                            selectedCurrency,
-                            exchangeRate,
+                            amount,
                             contributor,
                             mId,
                             selectedCategoryName,

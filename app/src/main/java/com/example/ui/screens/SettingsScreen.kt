@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.CardTravel
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FreeBreakfast
@@ -81,7 +80,6 @@ fun SettingsScreen(
     onUpdateTripStatus: (TripEntity, TripStatus) -> Unit,
     onCreateNewTrip: () -> Unit,
     onDeleteTrip: () -> Unit,
-    onOpenExchangeRates: () -> Unit,
     onOpenCustomCategories: () -> Unit,
     onExportJson: () -> String,
     onImportJson: (String) -> Unit,
@@ -187,7 +185,7 @@ fun SettingsScreen(
                                     }
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "${trip.destination} • Base: ${trip.baseCurrency} (${trip.currencySymbol})",
+                                        text = "${trip.destination} • BDT (৳)",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -279,17 +277,6 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-
-                // Exchange Rates Row
-                OutlinedButton(
-                    onClick = onOpenExchangeRates,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Icon(Icons.Default.CurrencyExchange, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Manual Exchange Rates", fontWeight = FontWeight.SemiBold)
-                }
 
                 // Custom Categories Row
                 OutlinedButton(

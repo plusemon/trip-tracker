@@ -3,7 +3,6 @@ package com.example.data.repository
 import com.example.data.db.AppDatabase
 import com.example.data.entity.CategoryEntity
 import com.example.data.entity.DepositEntity
-import com.example.data.entity.ExchangeRateEntity
 import com.example.data.entity.ExpenseCategory
 import com.example.data.entity.ExpenseEntity
 import com.example.data.entity.ExpensePayerEntity
@@ -12,7 +11,6 @@ import com.example.data.entity.MemberEntity
 import com.example.data.entity.ReceiptAttachmentEntity
 import com.example.data.entity.SettlementRecordEntity
 import com.example.data.entity.TripEntity
-import com.example.domain.model.CurrencyPresets
 import com.example.domain.model.NewMemberInfo
 import com.example.export.TripBackupBundle
 import kotlinx.coroutines.flow.Flow
@@ -49,19 +47,6 @@ class TripSplitRepository(private val db: AppDatabase) {
             CategoryEntity(tripId = tripId, name = "Refund / Cashback", iconName = "ticket", colorHex = "#0288D1", isIncome = true)
         )
         db.categoryDao().insertCategories(defaultCategories)
-
-        // Seed default exchange rates
-        val defaultRates = CurrencyPresets.PRESETS.filter { it.code != trip.baseCurrency }.map { preset ->
-            ExchangeRateEntity(
-                tripId = tripId,
-                fromCurrency = preset.code,
-                toCurrency = trip.baseCurrency,
-                rate = preset.defaultRateToBdt
-            )
-        }
-        if (defaultRates.isNotEmpty()) {
-            db.exchangeRateDao().insertRates(defaultRates)
-        }
 
         // Members insertion
         val defaultColors = listOf(
@@ -100,9 +85,6 @@ class TripSplitRepository(private val db: AppDatabase) {
                         memberId = memberId,
                         contributorName = info.name,
                         amount = info.initialDeposit,
-                        originalAmount = info.initialDeposit,
-                        currencyCode = trip.baseCurrency,
-                        exchangeRate = 1.0,
                         categoryName = "Common Fund Deposit",
                         notes = "Initial Advance চাঁদা"
                     )
@@ -177,11 +159,6 @@ class TripSplitRepository(private val db: AppDatabase) {
     suspend fun addCategory(category: CategoryEntity): Long = db.categoryDao().insertCategory(category)
     suspend fun deleteCategory(category: CategoryEntity) = db.categoryDao().deleteCategory(category)
 
-    // Exchange Rates
-    fun getExchangeRates(tripId: Long): Flow<List<ExchangeRateEntity>> = db.exchangeRateDao().getRatesForTrip(tripId)
-    suspend fun getExchangeRatesOnce(tripId: Long): List<ExchangeRateEntity> = db.exchangeRateDao().getRatesForTripOnce(tripId)
-    suspend fun saveExchangeRate(rate: ExchangeRateEntity): Long = db.exchangeRateDao().insertRate(rate)
-
     // Settlements
     fun getSettlements(tripId: Long): Flow<List<SettlementRecordEntity>> = db.settlementDao().getSettlementRecordsForTrip(tripId)
     suspend fun getSettlementsOnce(tripId: Long): List<SettlementRecordEntity> = db.settlementDao().getSettlementRecordsForTripOnce(tripId)
@@ -196,12 +173,6 @@ class TripSplitRepository(private val db: AppDatabase) {
         val categories = bundle.categories.map { it.copy(id = 0, tripId = newTripId) }
         if (categories.isNotEmpty()) {
             db.categoryDao().insertCategories(categories)
-        }
-
-        // Insert exchange rates
-        val rates = bundle.exchangeRates.map { it.copy(id = 0, tripId = newTripId) }
-        if (rates.isNotEmpty()) {
-            db.exchangeRateDao().insertRates(rates)
         }
 
         // Insert members and map old originalId -> new insertedId

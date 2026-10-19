@@ -75,7 +75,6 @@ import com.example.ui.screens.AnalyticsScreen
 import com.example.ui.screens.CustomCategoryDialog
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.DepositFundDialog
-import com.example.ui.screens.ExchangeRatesDialog
 import com.example.ui.screens.ExpensesScreen
 import com.example.ui.screens.ExportDialog
 import com.example.ui.screens.PhotoViewerDialog
@@ -152,8 +151,8 @@ fun TripSplitApp(
                         startDate = start,
                         endDate = end,
                         budget = budget,
-                        currencySymbol = curr,
-                        baseCurrency = if (curr == "৳") "BDT" else if (curr == "$") "USD" else "BDT",
+                        currencySymbol = "৳",
+                        baseCurrency = "BDT",
                         status = TripStatus.ACTIVE,
                         managerName = mgr
                     ),
@@ -373,7 +372,6 @@ fun TripSplitApp(
                     onExportClick = {},
                     onViewAllExpensesClick = {},
                     onNewTripClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
-                    onOpenExchangeRates = {},
                     onOpenSettleDebts = {}
                 )
             } else {
@@ -387,7 +385,6 @@ fun TripSplitApp(
                         onExportClick = { viewModel.openDialog(ActiveDialog.EXPORT) },
                         onViewAllExpensesClick = { viewModel.setSelectedTab(1) },
                         onNewTripClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
-                        onOpenExchangeRates = { viewModel.openDialog(ActiveDialog.MANAGE_EXCHANGE_RATES) },
                         onOpenSettleDebts = { viewModel.setSelectedTab(2) }
                     )
                     1 -> ExpensesScreen(
@@ -423,7 +420,6 @@ fun TripSplitApp(
                         onUpdateTripStatus = { trip, status -> viewModel.updateTripStatus(trip, status) },
                         onCreateNewTrip = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
                         onDeleteTrip = { viewModel.deleteCurrentTrip() },
-                        onOpenExchangeRates = { viewModel.openDialog(ActiveDialog.MANAGE_EXCHANGE_RATES) },
                         onOpenCustomCategories = { viewModel.openDialog(ActiveDialog.CREATE_CATEGORY) },
                         onExportJson = { viewModel.exportJsonBackup() },
                         onImportJson = { viewModel.importJsonBackup(it) },
@@ -443,14 +439,11 @@ fun TripSplitApp(
                 AddExpenseDialog(
                     members = uiState.members,
                     categories = uiState.categories,
-                    exchangeRates = uiState.exchangeRates,
-                    baseCurrency = currentTrip.baseCurrency,
-                    currencySymbol = currentTrip.currencySymbol,
                     onDismiss = { viewModel.closeDialog() },
                     onOpenCreateCategory = { viewModel.openDialog(ActiveDialog.CREATE_CATEGORY) },
-                    onAddExpense = { title, amt, origAmt, currCode, rate, cat, custName, custIcon, custColor, pType, pMemId, splitM, splits, payers, uris, notes ->
+                    onAddExpense = { title, amt, cat, custName, custIcon, custColor, pType, pMemId, splitM, splits, payers, uris, notes ->
                         viewModel.addExpenseWithDetails(
-                            title, amt, origAmt, currCode, rate, cat, custName, custIcon, custColor, pType, pMemId, splitM, splits, payers, uris, notes
+                            title, amt, cat, custName, custIcon, custColor, pType, pMemId, splitM, splits, payers, uris, notes
                         )
                     }
                 )
@@ -462,12 +455,9 @@ fun TripSplitApp(
                 DepositFundDialog(
                     members = uiState.members,
                     categories = uiState.categories,
-                    exchangeRates = uiState.exchangeRates,
-                    baseCurrency = currentTrip.baseCurrency,
-                    currencySymbol = currentTrip.currencySymbol,
                     onDismiss = { viewModel.closeDialog() },
-                    onAddIncome = { amt, origAmt, currCode, rate, contributor, mId, catName, notes, date ->
-                        viewModel.addIncome(amt, origAmt, currCode, rate, contributor, mId, catName, notes, date)
+                    onAddIncome = { amt, contributor, mId, catName, notes, date ->
+                        viewModel.addIncome(amt, contributor, mId, catName, notes, date)
                     }
                 )
             }
@@ -480,19 +470,6 @@ fun TripSplitApp(
                     viewModel.addCustomCategory(name, iconName, colorHex, isIncome)
                 }
             )
-        }
-
-        ActiveDialog.MANAGE_EXCHANGE_RATES -> {
-            if (currentTrip != null) {
-                ExchangeRatesDialog(
-                    baseCurrency = currentTrip.baseCurrency,
-                    rates = uiState.exchangeRates,
-                    onDismiss = { viewModel.closeDialog() },
-                    onSaveRate = { fromCurr, toCurr, rate ->
-                        viewModel.saveExchangeRate(fromCurr, toCurr, rate)
-                    }
-                )
-            }
         }
 
         ActiveDialog.EXPORT -> {

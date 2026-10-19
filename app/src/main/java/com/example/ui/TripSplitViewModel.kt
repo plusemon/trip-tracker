@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.db.AppDatabase
 import com.example.data.entity.CategoryEntity
 import com.example.data.entity.DepositEntity
-import com.example.data.entity.ExchangeRateEntity
 import com.example.data.entity.ExpenseCategory
 import com.example.data.entity.ExpenseEntity
 import com.example.data.entity.ExpensePayerEntity
@@ -76,7 +75,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                             payers = emptyList(),
                             attachments = emptyList(),
                             categories = emptyList(),
-                            exchangeRates = emptyList(),
                             settlements = emptyList(),
                             memberBalances = emptyList(),
                             settlementSteps = emptyList(),
@@ -99,10 +97,9 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                         repository.getAllPayers(tripId),
                         repository.getAllAttachments(tripId),
                         repository.getCategories(tripId),
-                        repository.getExchangeRates(tripId),
                         repository.getSettlements(tripId)
-                    ) { payers, attachments, categories, rates, settlements ->
-                        Triple(payers, attachments, Triple(categories, rates, settlements))
+                    ) { payers, attachments, categories, settlements ->
+                        Triple(payers, attachments, Pair(categories, settlements))
                     }
 
                     flow1.combine(flow2) { f1, f2 ->
@@ -115,8 +112,7 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                         val payers = f2.first
                         val attachments = f2.second
                         val categories = f2.third.first
-                        val rates = f2.third.second
-                        val settlements = f2.third.third
+                        val settlements = f2.third.second
 
                         recalculateState(
                             trip = trip,
@@ -127,7 +123,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                             payers = payers,
                             attachments = attachments,
                             categories = categories,
-                            rates = rates,
                             settlements = settlements
                         )
                     }.collectLatest { calculated ->
@@ -141,7 +136,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                                 payers = calculated.payers,
                                 attachments = calculated.attachments,
                                 categories = calculated.categories,
-                                exchangeRates = calculated.exchangeRates,
                                 settlements = calculated.settlements,
                                 memberBalances = calculated.memberBalances,
                                 settlementSteps = calculated.settlementSteps,
@@ -164,7 +158,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
         payers: List<ExpensePayerEntity>,
         attachments: List<ReceiptAttachmentEntity>,
         categories: List<CategoryEntity>,
-        rates: List<ExchangeRateEntity>,
         settlements: List<SettlementRecordEntity>
     ): TripSplitUiState {
         if (trip == null) {
@@ -177,7 +170,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                 payers = payers,
                 attachments = attachments,
                 categories = categories,
-                exchangeRates = rates,
                 settlements = settlements
             )
         }
@@ -262,7 +254,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
             payers = payers,
             attachments = attachments,
             categories = categories,
-            exchangeRates = rates,
             settlements = settlements,
             memberBalances = balances,
             settlementSteps = steps,
@@ -333,9 +324,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun addIncome(
         amount: Double,
-        originalAmount: Double,
-        currencyCode: String,
-        exchangeRate: Double,
         contributorName: String,
         memberId: Long?,
         categoryName: String,
@@ -349,25 +337,19 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                 memberId = memberId,
                 contributorName = contributorName,
                 amount = amount,
-                originalAmount = originalAmount,
-                currencyCode = currencyCode,
-                exchangeRate = exchangeRate,
                 categoryName = categoryName,
                 date = date,
                 notes = notes
             )
             repository.addDeposit(deposit)
             closeDialog()
-            showMessage("Income/Deposit recorded: ${trip.currencySymbol}$amount")
+            showMessage("Income/Deposit recorded: ৳$amount")
         }
     }
 
     fun addExpenseWithDetails(
         title: String,
         amount: Double,
-        originalAmount: Double,
-        currencyCode: String,
-        exchangeRate: Double,
         category: ExpenseCategory,
         customCategoryName: String?,
         customCategoryIcon: String?,
@@ -395,9 +377,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                 tripId = trip.id,
                 title = title,
                 amount = amount,
-                originalAmount = originalAmount,
-                currencyCode = currencyCode,
-                exchangeRate = exchangeRate,
                 category = category,
                 customCategoryName = customCategoryName,
                 customCategoryIcon = customCategoryIcon,
@@ -415,7 +394,7 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                 attachments = attachments
             )
             closeDialog()
-            showMessage("Expense added: ${trip.currencySymbol}$amount")
+            showMessage("Expense added: ৳$amount")
         }
     }
 
@@ -443,21 +422,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun saveExchangeRate(fromCurrency: String, toCurrency: String, rate: Double) {
-        val trip = _uiState.value.currentTrip ?: return
-        viewModelScope.launch {
-            repository.saveExchangeRate(
-                ExchangeRateEntity(
-                    tripId = trip.id,
-                    fromCurrency = fromCurrency.uppercase(),
-                    toCurrency = toCurrency.uppercase(),
-                    rate = rate
-                )
-            )
-            showMessage("Exchange rate saved: 1 $fromCurrency = $rate $toCurrency")
-        }
-    }
-
     fun recordSettlement(
         fromMemberId: Long,
         toMemberId: Long,
@@ -479,7 +443,7 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                     notes = notes
                 )
             )
-            showMessage("Settlement recorded: $fromName paid $toName ${trip.currencySymbol}$amount")
+            showMessage("Settlement recorded: $fromName paid $toName ৳$amount")
         }
     }
 
@@ -525,7 +489,6 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
             splits = state.splits,
             payers = state.payers,
             categories = state.categories,
-            exchangeRates = state.exchangeRates,
             settlements = state.settlements
         )
         return JsonBackupManager.exportTripToJson(bundle)
