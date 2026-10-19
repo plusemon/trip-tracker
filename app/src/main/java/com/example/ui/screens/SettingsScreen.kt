@@ -4,6 +4,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -91,8 +94,8 @@ fun SettingsScreen(
     onCreateNewTrip: () -> Unit,
     onDeleteTrip: () -> Unit,
     onOpenCustomCategories: () -> Unit,
-    onExportJson: () -> String,
-    onImportJson: (String) -> Unit,
+    onExportCsv: () -> Unit,
+    onImportCsv: (String) -> Unit,
     onAdminRestore: (String, (Boolean, String) -> Unit) -> Unit = { _, _ -> },
     currentThemeMode: ThemeMode = ThemeMode.SYSTEM,
     onThemeModeChange: (ThemeMode) -> Unit = {},
@@ -102,8 +105,6 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var showImportDialog by remember { mutableStateOf(false) }
-    var importJsonText by remember { mutableStateOf("") }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showAdminRestoreDialog by remember { mutableStateOf(false) }
     var adminPasswordInput by remember { mutableStateOf("") }
@@ -422,13 +423,29 @@ fun SettingsScreen(
             }
         }
 
-        // Offline JSON Backup & Restore
+        // CSV Backup & Restore
         Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("csv_backup_card")
         ) {
+            val csvPickerLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) { uri: Uri? ->
+                if (uri != null) {
+                    try {
+                        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                            val csvText = inputStream.bufferedReader().readText()
+                            onImportCsv(csvText)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Toast.makeText(context, "Failed to read CSV file", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -442,14 +459,14 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Offline JSON Backup & Transfer",
+                        text = "CSV Backup & Restore",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
                 Text(
-                    text = "Backup your complete trip (members, splits, rates, categories) to a local JSON string. Share it via Nearby Share, Bluetooth, or SD card to restore on another phone.",
+                    text = "Backup all your trips (members, expenses, deposits, categories) to a CSV file or restore data from a CSV file (replaces local data).",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -459,30 +476,22 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
-                        onClick = {
-                            val json = onExportJson()
-                            if (json.isNotBlank()) {
-                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("TripSplit Backup", json)
-                                clipboard.setPrimaryClip(clip)
-                                Toast.makeText(context, "Backup JSON copied to clipboard!", Toast.LENGTH_LONG).show()
-                            }
-                        },
+                        onClick = { onExportCsv() },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).testTag("export_csv_button")
                     ) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Export JSON", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("Export CSV", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
                     OutlinedButton(
-                        onClick = { showImportDialog = true },
-                        modifier = Modifier.weight(1f)
+                        onClick = { csvPickerLauncher.launch("*/*") },
+                        modifier = Modifier.weight(1f).testTag("restore_csv_button")
                     ) {
                         Icon(Icons.Default.FileUpload, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Import JSON", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("Restore CSV", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -630,50 +639,6 @@ fun SettingsScreen(
     }
 }
 
-
-    // Import JSON Dialog
-    if (showImportDialog) {
-        AlertDialog(
-            onDismissRequest = { showImportDialog = false },
-            title = { Text("Import Trip Backup") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(
-                        text = "Paste the JSON backup string below to restore the trip to your device:",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    OutlinedTextField(
-                        value = importJsonText,
-                        onValueChange = { importJsonText = it },
-                        label = { Text("Backup JSON") },
-                        placeholder = { Text("{\"trip\": ...}") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(140.dp)
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (importJsonText.isNotBlank()) {
-                            onImportJson(importJsonText)
-                            showImportDialog = false
-                            importJsonText = ""
-                        }
-                    },
-                    enabled = importJsonText.isNotBlank()
-                ) {
-                    Text("Import & Restore")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showImportDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
 
     // Delete Trip Dialog
     if (showDeleteConfirm) {

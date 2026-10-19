@@ -24,6 +24,7 @@ import com.example.domain.engine.SettlementEngine
 import com.example.domain.model.CategorySpending
 import com.example.domain.model.NewMemberInfo
 import com.example.domain.model.TripSummary
+import com.example.export.CsvBackupManager
 import com.example.export.JsonBackupManager
 import com.example.export.PdfReportGenerator
 import com.example.export.ShareSummaryFormatter
@@ -61,15 +62,31 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                 _uiState.update { it.copy(allTrips = trips, isLoading = false) }
                 if (trips.isEmpty()) {
                     val context = getApplication<Application>()
-                    val backupFile = File(context.filesDir, "TripTracker_AutoBackup.json")
-                    if (backupFile.exists() && backupFile.length() > 0) {
+                    // Check CSV backup first, then JSON backup fallback
+                    val csvBackupFile = File(context.filesDir, "TripTracker_AutoBackup.csv")
+                    val jsonBackupFile = File(context.filesDir, "TripTracker_AutoBackup.json")
+                    if (csvBackupFile.exists() && csvBackupFile.length() > 0) {
                         runCatching {
-                            val jsonString = backupFile.readText()
+                            val csvString = csvBackupFile.readText()
+                            val bundles = CsvBackupManager.parseBundlesFromCsv(csvString)
+                            if (bundles.isNotEmpty()) {
+                                val newId = repository.replaceAllDataWithBundles(bundles)
+                                _currentTripId.value = newId
+                                Log.i("TripSplitVM", "Successfully auto-restored trips from local CSV backup!")
+                            } else {
+                                tryRestoreFromFirebase(context)
+                            }
+                        }.onFailure {
+                            tryRestoreFromFirebase(context)
+                        }
+                    } else if (jsonBackupFile.exists() && jsonBackupFile.length() > 0) {
+                        runCatching {
+                            val jsonString = jsonBackupFile.readText()
                             val bundle = JsonBackupManager.parseTripFromJson(jsonString)
                             if (bundle != null) {
                                 val newId = repository.importTripBundle(bundle)
                                 _currentTripId.value = newId
-                                Log.i("TripSplitVM", "Successfully auto-restored trip from local backup after update/reinstall!")
+                                Log.i("TripSplitVM", "Successfully auto-restored trip from legacy JSON backup!")
                             } else {
                                 tryRestoreFromFirebase(context)
                             }
@@ -172,16 +189,7 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
 
                         val trip = calculated.currentTrip
                         if (trip != null) {
-                            exportAndSaveAutoBackup(
-                                trip = trip,
-                                members = calculated.members,
-                                deposits = calculated.deposits,
-                                expenses = calculated.expenses,
-                                splits = calculated.splits,
-                                payers = calculated.payers,
-                                categories = calculated.categories,
-                                settlements = calculated.settlements
-                            )
+                            exportAndSaveAutoBackup()
                             if (trip.isReadOnly) {
                                 setupRemoteTripObserver(trip)
                             } else {
@@ -209,32 +217,16 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    private fun exportAndSaveAutoBackup(
-        trip: TripEntity,
-        members: List<MemberEntity>,
-        deposits: List<DepositEntity>,
-        expenses: List<ExpenseEntity>,
-        splits: List<ExpenseSplitEntity>,
-        payers: List<ExpensePayerEntity>,
-        categories: List<CategoryEntity>,
-        settlements: List<SettlementRecordEntity>
-    ) {
+    private fun exportAndSaveAutoBackup() {
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             runCatching {
-                val bundle = TripBackupBundle(
-                    trip = trip,
-                    members = members,
-                    deposits = deposits,
-                    expenses = expenses,
-                    splits = splits,
-                    payers = payers,
-                    categories = categories,
-                    settlements = settlements
-                )
-                val json = JsonBackupManager.exportTripToJson(bundle)
-                val context = getApplication<Application>()
-                val backupFile = File(context.filesDir, "TripTracker_AutoBackup.json")
-                backupFile.writeText(json)
+                val bundles = repository.getAllTripBundlesOnce()
+                if (bundles.isNotEmpty()) {
+                    val csvText = CsvBackupManager.exportBundlesToCsv(bundles)
+                    val context = getApplication<Application>()
+                    val backupFile = File(context.filesDir, "TripTracker_AutoBackup.csv")
+                    backupFile.writeText(csvText)
+                }
             }
         }
     }
@@ -577,32 +569,29 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
         }.getOrNull()
     }
 
-    fun exportJsonBackup(): String {
-        val state = _uiState.value
-        val trip = state.currentTrip ?: return ""
-        val bundle = TripBackupBundle(
-            trip = trip,
-            members = state.members,
-            deposits = state.deposits,
-            expenses = state.expenses,
-            splits = state.splits,
-            payers = state.payers,
-            categories = state.categories,
-            settlements = state.settlements
-        )
-        return JsonBackupManager.exportTripToJson(bundle)
+    suspend fun exportCsvBackupFile(): File? {
+        return runCatching {
+            val bundles = repository.getAllTripBundlesOnce()
+            val csvText = CsvBackupManager.exportBundlesToCsv(bundles)
+            val context = getApplication<Application>()
+            val file = File(context.cacheDir, "TripTracker_Export_${System.currentTimeMillis()}.csv")
+            file.writeText(csvText)
+            file
+        }.getOrNull()
     }
 
-    fun importJsonBackup(jsonString: String) {
+    fun importCsvBackup(csvString: String) {
         viewModelScope.launch {
-            val bundle = JsonBackupManager.parseTripFromJson(jsonString)
-            if (bundle != null) {
-                val newTripId = repository.importTripBundle(bundle)
-                _currentTripId.value = newTripId
+            val bundles = CsvBackupManager.parseBundlesFromCsv(csvString)
+            if (bundles.isNotEmpty()) {
+                val newTripId = repository.replaceAllDataWithBundles(bundles)
+                if (newTripId > 0) {
+                    _currentTripId.value = newTripId
+                }
                 closeDialog()
-                showMessage("Trip '${bundle.trip.name}' imported successfully!")
+                showMessage("Successfully restored ${bundles.size} trip(s) from CSV!")
             } else {
-                showMessage("Failed to parse JSON backup. Please check format.")
+                showMessage("Failed to parse CSV backup. Please check format.")
             }
         }
     }

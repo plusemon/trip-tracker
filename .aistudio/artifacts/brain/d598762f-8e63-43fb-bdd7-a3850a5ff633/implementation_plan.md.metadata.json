@@ -1,6 +1,6 @@
 {
-  "summary": "Implementation plan to fix data loss on app updates by ensuring consistent signing configuration, adding automatic periodic JSON backups, and implementing an auto-restore detection mechanism for local backups.",
-  "updatedAt": "2026-10-19T16:57:14.567065328Z",
+  "summary": "Implementation plan for replacing JSON backup/restore with comprehensive CSV export and restore in Trip Tracker.",
+  "updatedAt": "2026-10-19T19:37:50.785314247Z",
   "requestFeedback": true,
   "userFacing": true
 }

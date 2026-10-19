@@ -1,6 +1,9 @@
 package com.example
 
 import android.os.Bundle
+import android.content.Intent
+import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -70,6 +73,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.example.data.entity.TripEntity
 import com.example.data.entity.TripStatus
 import com.example.ui.ActiveDialog
@@ -105,6 +109,28 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: TripSplitViewModel by viewModels()
     private val updateViewModel: UpdateViewModel by viewModels()
+
+    internal fun exportCsvAndShare() {
+        lifecycleScope.launch {
+            val file = viewModel.exportCsvBackupFile()
+            if (file != null && file.exists()) {
+                val uri = FileProvider.getUriForFile(
+                    this@MainActivity,
+                    "${packageName}.fileprovider",
+                    file
+                )
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/csv"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    putExtra(Intent.EXTRA_SUBJECT, "TripTracker_AllTrips_Backup.csv")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(Intent.createChooser(intent, "Share CSV Backup"))
+            } else {
+                Toast.makeText(this@MainActivity, "Failed to export CSV backup", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -500,8 +526,8 @@ fun TripSplitApp(
                         onCreateNewTrip = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
                         onDeleteTrip = { viewModel.deleteCurrentTrip() },
                         onOpenCustomCategories = { viewModel.openDialog(ActiveDialog.CREATE_CATEGORY) },
-                        onExportJson = { viewModel.exportJsonBackup() },
-                        onImportJson = { viewModel.importJsonBackup(it) },
+                        onExportCsv = { (context as? MainActivity)?.exportCsvAndShare() },
+                        onImportCsv = { csvString -> viewModel.importCsvBackup(csvString) },
                         onAdminRestore = { pwd, cb -> viewModel.restoreAllTripsWithAdminPassword(pwd, cb) },
                         currentThemeMode = currentThemeMode,
                         onThemeModeChange = onThemeModeChange,
@@ -575,8 +601,8 @@ fun TripSplitApp(
                         onCreateNewTrip = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
                         onDeleteTrip = { viewModel.deleteCurrentTrip() },
                         onOpenCustomCategories = { viewModel.openDialog(ActiveDialog.CREATE_CATEGORY) },
-                        onExportJson = { viewModel.exportJsonBackup() },
-                        onImportJson = { viewModel.importJsonBackup(it) },
+                        onExportCsv = { (context as? MainActivity)?.exportCsvAndShare() },
+                        onImportCsv = { csvString -> viewModel.importCsvBackup(csvString) },
                         onAdminRestore = { pwd, cb -> viewModel.restoreAllTripsWithAdminPassword(pwd, cb) },
                         currentThemeMode = currentThemeMode,
                         onThemeModeChange = onThemeModeChange,

@@ -1,18 +1,42 @@
-# Implementation Plan - Fix Data Loss on App Updates
+# Replace JSON Backup/Restore with CSV Export & Restore
 
-## Problem Analysis
-When users install an APK update downloaded from GitHub or a browser over an existing installation, local database records (Room DB) and app settings (SharedPreferences) are sometimes wiped. This occurs due to:
-1. **Signature Mismatch**: If the update APK is signed with a different key (e.g., release keystore vs debug keystore or default debug key), Android's package manager considers them different applications or forces an uninstall/reinstall that clears private storage (`/data/data/...`).
-2. **Lack of Auto-Backup/Restore**: Without automatic background backups or recovery prompts, clearing local storage results in permanent data loss.
+## Overview
+Replace the current JSON backup/restore mechanism (which used clipboard copy/paste of JSON strings) with a robust CSV-based export and restore system. Export all trips, members, deposits, expenses, categories, and splits into a structured CSV file, save it to device storage, and share it via the system share sheet. Allow importing data via a `.csv` file picker that completely replaces existing local database data with the imported CSV data.
 
-## Proposed Solutions
+## User Review & Critical Decisions
+> [!IMPORTANT]
+> Confirmed preferences from user interview:
+> - **Included Data**: All trips and associated expenses, deposits, and members.
+> - **Restore Behavior**: Replace all existing local database data with the imported CSV data.
+> - **Export Delivery**: Save file and share via system share sheet / file picker.
 
-### 1. Consistent App Signing Configuration (`build.gradle.kts`)
-- Ensure both debug and release builds use a compatible or consistent signing configuration (or fallback gracefully to prevent signature conflicts when updating via downloaded APKs).
+## 1. Core Architecture & Components
 
-### 2. Automatic Local JSON Backup & Auto-Restore Mechanism
-- **Auto-Backup**: Periodically (or on trip changes / app close), export critical trip data and settings to a local JSON backup file in app external files / documents directory (`TripTracker_AutoBackup.json`).
-- **Auto-Restore on Empty DB**: When the app starts up and detects an empty database (e.g., after a fresh install or update wipe), check for existing local backup files (`TripTracker_AutoBackup.json` or user exported backups) and automatically offer to restore data in 1 tap.
+- **CsvBackupManager**: 
+  - Generates a comprehensive CSV text format containing sections/tables for Trips, Members, Deposits, Expenses, Categories, Splits, and Payers.
+  - Parses imported CSV text into `TripBackupBundle` or multiple bundles/entities to populate the Room database.
+- **File Operations & Sharing**:
+  - Export: Write CSV to a temporary cache file (`TripTracker_Export_<timestamp>.csv`) and invoke system share sheet (`ACTION_SEND` with `text/csv` URI via `FileProvider`) and/or save to downloads.
+  - Import: Use `ActivityResultContracts.GetContent()` (or `OpenDocument`) filtering for `.csv` or text files to let the user select a CSV file from device storage, read its text, parse it, and replace local database records.
+- **SettingsScreen & ViewModel Updates**:
+  - Update `SettingsScreen` UI from "Offline JSON Backup & Transfer" (with text copy/paste dialog) to "CSV Backup & Restore" (with "Export All Trips (CSV)" and "Restore from CSV File" buttons).
+  - Update `TripSplitViewModel` to handle CSV export and CSV file import.
 
-### 3. Settings & Export Improvements
-- Provide clear backup status and manual Export/Import JSON options in Settings.
+## 2. CSV Format Design
+To support multiple entities (Trips, Members, Deposits, Expenses, Categories, Splits, Payers) in a single CSV file, we will use tagged section headers or a structured multi-table CSV format:
+- `# SECTION: TRIPS` followed by CSV header and rows.
+- `# SECTION: MEMBERS` followed by CSV header and rows.
+- `# SECTION: DEPOSITS` followed by CSV header and rows.
+- `# SECTION: EXPENSES` followed by CSV header and rows.
+- `# SECTION: CATEGORIES` followed by CSV header and rows.
+- `# SECTION: SPLITS` followed by CSV header and rows.
+- `# SECTION: PAYERS` followed by CSV header and rows.
+
+When parsing, `CsvBackupManager` will read line by line, detect section headers, parse CSV rows (handling quoted fields properly), and reconstruct all entities.
+
+## 3. Implementation Steps
+1. Create `CsvBackupManager.kt` replacing or superseding `JsonBackupManager.kt`.
+2. Update `TripSplitViewModel.kt` methods (`exportCsvBackup`, `importCsvBackup`, and auto-backup).
+3. Update `SettingsScreen.kt` UI for CSV export (sharing file) and CSV import (file picker intent).
+4. Update `MainActivity.kt` or any callers if needed.
+5. Compile and test (`compile_applet`).

@@ -235,6 +235,41 @@ class TripSplitRepository(private val db: AppDatabase) {
         return newTripId
     }
 
+    suspend fun getAllTripBundlesOnce(): List<TripBackupBundle> {
+        val trips = db.tripDao().getAllTripsOnce()
+        return trips.map { trip ->
+            val members = db.memberDao().getMembersForTripOnce(trip.id)
+            val deposits = db.depositDao().getDepositsForTripOnce(trip.id)
+            val expenses = db.expenseDao().getExpensesForTripOnce(trip.id)
+            val splits = db.expenseDao().getAllSplitsForTripOnce(trip.id)
+            val payers = db.expenseDao().getAllPayersForTripOnce(trip.id)
+            val categories = db.categoryDao().getCategoriesForTripOnce(trip.id)
+            val settlements = db.settlementDao().getSettlementRecordsForTripOnce(trip.id)
+            TripBackupBundle(
+                trip = trip,
+                members = members,
+                deposits = deposits,
+                expenses = expenses,
+                splits = splits,
+                payers = payers,
+                categories = categories,
+                settlements = settlements
+            )
+        }
+    }
+
+    suspend fun replaceAllDataWithBundles(bundles: List<TripBackupBundle>): Long {
+        db.clearAllTables()
+        var firstTripId = -1L
+        bundles.forEach { bundle ->
+            val tripId = importTripBundle(bundle)
+            if (firstTripId == -1L) {
+                firstTripId = tripId
+            }
+        }
+        return if (firstTripId != -1L) firstTripId else 0L
+    }
+
     suspend fun getTripByCode(tripCode: String): TripEntity? {
         return db.tripDao().getTripByCode(tripCode.uppercase().trim())
     }
