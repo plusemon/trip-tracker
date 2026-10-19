@@ -585,60 +585,7 @@ fun DashboardScreen(
                 }
             }
 
-            // Responsive 2x2 Quick Action Grid (No Edge Clipping)
-            item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Button(
-                            onClick = onAddExpenseClick,
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp)
-                                .testTag("dashboard_add_expense_btn")
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Add Expense", fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
-                        }
 
-                        OutlinedButton(
-                            onClick = onOpenSettleDebts,
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp)
-                        ) {
-                            Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Settle Debts", fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = onExportClick,
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                        ) {
-                            Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Share Report", fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
-                        }
-                    }
-                }
-            }
 
             // Recent Expenses Section
             item {
