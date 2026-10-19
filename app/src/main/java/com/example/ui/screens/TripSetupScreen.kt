@@ -137,9 +137,9 @@ fun TripSetupScreen(
     var currentStep by remember { mutableIntStateOf(0) }
 
     // Step 1: Trip Details State
-    var tripName by remember { mutableStateOf("Bandarban Expedition") }
-    var destination by remember { mutableStateOf("Bandarban, Bangladesh") }
-    var budgetText by remember { mutableStateOf("60000") }
+    var tripName by remember { mutableStateOf("") }
+    var destination by remember { mutableStateOf("") }
+    var budgetText by remember { mutableStateOf("") }
     var currencySymbol by remember { mutableStateOf("৳") }
     val now = remember { System.currentTimeMillis() }
     var startDate by remember { mutableLongStateOf(now) }
@@ -149,21 +149,12 @@ fun TripSetupScreen(
     }
 
     // Step 2: Members State
-    var managerName by remember { mutableStateOf("Emon (Lead)") }
-    val memberList = remember {
-        mutableStateListOf(
-            NewMemberInfo(name = "Emon", phoneNumber = "01711000001", colorHex = "#006C4C", isManager = true),
-            NewMemberInfo(name = "Shakib", phoneNumber = "01711000002", colorHex = "#00658E", isManager = false),
-            NewMemberInfo(name = "Tanvir", phoneNumber = "01711000003", colorHex = "#835400", isManager = false),
-            NewMemberInfo(name = "Nafis", phoneNumber = "01711000004", colorHex = "#7B1FA2", isManager = false),
-            NewMemberInfo(name = "Arif", phoneNumber = "01711000005", colorHex = "#C2185B", isManager = false),
-            NewMemberInfo(name = "Rifat", phoneNumber = "01711000006", colorHex = "#00796B", isManager = false)
-        )
-    }
+    var managerName by remember { mutableStateOf("") }
+    val memberList = remember { mutableStateListOf<NewMemberInfo>() }
 
     // Step 3: Advance Fund ("চাঁদা") State
-    var collectAdvanceFund by remember { mutableStateOf(true) }
-    var advanceDepositAmountText by remember { mutableStateOf("5000") }
+    var collectAdvanceFund by remember { mutableStateOf(false) }
+    var advanceDepositAmountText by remember { mutableStateOf("") }
 
     // Handle back button for step navigation
     BackHandler(enabled = true) {
@@ -539,7 +530,7 @@ private fun TripDetailsStep(
                         selected = isSelected,
                         onClick = {
                             onDestinationChange("$place, Bangladesh")
-                            if (tripName.isBlank() || tripName == "Bandarban Expedition" || POPULAR_DESTINATIONS.any { it.second == tripName }) {
+                            if (tripName.isBlank() || POPULAR_DESTINATIONS.any { it.second == tripName }) {
                                 onTripNameChange(suggestedTitle)
                             }
                         },
@@ -785,51 +776,6 @@ private fun TripMembersStep(
             }
         }
 
-        // Quick Preset Groups
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedButton(
-                onClick = {
-                    members.clear()
-                    members.addAll(
-                        listOf(
-                            NewMemberInfo("Emon", "01711000001", "#006C4C", isManager = true),
-                            NewMemberInfo("Shakib", "01711000002", "#00658E", isManager = false),
-                            NewMemberInfo("Tanvir", "01711000003", "#835400", isManager = false),
-                            NewMemberInfo("Nafis", "01711000004", "#7B1FA2", isManager = false),
-                            NewMemberInfo("Arif", "01711000005", "#C2185B", isManager = false),
-                            NewMemberInfo("Rifat", "01711000006", "#00796B", isManager = false)
-                        )
-                    )
-                },
-                modifier = Modifier.weight(1f).testTag("preset_6_members_button")
-            ) {
-                Text("6 Friends Roster", fontSize = 11.sp)
-            }
-
-            OutlinedButton(
-                onClick = {
-                    members.clear()
-                    members.addAll(
-                        listOf(
-                            NewMemberInfo("Emon", "01711000001", "#006C4C", isManager = true),
-                            NewMemberInfo("Shakib", "01711000002", "#00658E", isManager = false),
-                            NewMemberInfo("Tanvir", "01711000003", "#835400", isManager = false),
-                            NewMemberInfo("Nafis", "01711000004", "#7B1FA2", isManager = false),
-                            NewMemberInfo("Arif", "01711000005", "#C2185B", isManager = false),
-                            NewMemberInfo("Rifat", "01711000006", "#00796B", isManager = false),
-                            NewMemberInfo("Fahim", "01711000007", "#E65100", isManager = false),
-                            NewMemberInfo("Joy", "01711000008", "#303F9F", isManager = false)
-                        )
-                    )
-                },
-                modifier = Modifier.weight(1f).testTag("preset_8_members_button")
-            ) {
-                Text("8 Expedition Crew", fontSize = 11.sp)
-            }
-        }
 
         // Add Member Form
         Card(

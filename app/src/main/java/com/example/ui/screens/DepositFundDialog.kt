@@ -82,15 +82,15 @@ fun DepositFundDialog(
     var selectedMemberId by remember { mutableStateOf(members.firstOrNull()?.id) }
     var externalContributor by remember { mutableStateOf("") }
 
-    var amountText by remember { mutableStateOf("5000") }
+    var amountText by remember { mutableStateOf("") }
     var selectedCurrency by remember { mutableStateOf(baseCurrency) }
     var customRateText by remember {
         val r = exchangeRates.find { it.fromCurrency == baseCurrency }?.rate ?: 1.0
         mutableStateOf(r.toString())
     }
 
-    var selectedCategoryName by remember { mutableStateOf("Common Fund Deposit (\"চাঁদা\")") }
-    var notes by remember { mutableStateOf("Advance Tour Fund (চাঁদা)") }
+    var selectedCategoryName by remember { mutableStateOf("Common Fund Deposit") }
+    var notes by remember { mutableStateOf("") }
 
     val quickAmounts = listOf("1000", "2000", "3000", "5000", "10000")
 

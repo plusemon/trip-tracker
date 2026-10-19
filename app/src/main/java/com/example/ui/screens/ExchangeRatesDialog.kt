@@ -61,7 +61,7 @@ fun ExchangeRatesDialog(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var fromCurrency by remember { mutableStateOf("USD") }
-    var rateInputText by remember { mutableStateOf("122.0") }
+    var rateInputText by remember { mutableStateOf("") }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
