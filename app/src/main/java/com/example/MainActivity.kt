@@ -83,17 +83,20 @@ import com.example.ui.screens.SettlementScreen
 import com.example.ui.screens.SettingsScreen
 import com.example.ui.screens.TripSetupScreen
 import com.example.ui.theme.TripSplitTheme
+import com.example.updater.ui.AppUpdateDialog
+import com.example.updater.ui.UpdateViewModel
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: TripSplitViewModel by viewModels()
+    private val updateViewModel: UpdateViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             TripSplitTheme {
-                TripSplitApp(viewModel = viewModel)
+                TripSplitApp(viewModel = viewModel, updateViewModel = updateViewModel)
             }
         }
     }
@@ -101,16 +104,33 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TripSplitApp(viewModel: TripSplitViewModel) {
+fun TripSplitApp(
+    viewModel: TripSplitViewModel,
+    updateViewModel: UpdateViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val updateUiState by updateViewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     var tripMenuExpanded by remember { mutableStateOf(false) }
+
+    // Automatic update check on app launch
+    LaunchedEffect(Unit) {
+        updateViewModel.checkForUpdates(manual = false)
+    }
 
     LaunchedEffect(uiState.userMessage) {
         uiState.userMessage?.let {
             snackbarHostState.showSnackbar(it)
             viewModel.clearMessage()
+        }
+    }
+
+    LaunchedEffect(updateUiState.userMessage) {
+        updateUiState.userMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            updateViewModel.clearMessage()
         }
     }
 
@@ -428,7 +448,10 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                         onOpenCustomCategories = { viewModel.openDialog(ActiveDialog.CREATE_CATEGORY) },
                         onExportJson = { viewModel.exportJsonBackup() },
                         onImportJson = { viewModel.importJsonBackup(it) },
-                        onLoadDemo = { viewModel.loadDemoBandarbanTour() }
+                        onLoadDemo = { viewModel.loadDemoBandarbanTour() },
+                        isCheckingUpdates = updateUiState.isChecking,
+                        updateStatus = updateUiState.lastCheckStatus,
+                        onCheckForUpdates = { updateViewModel.checkForUpdates(manual = true) }
                     )
                 }
             }
@@ -512,5 +535,20 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
         }
 
         else -> {}
+    }
+
+    // Over-the-Air Update Dialog
+    if (updateUiState.showDialog && updateUiState.updateInfo != null) {
+        AppUpdateDialog(
+            updateInfo = updateUiState.updateInfo!!,
+            isDownloading = updateUiState.isDownloading,
+            downloadProgress = updateUiState.downloadProgress,
+            downloadedBytes = updateUiState.downloadedBytes,
+            totalBytes = updateUiState.totalBytes,
+            needsInstallPermission = updateUiState.needsInstallPermission,
+            onStartDownload = { updateViewModel.startUpdateDownload(context) },
+            onRequestPermission = { updateViewModel.openPermissionSettings(context) },
+            onDismiss = { updateViewModel.dismissDialog() }
+        )
     }
 }

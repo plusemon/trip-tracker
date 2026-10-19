@@ -1,0 +1,85 @@
+name: Build & Publish In-App Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+# Required for softprops/action-gh-release to create releases and upload release assets
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build APK and Publish GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Extract Version from build.gradle.kts
+        id: extract_version
+        run: |
+          VERSION_NAME=$(grep -o 'versionName = "[^"]*"' app/build.gradle.kts | head -1 | cut -d'"' -f2)
+          if [ -z "$VERSION_NAME" ]; then
+            VERSION_NAME="1.0"
+          fi
+          # Generate a clean, semantic release tag combining version and run number
+          RELEASE_TAG="v${VERSION_NAME}.${{ github.run_number }}"
+          echo "Extracted Version: $VERSION_NAME"
+          echo "Generated Tag: $RELEASE_TAG"
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Prepare APK Asset for Release
+        run: |
+          APK_DIR="app/build/outputs/apk/debug"
+          SOURCE_APK="$APK_DIR/app-debug.apk"
+          TARGET_APK="$APK_DIR/TripSplitBD-${RELEASE_TAG}.apk"
+          if [ -f "$SOURCE_APK" ]; then
+            cp "$SOURCE_APK" "$TARGET_APK"
+            echo "Prepared asset: $TARGET_APK"
+          else
+            echo "Error: Output APK not found at $SOURCE_APK"
+            exit 1
+          fi
+
+      - name: Create GitHub Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: "TripSplit BD ${{ env.RELEASE_TAG }}"
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          files: |
+            app/build/outputs/apk/debug/TripSplitBD-*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

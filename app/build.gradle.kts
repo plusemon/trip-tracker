@@ -19,6 +19,9 @@ android {
     versionCode = 1
     versionName = "1.0"
 
+    buildConfigField("String", "GITHUB_REPO_OWNER", "\"plusemon\"")
+    buildConfigField("String", "GITHUB_REPO_NAME", "\"trip-tracker\"")
+
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
