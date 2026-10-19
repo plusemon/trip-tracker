@@ -9,6 +9,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.example.util.ThemeMode
 
 private val DarkColorScheme = darkColorScheme(
     primary = DarkPrimary,
@@ -58,7 +59,12 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun TripSplitTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: ThemeMode = ThemeMode.SYSTEM,
+    darkTheme: Boolean = when (themeMode) {
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    },
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {

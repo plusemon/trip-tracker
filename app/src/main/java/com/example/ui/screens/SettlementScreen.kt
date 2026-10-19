@@ -288,13 +288,15 @@ fun SettlementScreen(
                                 Text(
                                     text = "Paid: $depositStr$pocketStr",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.outline,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.SemiBold,
                                     maxLines = 1
                                 )
                                 Text(
                                     text = "Consumed: ${CurrencyFormatter.formatTaka(mb.totalConsumed, currencySymbol)}",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.outline,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.SemiBold,
                                     maxLines = 1
                                 )
                             }

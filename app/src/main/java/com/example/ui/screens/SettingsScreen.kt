@@ -78,6 +78,9 @@ import com.example.data.entity.TripEntity
 import com.example.data.entity.TripStatus
 import com.example.ui.components.TripStatusBadge
 
+import androidx.compose.material.icons.filled.Palette
+import com.example.util.ThemeMode
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -90,6 +93,8 @@ fun SettingsScreen(
     onOpenCustomCategories: () -> Unit,
     onExportJson: () -> String,
     onImportJson: (String) -> Unit,
+    currentThemeMode: ThemeMode = ThemeMode.SYSTEM,
+    onThemeModeChange: (ThemeMode) -> Unit = {},
     isCheckingUpdates: Boolean = false,
     updateStatus: String? = null,
     onCheckForUpdates: () -> Unit = {},
@@ -99,7 +104,6 @@ fun SettingsScreen(
     var showImportDialog by remember { mutableStateOf(false) }
     var importJsonText by remember { mutableStateOf("") }
     var showDeleteConfirm by remember { mutableStateOf(false) }
-    var tipJarCount by remember { mutableStateOf(0) }
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -167,6 +171,63 @@ fun SettingsScreen(
                         modifier = Modifier.testTag("lang_btn_bn")
                     ) {
                         Text(stringResource(id = R.string.bangla), fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+
+        // Appearance & Theme Card
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("appearance_settings_card")
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Palette,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Appearance & Theme",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = currentThemeMode == ThemeMode.SYSTEM,
+                        onClick = { onThemeModeChange(ThemeMode.SYSTEM) },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+                        modifier = Modifier.testTag("theme_btn_system")
+                    ) {
+                        Text("System", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                    SegmentedButton(
+                        selected = currentThemeMode == ThemeMode.LIGHT,
+                        onClick = { onThemeModeChange(ThemeMode.LIGHT) },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+                        modifier = Modifier.testTag("theme_btn_light")
+                    ) {
+                        Text("Light", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                    SegmentedButton(
+                        selected = currentThemeMode == ThemeMode.DARK,
+                        onClick = { onThemeModeChange(ThemeMode.DARK) },
+                        shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+                        modifier = Modifier.testTag("theme_btn_dark")
+                    ) {
+                        Text("Dark", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
                 }
             }
@@ -516,73 +577,6 @@ fun SettingsScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Check for Updates", fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-        }
-
-        // About & Developer Support / Tip Jar
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "About TripSplit BD",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Text(
-                    text = "TripSplit BD v1.0 • 100% Offline-First Architecture\nDesigned for Bangladeshi group expeditions (Sajek, Bandarban, Sylhet, Cox's Bazar) & international travel. Built with Jetpack Compose & Room Database.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-
-                // Tip Jar
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Buy the Developer a Hill Chai ☕",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = if (tipJarCount == 0) "Support independent offline Android development!" else "Tipped $tipJarCount cups of mountain tea! Thank you! 💚",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    Button(
-                        onClick = {
-                            tipJarCount++
-                            Toast.makeText(context, "☕ Sent a cup of mountain tea to the developer! Cheers!", Toast.LENGTH_SHORT).show()
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Icon(Icons.Default.FreeBreakfast, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Tip Chai", fontSize = 12.sp)
                     }
                 }
             }

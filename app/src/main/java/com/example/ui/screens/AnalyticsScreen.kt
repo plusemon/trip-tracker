@@ -120,7 +120,8 @@ fun AnalyticsScreen(
                     Text(
                         text = "Total Tour Spending",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = CurrencyFormatter.formatCurrency(summary?.totalSpentOverall ?: 0.0, currencySymbol),
@@ -132,7 +133,8 @@ fun AnalyticsScreen(
                     Text(
                         text = "Across ${summary?.expenseCount ?: 0} logged expenses • Budget: ${CurrencyFormatter.formatCurrency(summary?.budget ?: 0.0, currencySymbol)}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -269,7 +271,8 @@ fun AnalyticsScreen(
                                         Text(
                                             text = "${(cs.percentage * 100).toInt()}% • ${cs.count} entries",
                                             style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.outline
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            fontWeight = FontWeight.SemiBold
                                         )
                                     }
                                 }
@@ -424,7 +427,8 @@ fun AnalyticsScreen(
                                     Text(
                                         text = "Deposited ${CurrencyFormatter.formatCurrency(b.totalDeposited, currencySymbol)} + Pocket ${CurrencyFormatter.formatCurrency(b.totalPocketPaid, currencySymbol)}",
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.outline
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                             }

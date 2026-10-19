@@ -88,6 +88,8 @@ import com.example.updater.ui.UpdateViewModel
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.res.stringResource
 import com.example.util.LanguageManager
+import com.example.util.ThemeManager
+import com.example.util.ThemeMode
 
 class MainActivity : AppCompatActivity() {
 
@@ -97,10 +99,19 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LanguageManager.applySavedLocale(this)
+        ThemeManager.init(this)
         enableEdgeToEdge()
         setContent {
-            TripSplitTheme {
-                TripSplitApp(viewModel = viewModel, updateViewModel = updateViewModel)
+            val themeMode by ThemeManager.themeMode.collectAsStateWithLifecycle()
+            TripSplitTheme(themeMode = themeMode) {
+                TripSplitApp(
+                    viewModel = viewModel,
+                    updateViewModel = updateViewModel,
+                    currentThemeMode = themeMode,
+                    onThemeModeChange = { newMode ->
+                        ThemeManager.setThemeMode(this, newMode)
+                    }
+                )
             }
         }
     }
@@ -110,7 +121,9 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun TripSplitApp(
     viewModel: TripSplitViewModel,
-    updateViewModel: UpdateViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    updateViewModel: UpdateViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    currentThemeMode: ThemeMode = ThemeMode.SYSTEM,
+    onThemeModeChange: (ThemeMode) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val updateUiState by updateViewModel.uiState.collectAsStateWithLifecycle()
@@ -428,6 +441,8 @@ fun TripSplitApp(
                         onOpenCustomCategories = { viewModel.openDialog(ActiveDialog.CREATE_CATEGORY) },
                         onExportJson = { viewModel.exportJsonBackup() },
                         onImportJson = { viewModel.importJsonBackup(it) },
+                        currentThemeMode = currentThemeMode,
+                        onThemeModeChange = onThemeModeChange,
                         isCheckingUpdates = updateUiState.isChecking,
                         updateStatus = updateUiState.lastCheckStatus,
                         onCheckForUpdates = { updateViewModel.checkForUpdates(manual = true) }
