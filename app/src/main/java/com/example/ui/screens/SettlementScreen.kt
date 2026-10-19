@@ -40,6 +40,7 @@ fun SettlementScreen(
     settledRecords: List<SettlementRecordEntity>,
     currencySymbol: String,
     onRecordSettlement: (fromMemberId: Long, toMemberId: Long, fromMemberName: String, toMemberName: String, amount: Double) -> Unit,
+    isReadOnly: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var selectedFilter by remember { mutableStateOf("All") }
@@ -243,6 +244,7 @@ fun SettlementScreen(
                             onSettleClick = {
                                 onRecordSettlement(st.fromMemberId, st.toMemberId, st.fromMemberName, st.toMemberName, st.amount)
                             },
+                            isReadOnly = isReadOnly,
                             modifier = Modifier.testTag("settlement_step_${st.fromMemberId}_to_${st.toMemberId}")
                         )
                     }

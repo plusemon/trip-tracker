@@ -21,4 +21,7 @@ interface SettlementDao {
 
     @Delete
     suspend fun deleteSettlementRecord(record: SettlementRecordEntity)
+
+    @Query("DELETE FROM settlement_records WHERE tripId = :tripId")
+    suspend fun deleteSettlementsForTrip(tripId: Long)
 }

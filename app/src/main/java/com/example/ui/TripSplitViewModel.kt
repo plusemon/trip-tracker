@@ -28,6 +28,11 @@ import com.example.export.JsonBackupManager
 import com.example.export.PdfReportGenerator
 import com.example.export.ShareSummaryFormatter
 import com.example.export.TripBackupBundle
+import com.example.sync.FirebaseSyncManager
+import com.example.util.DeviceIdHelper
+import com.example.util.TripCodeGenerator
+import com.google.firebase.database.ValueEventListener
+import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,6 +50,9 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
     val uiState: StateFlow<TripSplitUiState> = _uiState.asStateFlow()
 
     private val _currentTripId = MutableStateFlow<Long?>(null)
+
+    private var activeRemoteTripCode: String? = null
+    private var activeRemoteListener: ValueEventListener? = null
 
     init {
         // 1. Observe all trips
@@ -142,6 +150,30 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                                 tripSummary = calculated.tripSummary,
                                 categorySpendings = calculated.categorySpendings
                             )
+                        }
+
+                        val trip = calculated.currentTrip
+                        if (trip != null) {
+                            if (trip.isReadOnly) {
+                                setupRemoteTripObserver(trip)
+                            } else {
+                                if (trip.tripCode.isBlank()) {
+                                    val generatedCode = TripCodeGenerator.generateCode(trip.destination.ifBlank { trip.name })
+                                    val deviceId = DeviceIdHelper.getDeviceId(getApplication())
+                                    viewModelScope.launch {
+                                        repository.updateTrip(trip.copy(tripCode = generatedCode, leaderDeviceId = deviceId))
+                                    }
+                                } else {
+                                    FirebaseSyncManager.syncTripToCloud(
+                                        trip = trip,
+                                        members = calculated.members,
+                                        deposits = calculated.deposits,
+                                        expenses = calculated.expenses,
+                                        settlements = calculated.settlements,
+                                        calculatedSettlements = calculated.settlementSteps
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -298,10 +330,19 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun createTrip(trip: TripEntity, members: List<NewMemberInfo>) {
         viewModelScope.launch {
-            val newTripId = repository.createTripWithDetailedMembers(trip, members)
+            val context = getApplication<Application>()
+            val deviceId = DeviceIdHelper.getDeviceId(context)
+            val code = if (trip.tripCode.isNotBlank()) trip.tripCode.uppercase().trim()
+                       else TripCodeGenerator.generateCode(trip.destination.ifBlank { trip.name })
+            val preparedTrip = trip.copy(
+                tripCode = code,
+                isReadOnly = false,
+                leaderDeviceId = deviceId
+            )
+            val newTripId = repository.createTripWithDetailedMembers(preparedTrip, members)
             _currentTripId.value = newTripId
             closeDialog()
-            showMessage("Tour created successfully!")
+            showMessage("Tour created! Join Code: $code")
         }
     }
 
@@ -508,4 +549,112 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    private fun setupRemoteTripObserver(trip: TripEntity) {
+        val code = trip.tripCode.uppercase().trim()
+        if (code.isBlank()) return
+
+        if (activeRemoteTripCode == code && activeRemoteListener != null) {
+            return
+        }
+
+        activeRemoteListener?.let { listener ->
+            activeRemoteTripCode?.let { oldCode ->
+                FirebaseSyncManager.removeTripObserver(oldCode, listener)
+            }
+        }
+
+        activeRemoteTripCode = code
+        activeRemoteListener = FirebaseSyncManager.observeTrip(
+            tripCode = code,
+            onUpdate = { cloudTrip ->
+                if (cloudTrip != null) {
+                    viewModelScope.launch {
+                        repository.syncRemoteTripToLocal(cloudTrip)
+                    }
+                }
+            },
+            onError = { ex ->
+                Log.e("TripSplitVM", "Live sync error: ${ex.message}")
+            }
+        )
+    }
+
+    fun openJoinTripDialog() {
+        openDialog(ActiveDialog.JOIN_TRIP)
+    }
+
+    fun openShareTripCodeDialog() {
+        openDialog(ActiveDialog.SHARE_TRIP_CODE)
+    }
+
+    fun triggerCloudSync() {
+        val state = _uiState.value
+        val trip = state.currentTrip ?: return
+        if (trip.isReadOnly || trip.tripCode.isBlank()) return
+
+        _uiState.update { it.copy(isSyncing = true) }
+        FirebaseSyncManager.syncTripToCloud(
+            trip = trip,
+            members = state.members,
+            deposits = state.deposits,
+            expenses = state.expenses,
+            settlements = state.settlements,
+            calculatedSettlements = state.settlementSteps,
+            onSuccess = {
+                _uiState.update { it.copy(isSyncing = false) }
+                showMessage("Trip synced live to Firebase!")
+            },
+            onError = { ex ->
+                _uiState.update { it.copy(isSyncing = false) }
+                showMessage("Sync failed: ${ex.message}")
+            }
+        )
+    }
+
+    fun joinTripWithCode(code: String, onComplete: (Boolean, String?) -> Unit) {
+        val cleanCode = code.trim().uppercase()
+        if (cleanCode.length != 6) {
+            onComplete(false, "Trip code must be exactly 6 characters")
+            return
+        }
+
+        _uiState.update { it.copy(isSyncing = true) }
+
+        FirebaseSyncManager.fetchTripOnce(
+            tripCode = cleanCode,
+            onResult = { cloudTrip ->
+                if (cloudTrip != null) {
+                    viewModelScope.launch {
+                        try {
+                            val tripId = repository.syncRemoteTripToLocal(cloudTrip)
+                            _currentTripId.value = tripId
+                            _uiState.update { it.copy(isSyncing = false) }
+                            closeDialog()
+                            showMessage("Joined ${cloudTrip.metadata.tripName} in View-Only mode!")
+                            onComplete(true, null)
+                        } catch (e: Exception) {
+                            _uiState.update { it.copy(isSyncing = false) }
+                            onComplete(false, "Failed to save trip: ${e.message}")
+                        }
+                    }
+                } else {
+                    _uiState.update { it.copy(isSyncing = false) }
+                    onComplete(false, "No trip found with code $cleanCode")
+                }
+            },
+            onError = { ex ->
+                _uiState.update { it.copy(isSyncing = false) }
+                onComplete(false, "Network error: ${ex.message}")
+            }
+        )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        activeRemoteListener?.let { listener ->
+            activeRemoteTripCode?.let { code ->
+                FirebaseSyncManager.removeTripObserver(code, listener)
+            }
+        }
+    }
 }

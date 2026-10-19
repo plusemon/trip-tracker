@@ -177,5 +177,15 @@
     <string name="pdf_saved_success">পিডিএফ ফাইল ম্যানেজারে সংরক্ষিত হয়েছে</string>
     <string name="pdf_save_failed">পিডিএফ সংরক্ষণ ব্যর্থ হয়েছে</string>
     <string name="open_pdf">খুলুন</string>
+    <!-- Cloud Realtime Database Sync -->
+    <string name="join_trip_with_code">কোড দিয়ে ট্যুরে যুক্ত হন</string>
+    <string name="share_trip_code">ট্যুর কোড শেয়ার করুন</string>
+    <string name="trip_code_label">ট্যুর কোড</string>
+    <string name="live_sync_view_only">লাইভ সিঙ্ক (শুধু দর্শন)</string>
+    <string name="code_copied">কোড কপি করা হয়েছে!</string>
+    <string name="trip_broadcast_hint">সহযাত্রীদের সাথে লাইভ আপডেট শেয়ার করুন</string>
+    <string name="firebase_live_sync">ফায়ারবেস রিয়েলটাইম সিঙ্ক</string>
+    <string name="sync_now">এখনই সিঙ্ক করুন</string>
+    <string name="syncing">সিঙ্ক হচ্ছে...</string>
 </resources>
 

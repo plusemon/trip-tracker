@@ -27,6 +27,7 @@ fun SettlementItemCard(
     currencySymbol: String,
     isSettled: Boolean,
     onSettleClick: () -> Unit,
+    isReadOnly: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -253,7 +254,7 @@ fun SettlementItemCard(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                } else {
+                } else if (!isReadOnly) {
                     FilledTonalButton(
                         onClick = onSettleClick,
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),

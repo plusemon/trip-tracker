@@ -16,5 +16,8 @@ data class TripEntity(
     val baseCurrency: String = "BDT",
     val status: TripStatus = TripStatus.ACTIVE,
     val managerName: String = "Tour Manager",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val tripCode: String = "",
+    val isReadOnly: Boolean = false,
+    val leaderDeviceId: String = ""
 )

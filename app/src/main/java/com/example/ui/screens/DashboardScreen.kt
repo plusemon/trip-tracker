@@ -14,6 +14,8 @@ import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.*
@@ -26,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,6 +55,8 @@ fun DashboardScreen(
     onViewAllExpensesClick: () -> Unit,
     onNewTripClick: () -> Unit,
     onOpenSettleDebts: () -> Unit,
+    onShareCodeClick: () -> Unit = {},
+    onJoinTripClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     if (trip == null) {
@@ -123,6 +128,19 @@ fun DashboardScreen(
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Create Your First Tour", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    }
+
+                    OutlinedButton(
+                        onClick = onJoinTripClick,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .testTag("welcome_join_trip_button")
+                    ) {
+                        Icon(Icons.Default.CloudDownload, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Join Trip with Code", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                     }
 
                 }
@@ -244,6 +262,100 @@ fun DashboardScreen(
                                 }
                             }
                         }
+
+                        if (trip.isReadOnly) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("live_sync_view_only_badge")
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "👀 Live Sync (View-Only)",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                                    )
+                                    Text(
+                                        text = "Code: ${trip.tripCode}",
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontFamily = FontFamily.Monospace,
+                                            fontWeight = FontWeight.ExtraBold
+                                        ),
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Leader Share Trip Code Card
+            if (!trip.isReadOnly && trip.tripCode.isNotBlank()) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("leader_share_code_card"),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Share,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        text = "Trip Code: ${trip.tripCode}",
+                                        style = MaterialTheme.typography.titleSmall.copy(
+                                            fontFamily = FontFamily.Monospace,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            letterSpacing = 1.sp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                                Text(
+                                    text = "Broadcast live updates to fellow travelers",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            FilledTonalButton(
+                                onClick = onShareCodeClick,
+                                shape = RoundedCornerShape(12.dp),
+                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                                modifier = Modifier.testTag("dashboard_share_code_button")
+                            ) {
+                                Text("Share Code", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                        }
                     }
                 }
             }
@@ -346,19 +458,21 @@ fun DashboardScreen(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                // Quick Deposit Action inside Hero Card
-                                Button(
-                                    onClick = onAddDepositClick,
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.White,
-                                        contentColor = HeroGradientStart
-                                    ),
-                                    modifier = Modifier.height(40.dp)
-                                ) {
-                                    Icon(Icons.Default.Savings, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Deposit", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                if (!trip.isReadOnly) {
+                                    // Quick Deposit Action inside Hero Card (Hidden for Read-Only members)
+                                    Button(
+                                        onClick = onAddDepositClick,
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color.White,
+                                            contentColor = HeroGradientStart
+                                        ),
+                                        modifier = Modifier.height(40.dp)
+                                    ) {
+                                        Icon(Icons.Default.Savings, contentDescription = null, modifier = Modifier.size(16.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Deposit", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                    }
                                 }
                             }
 

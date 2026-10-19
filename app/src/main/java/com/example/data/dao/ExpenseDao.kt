@@ -39,6 +39,15 @@ interface ExpenseDao {
     @Delete
     suspend fun deleteExpense(expense: ExpenseEntity)
 
+    @Query("DELETE FROM expenses WHERE tripId = :tripId")
+    suspend fun deleteExpensesForTrip(tripId: Long)
+
+    @Query("DELETE FROM expense_splits WHERE expenseId IN (SELECT id FROM expenses WHERE tripId = :tripId)")
+    suspend fun deleteSplitsForTrip(tripId: Long)
+
+    @Query("DELETE FROM expense_payers WHERE expenseId IN (SELECT id FROM expenses WHERE tripId = :tripId)")
+    suspend fun deletePayersForTrip(tripId: Long)
+
     // Splits
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSplits(splits: List<ExpenseSplitEntity>)

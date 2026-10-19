@@ -28,4 +28,7 @@ interface DepositDao {
 
     @Delete
     suspend fun deleteDeposit(deposit: DepositEntity)
+
+    @Query("DELETE FROM deposits WHERE tripId = :tripId")
+    suspend fun deleteDepositsForTrip(tripId: Long)
 }

@@ -29,11 +29,14 @@ enum class ActiveDialog {
     BACKUP_RESTORE,
     RECORD_SETTLEMENT,
     VIEW_PHOTO,
-    ABOUT_DEV
+    ABOUT_DEV,
+    JOIN_TRIP,
+    SHARE_TRIP_CODE
 }
 
 data class TripSplitUiState(
     val isLoading: Boolean = true,
+    val isSyncing: Boolean = false,
     val allTrips: List<TripEntity> = emptyList(),
     val currentTrip: TripEntity? = null,
     val members: List<MemberEntity> = emptyList(),

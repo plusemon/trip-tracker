@@ -75,6 +75,7 @@ fun ExpensesScreen(
     currencySymbol: String,
     onDeleteExpense: (ExpenseEntity) -> Unit,
     onViewPhoto: (String) -> Unit,
+    isReadOnly: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var selectedTabFilter by remember { mutableStateOf(0) } // 0: All, 1: Expenses, 2: Incomes/Deposits
@@ -333,16 +334,18 @@ fun ExpensesScreen(
                                         fontWeight = FontWeight.ExtraBold,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
-                                    IconButton(
-                                        onClick = { expenseToDelete = expense },
-                                        modifier = Modifier.size(24.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete",
-                                            tint = MaterialTheme.colorScheme.outline,
-                                            modifier = Modifier.size(16.dp)
-                                        )
+                                    if (!isReadOnly) {
+                                        IconButton(
+                                            onClick = { expenseToDelete = expense },
+                                            modifier = Modifier.size(24.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Delete",
+                                                tint = MaterialTheme.colorScheme.outline,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }

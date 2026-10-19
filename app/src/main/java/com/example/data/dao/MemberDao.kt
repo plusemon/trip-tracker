@@ -31,4 +31,7 @@ interface MemberDao {
 
     @Delete
     suspend fun deleteMember(member: MemberEntity)
+
+    @Query("DELETE FROM members WHERE tripId = :tripId")
+    suspend fun deleteMembersForTrip(tripId: Long)
 }

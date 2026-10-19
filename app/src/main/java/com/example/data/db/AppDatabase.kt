@@ -34,7 +34,7 @@ import com.example.data.entity.TripEntity
         ReceiptAttachmentEntity::class,
         ExpensePayerEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

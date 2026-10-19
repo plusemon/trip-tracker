@@ -74,6 +74,9 @@ import com.example.data.entity.TripStatus
 import com.example.ui.ActiveDialog
 import com.example.ui.TripSplitUiState
 import com.example.ui.TripSplitViewModel
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material3.HorizontalDivider
 import com.example.ui.screens.AddExpenseDialog
 import com.example.ui.screens.AnalyticsScreen
 import com.example.ui.screens.CustomCategoryDialog
@@ -81,7 +84,9 @@ import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.DepositFundDialog
 import com.example.ui.screens.ExpensesScreen
 import com.example.ui.screens.ExportDialog
+import com.example.ui.screens.JoinTripDialog
 import com.example.ui.screens.PhotoViewerDialog
+import com.example.ui.screens.ShareTripCodeDialog
 import com.example.ui.screens.SettlementScreen
 import com.example.ui.screens.SettingsScreen
 import com.example.ui.screens.TripSetupScreen
@@ -240,6 +245,33 @@ fun TripSplitApp(
                 },
                 actions = {
                     if (currentTrip != null) {
+                        if (currentTrip.isReadOnly) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                modifier = Modifier.padding(end = 4.dp).testTag("top_live_sync_badge")
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "👀 Live Sync",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                                    )
+                                }
+                            }
+                        } else if (currentTrip.tripCode.isNotBlank()) {
+                            IconButton(
+                                onClick = { viewModel.openShareTripCodeDialog() },
+                                modifier = Modifier.testTag("top_share_code_button")
+                            ) {
+                                Icon(Icons.Default.QrCode2, contentDescription = "Share Trip Code", tint = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+
                         IconButton(
                             onClick = { viewModel.openDialog(ActiveDialog.EXPORT) },
                             modifier = Modifier.testTag("top_share_button")
@@ -269,21 +301,64 @@ fun TripSplitApp(
                                 )
                                 uiState.allTrips.forEach { trip ->
                                     DropdownMenuItem(
-                                        text = { Text(trip.name, fontWeight = if (trip.id == currentTrip.id) FontWeight.Bold else FontWeight.Normal) },
+                                        text = {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Text(
+                                                    trip.name,
+                                                    fontWeight = if (trip.id == currentTrip.id) FontWeight.Bold else FontWeight.Normal,
+                                                    modifier = Modifier.weight(1f, fill = false)
+                                                )
+                                                if (trip.isReadOnly) {
+                                                    Spacer(Modifier.width(6.dp))
+                                                    Text(
+                                                        " (View-Only)",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        color = MaterialTheme.colorScheme.tertiary
+                                                    )
+                                                }
+                                            }
+                                        },
                                         onClick = {
                                             viewModel.selectTrip(trip.id)
                                             tripMenuExpanded = false
                                         }
                                     )
                                 }
+                                HorizontalDivider()
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(id = R.string.create_new_trip), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
+                                    text = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.CloudDownload, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                                            Spacer(Modifier.width(8.dp))
+                                            Text("Join Trip with Code", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                        }
+                                    },
+                                    onClick = {
+                                        tripMenuExpanded = false
+                                        viewModel.openJoinTripDialog()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                                            Spacer(Modifier.width(8.dp))
+                                            Text(stringResource(id = R.string.create_new_trip), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                        }
+                                    },
                                     onClick = {
                                         tripMenuExpanded = false
                                         viewModel.openDialog(ActiveDialog.CREATE_TRIP)
                                     }
                                 )
                             }
+                        }
+                    } else {
+                        IconButton(
+                            onClick = { viewModel.openJoinTripDialog() },
+                            modifier = Modifier.testTag("top_join_button")
+                        ) {
+                            Icon(Icons.Default.CloudDownload, contentDescription = "Join Trip", tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                 },
@@ -367,7 +442,7 @@ fun TripSplitApp(
             }
         },
         floatingActionButton = {
-            if (currentTrip != null && (uiState.selectedTab == 0 || uiState.selectedTab == 1)) {
+            if (currentTrip != null && !currentTrip.isReadOnly && (uiState.selectedTab == 0 || uiState.selectedTab == 1)) {
                 FloatingActionButton(
                     onClick = { viewModel.openDialog(ActiveDialog.ADD_EXPENSE) },
                     modifier = Modifier.testTag("fab_add_expense"),
@@ -395,7 +470,8 @@ fun TripSplitApp(
                     onExportClick = {},
                     onViewAllExpensesClick = {},
                     onNewTripClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
-                    onOpenSettleDebts = {}
+                    onOpenSettleDebts = {},
+                    onJoinTripClick = { viewModel.openJoinTripDialog() }
                 )
             } else {
                 when (uiState.selectedTab) {
@@ -408,7 +484,9 @@ fun TripSplitApp(
                         onExportClick = { viewModel.openDialog(ActiveDialog.EXPORT) },
                         onViewAllExpensesClick = { viewModel.setSelectedTab(1) },
                         onNewTripClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
-                        onOpenSettleDebts = { viewModel.setSelectedTab(2) }
+                        onOpenSettleDebts = { viewModel.setSelectedTab(2) },
+                        onShareCodeClick = { viewModel.openShareTripCodeDialog() },
+                        onJoinTripClick = { viewModel.openJoinTripDialog() }
                     )
                     1 -> ExpensesScreen(
                         expenses = uiState.expenses,
@@ -418,7 +496,8 @@ fun TripSplitApp(
                         payers = uiState.payers,
                         currencySymbol = currentTrip.currencySymbol,
                         onDeleteExpense = { viewModel.deleteExpense(it) },
-                        onViewPhoto = { viewModel.viewPhoto(it) }
+                        onViewPhoto = { viewModel.viewPhoto(it) },
+                        isReadOnly = currentTrip.isReadOnly
                     )
                     2 -> SettlementScreen(
                         balances = uiState.memberBalances,
@@ -427,7 +506,8 @@ fun TripSplitApp(
                         currencySymbol = currentTrip.currencySymbol,
                         onRecordSettlement = { fromId, toId, fromName, toName, amount ->
                             viewModel.recordSettlement(fromId, toId, fromName, toName, amount, "Settlement payment cleared")
-                        }
+                        },
+                        isReadOnly = currentTrip.isReadOnly
                     )
                     3 -> AnalyticsScreen(
                         summary = uiState.tripSummary,
@@ -523,6 +603,27 @@ fun TripSplitApp(
                 PhotoViewerDialog(
                     filePath = path,
                     onDismiss = { viewModel.closePhotoViewer() }
+                )
+            }
+        }
+
+        ActiveDialog.JOIN_TRIP -> {
+            JoinTripDialog(
+                onDismissRequest = { viewModel.closeDialog() },
+                onJoin = { code, callback ->
+                    viewModel.joinTripWithCode(code, callback)
+                },
+                isSyncing = uiState.isSyncing
+            )
+        }
+
+        ActiveDialog.SHARE_TRIP_CODE -> {
+            if (currentTrip != null) {
+                ShareTripCodeDialog(
+                    trip = currentTrip,
+                    onDismissRequest = { viewModel.closeDialog() },
+                    onManualSync = { viewModel.triggerCloudSync() },
+                    isSyncing = uiState.isSyncing
                 )
             }
         }

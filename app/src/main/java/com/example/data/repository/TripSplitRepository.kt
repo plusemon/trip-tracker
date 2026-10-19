@@ -8,11 +8,14 @@ import com.example.data.entity.ExpenseEntity
 import com.example.data.entity.ExpensePayerEntity
 import com.example.data.entity.ExpenseSplitEntity
 import com.example.data.entity.MemberEntity
+import com.example.data.entity.PayerType
 import com.example.data.entity.ReceiptAttachmentEntity
 import com.example.data.entity.SettlementRecordEntity
+import com.example.data.entity.SplitMode
 import com.example.data.entity.TripEntity
 import com.example.domain.model.NewMemberInfo
 import com.example.export.TripBackupBundle
+import com.example.sync.model.CloudTrip
 import kotlinx.coroutines.flow.Flow
 
 class TripSplitRepository(private val db: AppDatabase) {
@@ -230,5 +233,156 @@ class TripSplitRepository(private val db: AppDatabase) {
         }
 
         return newTripId
+    }
+
+    suspend fun getTripByCode(tripCode: String): TripEntity? {
+        return db.tripDao().getTripByCode(tripCode.uppercase().trim())
+    }
+
+    suspend fun syncRemoteTripToLocal(cloudTrip: CloudTrip): Long {
+        val code = cloudTrip.metadata.tripCode.uppercase().trim()
+        val existingTrip = db.tripDao().getTripByCode(code)
+
+        val tripId = if (existingTrip != null) {
+            val updated = existingTrip.copy(
+                name = cloudTrip.metadata.tripName.ifBlank { "Tour $code" },
+                budget = cloudTrip.metadata.targetBudget,
+                baseCurrency = cloudTrip.metadata.baseCurrency.ifBlank { "BDT" },
+                isReadOnly = true,
+                leaderDeviceId = cloudTrip.metadata.leaderDeviceId
+            )
+            db.tripDao().updateTrip(updated)
+            existingTrip.id
+        } else {
+            val newTrip = TripEntity(
+                name = cloudTrip.metadata.tripName.ifBlank { "Tour $code" },
+                destination = cloudTrip.metadata.tripName.ifBlank { "Tour $code" },
+                startDate = if (cloudTrip.metadata.updatedAt > 0) cloudTrip.metadata.updatedAt else System.currentTimeMillis(),
+                endDate = (if (cloudTrip.metadata.updatedAt > 0) cloudTrip.metadata.updatedAt else System.currentTimeMillis()) + (7 * 86400000L),
+                budget = cloudTrip.metadata.targetBudget,
+                baseCurrency = cloudTrip.metadata.baseCurrency.ifBlank { "BDT" },
+                tripCode = code,
+                isReadOnly = true,
+                leaderDeviceId = cloudTrip.metadata.leaderDeviceId
+            )
+            val newId = db.tripDao().insertTrip(newTrip)
+
+            // Seed default categories
+            val defaultCategories = listOf(
+                CategoryEntity(tripId = newId, name = "Transportation", iconName = "bus", colorHex = "#00658E", isIncome = false),
+                CategoryEntity(tripId = newId, name = "Lodging & Resort", iconName = "hotel", colorHex = "#7B1FA2", isIncome = false),
+                CategoryEntity(tripId = newId, name = "Food & Dining", iconName = "food", colorHex = "#E65100", isIncome = false),
+                CategoryEntity(tripId = newId, name = "Sightseeing & Tickets", iconName = "ticket", colorHex = "#006C4C", isIncome = false),
+                CategoryEntity(tripId = newId, name = "Common Fund Deposit", iconName = "money", colorHex = "#FFBA35", isIncome = true)
+            )
+            db.categoryDao().insertCategories(defaultCategories)
+            newId
+        }
+
+        // Clean out previous records for this synced trip to ensure authoritative sync
+        db.settlementDao().deleteSettlementsForTrip(tripId)
+        db.expenseDao().deleteSplitsForTrip(tripId)
+        db.expenseDao().deletePayersForTrip(tripId)
+        db.expenseDao().deleteExpensesForTrip(tripId)
+        db.depositDao().deleteDepositsForTrip(tripId)
+        db.memberDao().deleteMembersForTrip(tripId)
+
+        // Insert members
+        val defaultColors = listOf(
+            "#006C4C", "#00658E", "#835400", "#7B1FA2",
+            "#C2185B", "#00796B", "#E65100", "#303F9F"
+        )
+        val memberNameMap = mutableMapOf<String, Long>()
+
+        cloudTrip.members.forEachIndexed { idx, m ->
+            val initials = m.name.trim().split("\\s+".toRegex()).let { parts ->
+                if (parts.size >= 2) "${parts[0].first().uppercase()}${parts[1].first().uppercase()}"
+                else parts[0].take(2).uppercase()
+            }
+            val memberEntity = MemberEntity(
+                id = 0,
+                tripId = tripId,
+                name = m.name.trim(),
+                colorHex = defaultColors[idx % defaultColors.size],
+                avatarInitials = initials,
+                isManager = idx == 0
+            )
+            val insertedMemberId = db.memberDao().insertMember(memberEntity)
+            memberNameMap[m.name.trim()] = insertedMemberId
+
+            // If member has deposited fund, insert deposit
+            if (m.deposited > 0) {
+                db.depositDao().insertDeposit(
+                    DepositEntity(
+                        tripId = tripId,
+                        memberId = insertedMemberId,
+                        contributorName = m.name.trim(),
+                        amount = m.deposited,
+                        categoryName = "Common Fund Deposit",
+                        date = if (cloudTrip.metadata.updatedAt > 0) cloudTrip.metadata.updatedAt else System.currentTimeMillis()
+                    )
+                )
+            }
+        }
+
+        // Insert transactions
+        cloudTrip.transactions.values.forEach { tx ->
+            val isCommonFund = tx.paidBy.equals("Common Fund", ignoreCase = true)
+            val payerId = if (!isCommonFund) memberNameMap[tx.paidBy.trim()] else null
+            val payerType = if (isCommonFund || payerId == null) PayerType.COMMON_FUND else PayerType.MEMBER
+
+            val expCategory = ExpenseCategory.entries.find {
+                it.displayName.equals(tx.category, ignoreCase = true)
+            } ?: ExpenseCategory.TRANSPORTATION
+
+            val expenseEntity = ExpenseEntity(
+                id = 0,
+                tripId = tripId,
+                title = tx.title,
+                amount = tx.amount,
+                category = expCategory,
+                customCategoryName = tx.category,
+                payerType = payerType,
+                payerMemberId = payerId,
+                splitMode = SplitMode.EQUAL,
+                date = if (tx.timestamp > 0) tx.timestamp else System.currentTimeMillis()
+            )
+            val expId = db.expenseDao().insertExpense(expenseEntity)
+
+            // Equal splits across all members
+            if (memberNameMap.isNotEmpty() && tx.amount > 0) {
+                val perPerson = tx.amount / memberNameMap.size
+                val splits = memberNameMap.values.map { mId ->
+                    ExpenseSplitEntity(
+                        id = 0,
+                        expenseId = expId,
+                        memberId = mId,
+                        assignedAmount = perPerson
+                    )
+                }
+                db.expenseDao().insertSplits(splits)
+            }
+        }
+
+        // Insert settlements
+        cloudTrip.settlements.forEach { s ->
+            val payerId = memberNameMap[s.payer.trim()] ?: 0L
+            val receiverId = memberNameMap[s.receiver.trim()] ?: 0L
+            db.settlementDao().insertSettlementRecord(
+                SettlementRecordEntity(
+                    id = 0,
+                    tripId = tripId,
+                    fromMemberId = payerId,
+                    toMemberId = receiverId,
+                    fromMemberName = s.payer.trim(),
+                    toMemberName = s.receiver.trim(),
+                    amount = s.amount,
+                    settledDate = if (cloudTrip.metadata.updatedAt > 0) cloudTrip.metadata.updatedAt else System.currentTimeMillis(),
+                    notes = "Real-time synced settlement"
+                )
+            )
+        }
+
+        return tripId
     }
 }
