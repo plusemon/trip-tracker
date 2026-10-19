@@ -9,9 +9,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Handshake
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -84,7 +84,7 @@ fun SettlementScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Handshake,
+                                        imageVector = Icons.Default.Star,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
@@ -163,7 +163,7 @@ fun SettlementScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Default.FilterList,
+                        imageVector = Icons.Default.Star,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.outline,
                         modifier = Modifier.size(18.dp)
@@ -211,7 +211,7 @@ fun SettlementScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.CheckCircle,
+                                    imageVector = Icons.Default.Star,
                                     contentDescription = null,
                                     tint = Color(0xFF1B6D24),
                                     modifier = Modifier.size(48.dp)

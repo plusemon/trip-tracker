@@ -21,17 +21,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.Handshake
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.BarChart
-import androidx.compose.material.icons.outlined.Dashboard
-import androidx.compose.material.icons.outlined.Handshake
-import androidx.compose.material.icons.outlined.ReceiptLong
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -235,7 +235,7 @@ fun TripSplitApp(
                                 onClick = { tripMenuExpanded = true },
                                 modifier = Modifier.testTag("trip_switcher_button")
                             ) {
-                                Icon(Icons.Default.Dashboard, contentDescription = "Switch Trips")
+                                Icon(Icons.Default.Star, contentDescription = "Switch Trips")
                             }
 
                             DropdownMenu(
@@ -286,7 +286,7 @@ fun TripSplitApp(
                         onClick = { viewModel.setSelectedTab(0) },
                         icon = {
                             Icon(
-                                if (uiState.selectedTab == 0) Icons.Default.Dashboard else Icons.Outlined.Dashboard,
+                                if (uiState.selectedTab == 0) Icons.Default.Star else Icons.Outlined.Star,
                                 contentDescription = "Dashboard"
                             )
                         },
@@ -299,7 +299,7 @@ fun TripSplitApp(
                         onClick = { viewModel.setSelectedTab(1) },
                         icon = {
                             Icon(
-                                if (uiState.selectedTab == 1) Icons.Default.ReceiptLong else Icons.Outlined.ReceiptLong,
+                                if (uiState.selectedTab == 1) Icons.Default.Star else Icons.Outlined.Star,
                                 contentDescription = "Expenses"
                             )
                         },
@@ -312,7 +312,7 @@ fun TripSplitApp(
                         onClick = { viewModel.setSelectedTab(2) },
                         icon = {
                             Icon(
-                                if (uiState.selectedTab == 2) Icons.Default.Handshake else Icons.Outlined.Handshake,
+                                if (uiState.selectedTab == 2) Icons.Default.Star else Icons.Outlined.Star,
                                 contentDescription = "Settle Up"
                             )
                         },
@@ -325,7 +325,7 @@ fun TripSplitApp(
                         onClick = { viewModel.setSelectedTab(3) },
                         icon = {
                             Icon(
-                                if (uiState.selectedTab == 3) Icons.Default.BarChart else Icons.Outlined.BarChart,
+                                if (uiState.selectedTab == 3) Icons.Default.Star else Icons.Outlined.Star,
                                 contentDescription = "Analytics"
                             )
                         },

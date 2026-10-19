@@ -20,8 +20,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Paid
-import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -122,7 +122,7 @@ fun DepositFundDialog(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.Payments,
+                        imageVector = Icons.Default.Star,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(26.dp)
@@ -229,7 +229,7 @@ fun DepositFundDialog(
                     value = amountText,
                     onValueChange = { amountText = it },
                     label = { Text("Amount ($selectedCurrency)") },
-                    leadingIcon = { Icon(Icons.Default.Paid, contentDescription = null) },
+                    leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier
@@ -364,7 +364,7 @@ fun DepositFundDialog(
                     containerColor = MaterialTheme.colorScheme.secondary
                 )
             ) {
-                Icon(Icons.Default.Payments, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Confirm Deposit into Fund", fontWeight = FontWeight.Bold, fontSize = 15.sp)
             }

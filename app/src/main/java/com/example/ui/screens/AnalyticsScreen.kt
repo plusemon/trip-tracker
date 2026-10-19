@@ -26,10 +26,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.PieChart
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -151,7 +151,7 @@ fun AnalyticsScreen(
                 Column(modifier = Modifier.padding(18.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.PieChart,
+                            imageVector = Icons.Default.Star,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
@@ -304,7 +304,7 @@ fun AnalyticsScreen(
                     Column(modifier = Modifier.padding(18.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                imageVector = Icons.Default.BarChart,
+                                imageVector = Icons.Default.Star,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.size(20.dp)
@@ -379,7 +379,7 @@ fun AnalyticsScreen(
                 Column(modifier = Modifier.padding(18.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.TrendingUp,
+                            imageVector = Icons.Default.Star,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(20.dp)

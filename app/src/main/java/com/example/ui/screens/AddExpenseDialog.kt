@@ -29,14 +29,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddAPhoto
-import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Paid
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Title
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -212,7 +212,7 @@ fun AddExpenseDialog(
                 onValueChange = { title = it },
                 label = { Text("Expense Title") },
                 placeholder = { Text("e.g., Resort Cottage, Bamboo Chicken, Fuel") },
-                leadingIcon = { Icon(Icons.Default.Title, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -587,7 +587,7 @@ fun AddExpenseDialog(
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                         modifier = Modifier.height(34.dp)
                     ) {
-                        Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Add Photos", fontSize = 12.sp)
                     }

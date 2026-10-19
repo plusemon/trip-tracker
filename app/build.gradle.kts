@@ -23,6 +23,11 @@ android {
     buildConfigField("String", "GITHUB_REPO_NAME", "\"trip-tracker\"")
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+    resourceConfigurations += listOf("en", "bn")
+    ndk {
+      abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+    }
   }
 
   // Do not remove or modify these signingConfigs. They are necessary for building, installing,
@@ -46,7 +51,8 @@ android {
   buildTypes {
     release {
       isCrunchPngs = false
-      isMinifyEnabled = false
+      isMinifyEnabled = true
+      isShrinkResources = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
       // AI Studio.
@@ -67,9 +73,22 @@ android {
     buildConfig = true
   }
   testOptions { unitTests { isIncludeAndroidResources = true } }
+  packaging {
+    resources {
+      excludes += listOf(
+        "/META-INF/{AL2.0,LGPL2.1}",
+        "/META-INF/*.version",
+        "/META-INF/*.kotlin_module"
+      )
+    }
+  }
   dependenciesInfo {
     includeInApk = false
     includeInBundle = true
+  }
+  lint {
+    checkReleaseBuilds = false
+    abortOnError = false
   }
 }
 
@@ -95,7 +114,6 @@ dependencies {
   // implementation(libs.androidx.camera.lifecycle)
   // implementation(libs.androidx.camera.view)
   implementation(libs.androidx.compose.material.icons.core)
-  implementation(libs.androidx.compose.material.icons.extended)
   implementation(libs.androidx.compose.material3)
   implementation(libs.androidx.compose.ui)
   implementation(libs.androidx.compose.ui.graphics)

@@ -7,16 +7,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.CurrencyExchange
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Handshake
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -90,7 +90,7 @@ fun DashboardScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Explore,
+                            imageVector = Icons.Default.Star,
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.size(42.dp)
@@ -135,7 +135,7 @@ fun DashboardScreen(
                             .height(50.dp)
                             .testTag("welcome_load_demo_button")
                     ) {
-                        Icon(Icons.Default.RocketLaunch, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Explore Sajek / Bandarban Demo", fontWeight = FontWeight.SemiBold)
                     }
@@ -211,7 +211,7 @@ fun DashboardScreen(
                                         modifier = Modifier.weight(1f)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.LocationOn,
+                                            imageVector = Icons.Default.Star,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(16.dp)
@@ -239,7 +239,7 @@ fun DashboardScreen(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Default.Group,
+                                                imageVector = Icons.Default.Star,
                                                 contentDescription = null,
                                                 tint = MaterialTheme.colorScheme.secondary,
                                                 modifier = Modifier.size(14.dp)
@@ -299,7 +299,7 @@ fun DashboardScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.AccountBalanceWallet,
+                                            imageVector = Icons.Default.Star,
                                             contentDescription = null,
                                             tint = Color.White,
                                             modifier = Modifier.size(20.dp)
@@ -370,7 +370,7 @@ fun DashboardScreen(
                                     ),
                                     modifier = Modifier.height(40.dp)
                                 ) {
-                                    Icon(Icons.Default.Payments, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text("Deposit", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                 }
@@ -515,7 +515,7 @@ fun DashboardScreen(
                                 .weight(1f)
                                 .height(50.dp)
                         ) {
-                            Icon(Icons.Default.Handshake, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
                             Text("Settle Debts", fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
                         }
@@ -532,7 +532,7 @@ fun DashboardScreen(
                                 .weight(1f)
                                 .height(50.dp)
                         ) {
-                            Icon(Icons.Default.CurrencyExchange, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
                             Text("Currency Rates", fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
                         }

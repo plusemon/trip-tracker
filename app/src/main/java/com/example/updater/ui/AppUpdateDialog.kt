@@ -17,9 +17,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.SystemUpdate
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -72,7 +72,7 @@ fun AppUpdateDialog(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            imageVector = Icons.Default.SystemUpdate,
+                            imageVector = Icons.Default.Star,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
@@ -144,7 +144,7 @@ fun AppUpdateDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Security,
+                                imageVector = Icons.Default.Star,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                 modifier = Modifier.size(18.dp)
@@ -255,7 +255,7 @@ fun AppUpdateDialog(
                     modifier = Modifier.testTag("dialog_update_now_btn")
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Download,
+                        imageVector = Icons.Default.Star,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )

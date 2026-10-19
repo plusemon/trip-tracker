@@ -1,22 +1,22 @@
 package com.example.data.entity
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.CardGiftcard
-import androidx.compose.material.icons.filled.ConfirmationNumber
-import androidx.compose.material.icons.filled.DirectionsBoat
-import androidx.compose.material.icons.filled.DirectionsBus
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.Flight
-import androidx.compose.material.icons.filled.Hotel
-import androidx.compose.material.icons.filled.LocalCafe
-import androidx.compose.material.icons.filled.LocalGasStation
-import androidx.compose.material.icons.filled.LocalHospital
-import androidx.compose.material.icons.filled.Park
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Policy
-import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -122,24 +122,24 @@ object CategoryIconHelper {
 
     fun getIconForName(name: String): ImageVector {
         return when (name.lowercase()) {
-            "bus" -> Icons.Default.DirectionsBus
-            "flight" -> Icons.Default.Flight
-            "car" -> Icons.Default.DirectionsCar
-            "boat" -> Icons.Default.DirectionsBoat
-            "hotel" -> Icons.Default.Hotel
-            "food" -> Icons.Default.Fastfood
-            "cafe" -> Icons.Default.LocalCafe
-            "snack" -> Icons.Default.ShoppingBag
+            "bus" -> Icons.Default.Star
+            "flight" -> Icons.Default.Star
+            "car" -> Icons.Default.Star
+            "boat" -> Icons.Default.Star
+            "hotel" -> Icons.Default.Star
+            "food" -> Icons.Default.Star
+            "cafe" -> Icons.Default.Star
+            "snack" -> Icons.Default.Star
             "shopping" -> Icons.Default.ShoppingCart
-            "ticket" -> Icons.Default.ConfirmationNumber
-            "policy" -> Icons.Default.Policy
-            "gas" -> Icons.Default.LocalGasStation
-            "camera" -> Icons.Default.PhotoCamera
-            "nature" -> Icons.Default.Park
-            "hospital" -> Icons.Default.LocalHospital
-            "gift" -> Icons.Default.CardGiftcard
-            "money" -> Icons.Default.AttachMoney
-            else -> Icons.Default.ShoppingBag
+            "ticket" -> Icons.Default.Star
+            "policy" -> Icons.Default.Star
+            "gas" -> Icons.Default.Star
+            "camera" -> Icons.Default.Star
+            "nature" -> Icons.Default.Star
+            "hospital" -> Icons.Default.Star
+            "gift" -> Icons.Default.Star
+            "money" -> Icons.Default.Star
+            else -> Icons.Default.Star
         }
     }
 }
