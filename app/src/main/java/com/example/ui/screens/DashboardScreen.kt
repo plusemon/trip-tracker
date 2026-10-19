@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -60,11 +61,7 @@ import com.example.data.entity.PayerType
 import com.example.data.entity.TripEntity
 import com.example.domain.model.CurrencyFormatter
 import com.example.domain.model.TripSummary
-import com.example.ui.components.CategoryChip
-import com.example.ui.components.CustomCategoryChip
 import com.example.ui.components.TripStatusBadge
-import com.example.ui.theme.AmberGradientEnd
-import com.example.ui.theme.AmberGradientStart
 import com.example.ui.theme.HeroGradientEnd
 import com.example.ui.theme.HeroGradientStart
 
@@ -95,16 +92,19 @@ fun DashboardScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(24.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                modifier = Modifier.fillMaxWidth()
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 500.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier.padding(28.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(76.dp)
+                            .size(80.dp)
                             .clip(CircleShape)
                             .background(
                                 Brush.linearGradient(
@@ -124,26 +124,26 @@ fun DashboardScreen(
                     Text(
                         text = "Welcome to TripSplit BD",
                         style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.ExtraBold,
+                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
-                        text = "Your intelligent companion for group travel expense tracking, common fund (\"চাঁদা\") wallets, multi-currency splitting, and instant debt simplification.",
+                        text = "Your elite companion for group travel expense tracking, common fund (\"চাঁদা\") wallets, multi-currency splitting, and instant debt simplification.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
                         onClick = onNewTripClick,
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(54.dp)
                             .testTag("welcome_create_trip_button")
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
@@ -156,7 +156,7 @@ fun DashboardScreen(
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .height(50.dp)
                             .testTag("welcome_load_demo_button")
                     ) {
                         Icon(Icons.Default.RocketLaunch, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -183,436 +183,462 @@ fun DashboardScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .widthIn(max = 600.dp)
+                .widthIn(max = 640.dp)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
 
-            // Trip Header Card with Gradient Accent Line
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = trip.name,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                TripStatusBadge(status = trip.status)
-                            }
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = trip.destination,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Icon(
-                                    imageVector = Icons.Default.Group,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "${summary?.memberCount ?: 0} Travelers",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Hero Card 1: Common Fund Pool ("চাঁদা") with Vibrant Gradient Background
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("common_fund_hero_card"),
-                shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(HeroGradientStart, HeroGradientEnd)
-                            )
-                        )
-                        .padding(20.dp)
+                // Trip Header Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 ) {
-                    Column {
+                    Column(modifier = Modifier.padding(18.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.White.copy(alpha = 0.2f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = trip.name,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    TripStatusBadge(status = trip.status)
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
-                                        imageVector = Icons.Default.AccountBalanceWallet,
+                                        imageVector = Icons.Default.LocationOn,
                                         contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(20.dp)
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = trip.destination,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Group,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.secondary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "${summary?.memberCount ?: 0} Travelers",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(
-                                    text = "Common Fund Pool (\"চাঁদা\")",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            }
-
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = if (remainingFund >= 0) Color(0xFFC8E6C9) else Color(0xFFFFCDD2)
-                            ) {
-                                Text(
-                                    text = if (remainingFund >= 0) "Cash in Hand" else "Fund Deficit",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = if (remainingFund >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
-                                    fontWeight = FontWeight.ExtraBold,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                                )
                             }
                         }
+                    }
+                }
+            }
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            text = CurrencyFormatter.formatCurrency(remainingFund, trip.currencySymbol),
-                            style = MaterialTheme.typography.displaySmall,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White
-                        )
-
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        // Stats Summary Box
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color.White.copy(alpha = 0.15f)
-                        ) {
+            // Hero Card 1: Common Fund Pool ("চাঁদা") with Vibrant Gradient Background & Quick Deposit
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("common_fund_hero_card"),
+                    shape = RoundedCornerShape(24.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors = listOf(HeroGradientStart, HeroGradientEnd)
+                                )
+                            )
+                            .padding(22.dp)
+                    ) {
+                        Column {
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(38.dp)
+                                            .clip(CircleShape)
+                                            .background(Color.White.copy(alpha = 0.2f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.AccountBalanceWallet,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = "Common Fund Pool (\"চাঁদা\")",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
+
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = if (remainingFund >= 0) Color(0xFFC8E6C9) else Color(0xFFFFCDD2)
+                                ) {
+                                    Text(
+                                        text = if (remainingFund >= 0) "Cash in Hand" else "Fund Deficit",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (remainingFund >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.Bottom
                             ) {
                                 Column {
                                     Text(
-                                        text = "Total Deposits / Inflows",
-                                        style = MaterialTheme.typography.labelSmall,
+                                        text = "Available Balance",
+                                        style = MaterialTheme.typography.labelMedium,
                                         color = Color.White.copy(alpha = 0.8f)
                                     )
+                                    Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = CurrencyFormatter.formatCurrency(totalDeposits, trip.currencySymbol),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold,
+                                        text = CurrencyFormatter.formatCurrency(remainingFund, trip.currencySymbol),
+                                        style = MaterialTheme.typography.headlineLarge,
+                                        fontWeight = FontWeight.Black,
                                         color = Color.White
                                     )
                                 }
 
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(
-                                        text = "Spent from Fund",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = Color.White.copy(alpha = 0.8f)
-                                    )
-                                    Text(
-                                        text = CurrencyFormatter.formatCurrency(commonFundSpent, trip.currencySymbol),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
+                                // Quick Deposit Action inside Hero Card
+                                Button(
+                                    onClick = onAddDepositClick,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.White,
+                                        contentColor = HeroGradientStart
+                                    ),
+                                    modifier = Modifier.height(40.dp)
+                                ) {
+                                    Icon(Icons.Default.Payments, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Deposit", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // Stats Summary Box
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = Color.White.copy(alpha = 0.15f)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = "Total Inflows",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color.White.copy(alpha = 0.8f)
+                                        )
+                                        Text(
+                                            text = CurrencyFormatter.formatCurrency(totalDeposits, trip.currencySymbol),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                    }
+
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(
+                                            text = "Spent from Fund",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color.White.copy(alpha = 0.8f)
+                                        )
+                                        Text(
+                                            text = CurrencyFormatter.formatCurrency(commonFundSpent, trip.currencySymbol),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
-        // Hero Card 2: Overall Budget Progress
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(modifier = Modifier.padding(18.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Overall Trip Budget",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "${(budgetProgress * 100).toInt()}% Used",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    LinearProgressIndicator(
-                        progress = { budgetProgress.coerceIn(0f, 1f) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(10.dp)
-                            .clip(RoundedCornerShape(5.dp)),
-                        color = if (budgetProgress > 0.9f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Spent: ${CurrencyFormatter.formatCurrency(totalSpentOverall, trip.currencySymbol)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Budget: ${CurrencyFormatter.formatCurrency(budget, trip.currencySymbol)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-        }
-
-        // Quick Action Row
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Button(
-                    onClick = onAddExpenseClick,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.testTag("dashboard_add_expense_btn")
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Add Expense", fontWeight = FontWeight.Bold)
-                }
-
-                Button(
-                    onClick = onAddDepositClick,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    ),
-                    modifier = Modifier.testTag("dashboard_add_income_btn")
-                ) {
-                    Icon(Icons.Default.Payments, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Deposit Fund", fontWeight = FontWeight.Bold)
-                }
-
-                OutlinedButton(
-                    onClick = onOpenSettleDebts,
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(Icons.Default.Handshake, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Settle Debts")
-                }
-
-                OutlinedButton(
-                    onClick = onOpenExchangeRates,
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(Icons.Default.CurrencyExchange, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Currency Rates")
-                }
-
-                OutlinedButton(
-                    onClick = onExportClick,
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Share Summary")
-                }
-            }
-        }
-
-        // Recent Expenses Section
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Recent Activity",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                TextButton(
-                    onClick = onViewAllExpensesClick,
-                    modifier = Modifier.testTag("view_all_expenses_button")
-                ) {
-                    Text("View All (${summary?.expenseCount ?: 0})", fontWeight = FontWeight.Bold)
-                    Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(16.dp))
-                }
-            }
-        }
-
-        if (recentExpenses.isEmpty()) {
+            // Hero Card 2: Overall Budget Progress
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "No expenses logged yet",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Tap 'Add Expense' or 'Deposit Fund' to start tracking tour spending!",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        } else {
-            items(recentExpenses.take(5)) { expense ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val iconName = expense.customCategoryIcon ?: expense.category.iconName
-                        val iconColorHex = expense.customCategoryColor ?: expense.category.defaultColorHex
-                        val iconColor = runCatching { Color(android.graphics.Color.parseColor(iconColorHex)) }.getOrDefault(MaterialTheme.colorScheme.primary)
-
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape)
-                                .background(iconColor.copy(alpha = 0.15f)),
-                            contentAlignment = Alignment.Center
+                    Column(modifier = Modifier.padding(18.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = CategoryIconHelper.getIconForName(iconName),
-                                contentDescription = null,
-                                tint = iconColor,
-                                modifier = Modifier.size(22.dp)
+                            Text(
+                                text = "Overall Trip Budget",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "${(budgetProgress * 100).toInt()}% Used",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                        Column(modifier = Modifier.weight(1f)) {
+                        LinearProgressIndicator(
+                            progress = { budgetProgress.coerceIn(0f, 1f) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(10.dp)
+                                .clip(RoundedCornerShape(5.dp)),
+                            color = if (budgetProgress > 0.9f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
                             Text(
-                                text = expense.title,
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1
+                                text = "Spent: ${CurrencyFormatter.formatCurrency(totalSpentOverall, trip.currencySymbol)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                val payerLabel = when (expense.payerType) {
-                                    PayerType.COMMON_FUND -> "Common Fund"
-                                    PayerType.MEMBER -> "Member Pocket"
-                                    PayerType.MULTI_PAYER -> "Joint Payer"
-                                }
-                                val catName = expense.customCategoryName ?: expense.category.displayName
-                                Text(
-                                    text = "$payerLabel • $catName",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                            Text(
+                                text = "Budget: ${CurrencyFormatter.formatCurrency(budget, trip.currencySymbol)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Quick Action Row
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Button(
+                        onClick = onAddExpenseClick,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .height(48.dp)
+                            .testTag("dashboard_add_expense_btn")
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Add Expense", fontWeight = FontWeight.Bold)
+                    }
+
+                    OutlinedButton(
+                        onClick = onOpenSettleDebts,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Icon(Icons.Default.Handshake, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Settle Debts")
+                    }
+
+                    OutlinedButton(
+                        onClick = onOpenExchangeRates,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Icon(Icons.Default.CurrencyExchange, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Currency Rates")
+                    }
+
+                    OutlinedButton(
+                        onClick = onExportClick,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Share Summary")
+                    }
+                }
+            }
+
+            // Recent Expenses Section
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Recent Activity",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    TextButton(
+                        onClick = onViewAllExpensesClick,
+                        modifier = Modifier.testTag("view_all_expenses_button")
+                    ) {
+                        Text("View All (${summary?.expenseCount ?: 0})", fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+
+            if (recentExpenses.isEmpty()) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "No expenses logged yet",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Tap 'Add Expense' or 'Deposit' to start tracking tour spending!",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            } else {
+                items(recentExpenses.take(5)) { expense ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val iconName = expense.customCategoryIcon ?: expense.category.iconName
+                            val iconColorHex = expense.customCategoryColor ?: expense.category.defaultColorHex
+                            val iconColor = runCatching { Color(android.graphics.Color.parseColor(iconColorHex)) }.getOrDefault(MaterialTheme.colorScheme.primary)
+
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(CircleShape)
+                                    .background(iconColor.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = CategoryIconHelper.getIconForName(iconName),
+                                    contentDescription = null,
+                                    tint = iconColor,
+                                    modifier = Modifier.size(22.dp)
                                 )
                             }
-                        }
 
-                        Text(
-                            text = CurrencyFormatter.formatCurrency(expense.amount, trip.currencySymbol),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = expense.title,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    val payerLabel = when (expense.payerType) {
+                                        PayerType.COMMON_FUND -> "Common Fund"
+                                        PayerType.MEMBER -> "Member Pocket"
+                                        PayerType.MULTI_PAYER -> "Joint Payer"
+                                    }
+                                    val catName = expense.customCategoryName ?: expense.category.displayName
+                                    Text(
+                                        text = "$payerLabel • $catName",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            Text(
+                                text = CurrencyFormatter.formatCurrency(expense.amount, trip.currencySymbol),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        item {
-            Spacer(modifier = Modifier.height(80.dp))
+            item {
+                Spacer(modifier = Modifier.height(80.dp))
+            }
         }
     }
 }
-}
-

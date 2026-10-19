@@ -11,45 +11,55 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = EmeraldPrimaryDark,
-    onPrimary = EmeraldOnPrimaryDark,
-    primaryContainer = EmeraldPrimaryContainerDark,
-    onPrimaryContainer = EmeraldOnPrimaryContainerDark,
-    secondary = OchreSecondaryDark,
-    onSecondary = OchreOnSecondaryDark,
-    secondaryContainer = OchreSecondaryContainerDark,
-    onSecondaryContainer = OchreOnSecondaryContainerDark,
-    tertiary = RiverTertiaryDark,
-    onTertiary = RiverOnTertiaryDark,
-    tertiaryContainer = RiverTertiaryContainerDark,
-    onTertiaryContainer = RiverOnTertiaryContainerDark,
-    error = DebtErrorDark,
-    background = SurfaceDark,
-    surface = SurfaceDark
+    primary = DarkPrimary,
+    onPrimary = DarkOnPrimary,
+    primaryContainer = DarkPrimaryContainer,
+    onPrimaryContainer = DarkOnPrimaryContainer,
+    secondary = DarkSecondary,
+    onSecondary = DarkOnSecondary,
+    secondaryContainer = DarkSecondaryContainer,
+    onSecondaryContainer = DarkOnSecondaryContainer,
+    tertiary = DarkTertiary,
+    onTertiary = DarkOnTertiary,
+    tertiaryContainer = DarkTertiaryContainer,
+    onTertiaryContainer = DarkOnTertiaryContainer,
+    background = DarkBackground,
+    onBackground = DarkOnBackground,
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = DarkOnSurfaceVariant,
+    outline = DarkOutline,
+    outlineVariant = DarkOutlineVariant
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = EmeraldPrimaryLight,
-    onPrimary = EmeraldOnPrimaryLight,
-    primaryContainer = EmeraldPrimaryContainerLight,
-    onPrimaryContainer = EmeraldOnPrimaryContainerLight,
-    secondary = OchreSecondaryLight,
-    onSecondary = OchreOnSecondaryLight,
-    secondaryContainer = OchreSecondaryContainerLight,
-    onSecondaryContainer = OchreOnSecondaryContainerLight,
-    tertiary = RiverTertiaryLight,
-    onTertiary = RiverOnTertiaryLight,
-    tertiaryContainer = RiverTertiaryContainerLight,
-    onTertiaryContainer = RiverOnTertiaryContainerLight,
-    error = DebtErrorLight,
-    background = SurfaceLight,
-    surface = SurfaceLight
+    primary = LightPrimary,
+    onPrimary = LightOnPrimary,
+    primaryContainer = LightPrimaryContainer,
+    onPrimaryContainer = LightOnPrimaryContainer,
+    secondary = LightSecondary,
+    onSecondary = LightOnSecondary,
+    secondaryContainer = LightSecondaryContainer,
+    onSecondaryContainer = LightOnSecondaryContainer,
+    tertiary = LightTertiary,
+    onTertiary = LightOnTertiary,
+    tertiaryContainer = LightTertiaryContainer,
+    onTertiaryContainer = LightOnTertiaryContainer,
+    background = LightBackground,
+    onBackground = LightOnBackground,
+    surface = LightSurface,
+    onSurface = LightOnSurface,
+    surfaceVariant = LightSurfaceVariant,
+    onSurfaceVariant = LightOnSurfaceVariant,
+    outline = LightOutline,
+    outlineVariant = LightOutlineVariant
 )
 
 @Composable
 fun TripSplitTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, // Preserve distinct high-contrast tour brand colors
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

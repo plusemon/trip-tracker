@@ -350,29 +350,14 @@ fun TripSplitApp(
         },
         floatingActionButton = {
             if (currentTrip != null && (uiState.selectedTab == 0 || uiState.selectedTab == 1)) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                FloatingActionButton(
+                    onClick = { viewModel.openDialog(ActiveDialog.ADD_EXPENSE) },
+                    modifier = Modifier.testTag("fab_add_expense"),
+                    shape = RoundedCornerShape(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    FloatingActionButton(
-                        onClick = { viewModel.openDialog(ActiveDialog.ADD_INCOME) },
-                        modifier = Modifier.testTag("fab_add_income"),
-                        shape = RoundedCornerShape(16.dp),
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary
-                    ) {
-                        Icon(Icons.Default.Payments, contentDescription = "Deposit Fund")
-                    }
-
-                    FloatingActionButton(
-                        onClick = { viewModel.openDialog(ActiveDialog.ADD_EXPENSE) },
-                        modifier = Modifier.testTag("fab_add_expense"),
-                        shape = RoundedCornerShape(16.dp),
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Expense")
-                    }
+                    Icon(Icons.Default.Add, contentDescription = "Add Expense")
                 }
             }
         }
