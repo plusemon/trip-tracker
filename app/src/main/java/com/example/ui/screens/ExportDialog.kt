@@ -5,6 +5,9 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
@@ -42,28 +46,100 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import com.example.R
+import com.example.export.PdfStorageHelper
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExportDialog(
     summaryText: String,
+    tripName: String = "Tour",
     onGeneratePdf: () -> File?,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onShowSnackbar: (message: String, actionLabel: String?, onAction: () -> Unit) -> Unit = { _, _, _ -> }
 ) {
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    var pendingPdfFile by remember { mutableStateOf<File?>(null) }
+
+    val safeTripName = remember(tripName) {
+        tripName.replace("\\s+".toRegex(), "_").replace("[^a-zA-Z0-9_]".toRegex(), "")
+    }
+    val defaultPdfFileName = "TripSplit_${safeTripName}_Report.pdf"
+
+    val createDocumentLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/pdf")
+    ) { uri: Uri? ->
+        if (uri != null) {
+            val pdfFile = pendingPdfFile ?: onGeneratePdf()
+            if (pdfFile != null && pdfFile.exists()) {
+                val success = try {
+                    context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                        pdfFile.inputStream().use { inputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
+                    true
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    false
+                }
+                if (success) {
+                    val msg = context.getString(R.string.pdf_saved_success)
+                    val openTxt = context.getString(R.string.open_pdf)
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    onShowSnackbar(msg, openTxt) {
+                        PdfStorageHelper.openPdfUri(context, uri)
+                    }
+                } else {
+                    Toast.makeText(context, context.getString(R.string.pdf_save_failed), Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(context, context.getString(R.string.pdf_save_failed), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun handleSaveToDownloads() {
+        val pdfFile = onGeneratePdf()
+        if (pdfFile == null || !pdfFile.exists()) {
+            Toast.makeText(context, context.getString(R.string.pdf_save_failed), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        pendingPdfFile = pdfFile
+
+        // Try direct MediaStore save (Android 10+)
+        val mediaStoreUri = PdfStorageHelper.savePdfToPublicDownloads(context, pdfFile, defaultPdfFileName)
+        if (mediaStoreUri != null) {
+            val msg = context.getString(R.string.pdf_saved_success)
+            val openTxt = context.getString(R.string.open_pdf)
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            onShowSnackbar(msg, openTxt) {
+                PdfStorageHelper.openPdfUri(context, mediaStoreUri)
+            }
+        } else {
+            // Launch SAF File Picker launcher
+            createDocumentLauncher.launch(defaultPdfFileName)
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -197,40 +273,76 @@ fun ExportDialog(
                 color = MaterialTheme.colorScheme.outline
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Button(
-                onClick = {
-                    val pdfFile = onGeneratePdf()
-                    if (pdfFile != null && pdfFile.exists()) {
-                        val uri = FileProvider.getUriForFile(
-                            context,
-                            "${context.packageName}.fileprovider",
-                            pdfFile
-                        )
-                        val intent = Intent(Intent.ACTION_SEND).apply {
-                            type = "application/pdf"
-                            putExtra(Intent.EXTRA_STREAM, uri)
-                            putExtra(Intent.EXTRA_SUBJECT, "TripSplit BD Tour Settlement Report")
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-                        context.startActivity(Intent.createChooser(intent, "Share PDF Report"))
-                    } else {
-                        Toast.makeText(context, "Failed to generate PDF", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .testTag("export_pdf_button"),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            // Two distinct, clear action buttons: Save to Downloads & Share PDF
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Icon(Icons.Default.PictureAsPdf, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Generate & Share PDF Report", fontWeight = FontWeight.Bold)
+                // Button 1: Save to Downloads
+                OutlinedButton(
+                    onClick = { handleSaveToDownloads() },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp)
+                        .testTag("save_pdf_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Download,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(id = R.string.save_to_downloads),
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
+                    )
+                }
+
+                // Button 2: Share PDF
+                Button(
+                    onClick = {
+                        val pdfFile = onGeneratePdf()
+                        if (pdfFile != null && pdfFile.exists()) {
+                            val uri = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.fileprovider",
+                                pdfFile
+                            )
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "application/pdf"
+                                putExtra(Intent.EXTRA_STREAM, uri)
+                                putExtra(Intent.EXTRA_SUBJECT, "$tripName - TripSplit BD Tour Settlement Report")
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            context.startActivity(Intent.createChooser(intent, "Share PDF Report"))
+                        } else {
+                            Toast.makeText(context, context.getString(R.string.pdf_save_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp)
+                        .testTag("share_pdf_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(id = R.string.share_pdf),
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
+

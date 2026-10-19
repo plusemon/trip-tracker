@@ -55,7 +55,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -129,6 +133,7 @@ fun TripSplitApp(
     val updateUiState by updateViewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     var tripMenuExpanded by remember { mutableStateOf(false) }
 
@@ -495,8 +500,21 @@ fun TripSplitApp(
         ActiveDialog.EXPORT -> {
             ExportDialog(
                 summaryText = viewModel.getWhatsAppShareText(),
+                tripName = currentTrip?.name ?: "Tour",
                 onGeneratePdf = { viewModel.exportPdfReport() },
-                onDismiss = { viewModel.closeDialog() }
+                onDismiss = { viewModel.closeDialog() },
+                onShowSnackbar = { message, actionLabel, onAction ->
+                    coroutineScope.launch {
+                        val result = snackbarHostState.showSnackbar(
+                            message = message,
+                            actionLabel = actionLabel,
+                            duration = SnackbarDuration.Long
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            onAction()
+                        }
+                    }
+                }
             )
         }
 

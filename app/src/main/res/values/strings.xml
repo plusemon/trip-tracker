@@ -170,4 +170,12 @@
     <string name="collect_advance_fund">Collect initial advance fund per member</string>
     <string name="advance_per_member">Advance Per Member (৳)</string>
     <string name="launch_trip">Launch Trip &amp; Start Tracking</string>
+
+    <!-- Export PDF -->
+    <string name="save_to_downloads">Save to Downloads</string>
+    <string name="share_pdf">Share PDF</string>
+    <string name="pdf_saved_success">PDF saved successfully to File Manager</string>
+    <string name="pdf_save_failed">Failed to save PDF</string>
+    <string name="open_pdf">Open</string>
 </resources>
+
