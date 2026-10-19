@@ -593,7 +593,7 @@ private fun TripDetailsStep(
                         .fillMaxWidth()
                         .testTag("manager_name_input"),
                     singleLine = true,
-                    supportingText = { Text("Carries the Common Fund cash in pocket") }
+                    supportingText = { Text("Carries the Group Fund cash in pocket") }
                 )
             }
         }
@@ -1066,7 +1066,7 @@ private fun TripReviewStep(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Starts the Common Fund with pooled cash",
+                            text = "Starts the Group Fund with pooled cash",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline
                         )
@@ -1122,7 +1122,7 @@ private fun TripReviewStep(
                         ) {
                             Column {
                                 Text(
-                                    text = "Initial Common Fund Cash",
+                                    text = "Initial Group Fund Cash",
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.outline
                                 )
@@ -1222,7 +1222,7 @@ private fun TripReviewStep(
                         Text(CurrencyFormatter.formatTaka(totalBudget, currencySymbol), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                     }
                     Column {
-                        Text(stringResource(id = R.string.common_fund_pool), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(id = R.string.group_fund), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                         Text(
                             CurrencyFormatter.formatTaka(totalInitialFund, currencySymbol),
                             style = MaterialTheme.typography.bodyMedium,

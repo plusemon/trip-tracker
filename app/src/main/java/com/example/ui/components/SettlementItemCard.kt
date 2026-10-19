@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Schedule
@@ -13,10 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.domain.model.CurrencyFormatter
 
 @Composable
@@ -28,8 +31,27 @@ fun SettlementItemCard(
     isSettled: Boolean,
     onSettleClick: () -> Unit,
     isReadOnly: Boolean = false,
+    fromMemberId: Long = 0L,
+    toMemberId: Long = 0L,
     modifier: Modifier = Modifier
 ) {
+    val isFromCentralFund = fromMemberId == -1L ||
+        fromName.equals("Group Fund", ignoreCase = true) ||
+        fromName.equals("Common Fund", ignoreCase = true) ||
+        fromName.equals("Common Fund (Cash in Hand)", ignoreCase = true) ||
+        fromName.contains("গ্রুপ ফান্ড") ||
+        fromName.contains("সাধারণ ফান্ড")
+
+    val isToCentralFund = toMemberId == -1L ||
+        toName.equals("Group Fund", ignoreCase = true) ||
+        toName.equals("Common Fund", ignoreCase = true) ||
+        toName.equals("Common Fund (Cash in Hand)", ignoreCase = true) ||
+        toName.contains("গ্রুপ ফান্ড") ||
+        toName.contains("সাধারণ ফান্ড")
+
+    val resolvedFromName = if (isFromCentralFund) stringResource(R.string.group_fund) else fromName
+    val resolvedToName = if (isToCentralFund) stringResource(R.string.group_fund) else toName
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -63,20 +85,32 @@ fun SettlementItemCard(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.errorContainer),
+                            .background(
+                                if (isFromCentralFund) MaterialTheme.colorScheme.secondaryContainer
+                                else MaterialTheme.colorScheme.errorContainer
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = fromName.take(1).uppercase(),
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
+                        if (isFromCentralFund) {
+                            Icon(
+                                imageVector = Icons.Default.AccountBalanceWallet,
+                                contentDescription = stringResource(R.string.group_fund),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        } else {
+                            Text(
+                                text = resolvedFromName.take(1).uppercase(),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = fromName,
+                            text = resolvedFromName,
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -141,7 +175,7 @@ fun SettlementItemCard(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = toName,
+                            text = resolvedToName,
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -167,15 +201,27 @@ fun SettlementItemCard(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
+                            .background(
+                                if (isToCentralFund) MaterialTheme.colorScheme.secondaryContainer
+                                else MaterialTheme.colorScheme.primaryContainer
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = toName.take(1).uppercase(),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
+                        if (isToCentralFund) {
+                            Icon(
+                                imageVector = Icons.Default.AccountBalanceWallet,
+                                contentDescription = stringResource(R.string.group_fund),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        } else {
+                            Text(
+                                text = resolvedToName.take(1).uppercase(),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
                     }
                 }
             }

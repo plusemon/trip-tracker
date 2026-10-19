@@ -185,7 +185,7 @@ object JsonBackupManager {
                         memberId = memberId,
                         contributorName = dObj.optString("contributorName", ""),
                         amount = dObj.optDouble("amount", 0.0),
-                        categoryName = dObj.optString("categoryName", "Common Fund Deposit"),
+                        categoryName = dObj.optString("categoryName", "Group Fund Deposit"),
                         date = dObj.optLong("date", System.currentTimeMillis()),
                         notes = dObj.optString("notes", "")
                     )

@@ -94,7 +94,7 @@ class TripSetupTest {
         assertEquals("01711000001", lead?.phoneNumber)
         assertEquals("#006C4C", lead?.colorHex)
 
-        // Verify Advance Deposits ("চাঁদা")
+        // Verify Group Fund Advance Deposits
         val savedDeposits = repository.getDepositsOnce(tripId)
         assertEquals(3, savedDeposits.size)
         val totalDeposited = savedDeposits.sumOf { it.amount }

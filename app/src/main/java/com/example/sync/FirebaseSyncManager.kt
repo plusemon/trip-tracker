@@ -78,7 +78,7 @@ object FirebaseSyncManager {
         val cloudTransactions = mutableMapOf<String, CloudTransaction>()
         expenses.forEachIndexed { index, exp ->
             val paidBy = when (exp.payerType) {
-                PayerType.COMMON_FUND -> "Common Fund"
+                PayerType.COMMON_FUND -> "Group Fund"
                 PayerType.MEMBER -> exp.payerMemberId?.let { memberMap[it]?.name } ?: "Member"
                 PayerType.MULTI_PAYER -> "Multi-Payer"
             }
@@ -105,7 +105,7 @@ object FirebaseSyncManager {
         } else {
             settlements.map { s ->
                 val payerName = s.fromMemberName.ifBlank { memberMap[s.fromMemberId]?.name ?: "Member" }
-                val receiverName = s.toMemberName.ifBlank { memberMap[s.toMemberId]?.name ?: "Common Fund" }
+                val receiverName = s.toMemberName.ifBlank { memberMap[s.toMemberId]?.name ?: "Group Fund" }
                 CloudSettlement(
                     payer = payerName,
                     receiver = receiverName,
@@ -231,7 +231,7 @@ object FirebaseSyncManager {
             val title = tChild.child("title").getValue(String::class.java) ?: "Expense"
             val amount = tChild.child("amount").getValue(Double::class.java) ?: 0.0
             val category = tChild.child("category").getValue(String::class.java) ?: "Other"
-            val paidBy = tChild.child("paidBy").getValue(String::class.java) ?: "Common Fund"
+            val paidBy = tChild.child("paidBy").getValue(String::class.java) ?: "Group Fund"
             val timestamp = tChild.child("timestamp").getValue(Long::class.java) ?: 0L
             txMap[tChild.key ?: "tx_${txMap.size}"] = CloudTransaction(
                 title = title,

@@ -25,7 +25,7 @@ data class CloudTransaction(
     val title: String = "",
     val amount: Double = 0.0,
     val category: String = "Other",
-    val paidBy: String = "Common Fund",
+    val paidBy: String = "Group Fund",
     val timestamp: Long = 0L
 )
 

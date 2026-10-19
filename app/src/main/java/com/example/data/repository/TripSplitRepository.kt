@@ -45,7 +45,7 @@ class TripSplitRepository(private val db: AppDatabase) {
             CategoryEntity(tripId = tripId, name = "Sightseeing & Tickets", iconName = "ticket", colorHex = "#006C4C", isIncome = false),
             CategoryEntity(tripId = tripId, name = "Snacks & Refreshment", iconName = "snack", colorHex = "#835400", isIncome = false),
             // Default income categories
-            CategoryEntity(tripId = tripId, name = "Common Fund Deposit", iconName = "money", colorHex = "#FFBA35", isIncome = true),
+            CategoryEntity(tripId = tripId, name = "Group Fund Deposit", iconName = "money", colorHex = "#FFBA35", isIncome = true),
             CategoryEntity(tripId = tripId, name = "Sponsorship / Gift", iconName = "gift", colorHex = "#2E7D32", isIncome = true),
             CategoryEntity(tripId = tripId, name = "Refund / Cashback", iconName = "ticket", colorHex = "#0288D1", isIncome = true)
         )
@@ -88,7 +88,7 @@ class TripSplitRepository(private val db: AppDatabase) {
                         memberId = memberId,
                         contributorName = info.name,
                         amount = info.initialDeposit,
-                        categoryName = "Common Fund Deposit",
+                        categoryName = "Group Fund Deposit",
                         notes = "Initial Advance Deposit"
                     )
                 )
@@ -273,7 +273,7 @@ class TripSplitRepository(private val db: AppDatabase) {
                 CategoryEntity(tripId = newId, name = "Lodging & Resort", iconName = "hotel", colorHex = "#7B1FA2", isIncome = false),
                 CategoryEntity(tripId = newId, name = "Food & Dining", iconName = "food", colorHex = "#E65100", isIncome = false),
                 CategoryEntity(tripId = newId, name = "Sightseeing & Tickets", iconName = "ticket", colorHex = "#006C4C", isIncome = false),
-                CategoryEntity(tripId = newId, name = "Common Fund Deposit", iconName = "money", colorHex = "#FFBA35", isIncome = true)
+                CategoryEntity(tripId = newId, name = "Group Fund Deposit", iconName = "money", colorHex = "#FFBA35", isIncome = true)
             )
             db.categoryDao().insertCategories(defaultCategories)
             newId
@@ -318,7 +318,7 @@ class TripSplitRepository(private val db: AppDatabase) {
                         memberId = insertedMemberId,
                         contributorName = m.name.trim(),
                         amount = m.deposited,
-                        categoryName = "Common Fund Deposit",
+                        categoryName = "Group Fund Deposit",
                         date = if (cloudTrip.metadata.updatedAt > 0) cloudTrip.metadata.updatedAt else System.currentTimeMillis()
                     )
                 )
@@ -327,7 +327,7 @@ class TripSplitRepository(private val db: AppDatabase) {
 
         // Insert transactions
         cloudTrip.transactions.values.forEach { tx ->
-            val isCommonFund = tx.paidBy.equals("Common Fund", ignoreCase = true)
+            val isCommonFund = tx.paidBy.equals("Group Fund", ignoreCase = true) || tx.paidBy.equals("Common Fund", ignoreCase = true)
             val payerId = if (!isCommonFund) memberNameMap[tx.paidBy.trim()] else null
             val payerType = if (isCommonFund || payerId == null) PayerType.COMMON_FUND else PayerType.MEMBER
 

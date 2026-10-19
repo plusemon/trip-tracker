@@ -75,8 +75,9 @@ fun DepositFundDialog(
     var selectedMemberId by remember { mutableStateOf(members.firstOrNull()?.id) }
     var externalContributor by remember { mutableStateOf("") }
 
+    val defaultDepositCategory = stringResource(id = R.string.group_fund_deposit)
     var amountText by remember { mutableStateOf("") }
-    var selectedCategoryName by remember { mutableStateOf("Common Fund Deposit") }
+    var selectedCategoryName by remember { mutableStateOf(defaultDepositCategory) }
     var notes by remember { mutableStateOf("") }
 
     val quickAmounts = listOf("1000", "2000", "3000", "5000", "10000")
@@ -180,15 +181,8 @@ fun DepositFundDialog(
             // Income Category Chips
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(stringResource(id = R.string.income_category), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-                val defaultIncomeCatResIds = listOf(
-                    R.string.common_fund_deposit,
-                    R.string.tour_sponsorship,
-                    R.string.booking_refund,
-                    R.string.travel_allowance,
-                    R.string.other_inflow
-                )
                 val defaultIncomeCats = listOf(
-                    stringResource(id = R.string.common_fund_deposit),
+                    stringResource(id = R.string.group_fund_deposit),
                     stringResource(id = R.string.tour_sponsorship),
                     stringResource(id = R.string.booking_refund),
                     stringResource(id = R.string.travel_allowance),
@@ -298,7 +292,7 @@ fun DepositFundDialog(
             ) {
                 Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(id = R.string.confirm_deposit), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(stringResource(id = R.string.deposit_to_group_fund), fontWeight = FontWeight.Bold, fontSize = 15.sp)
             }
         }
     }

@@ -90,13 +90,13 @@ class SettlementEngineTest {
             MemberEntity(id = 2, tripId = 1, name = "Shakib")
         )
 
-        // Each deposits 5000 in Common Fund (Total 10,000)
+        // Each deposits 5000 in Group Fund (Total 10,000)
         val deposits = listOf(
             DepositEntity(id = 1, tripId = 1, memberId = 1, amount = 5000.0),
             DepositEntity(id = 2, tripId = 1, memberId = 2, amount = 5000.0)
         )
 
-        // 6000 spent from Common Fund for Chander Gari (3000 each)
+        // 6000 spent from Group Fund for Chander Gari (3000 each)
         val expense = ExpenseEntity(
             id = 20,
             tripId = 1,
@@ -130,12 +130,12 @@ class SettlementEngineTest {
             splits = splits
         )
 
-        // Common Fund has 4000 cash in hand, refunds 2000 to Emon and 2000 to Shakib
+        // Group Fund has 4000 cash in hand, refunds 2000 to Emon and 2000 to Shakib
         assertEquals(2, settlements.size)
         assertTrue(settlements.all { it.fromMemberId == SettlementEngine.COMMON_FUND_ID })
         assertEquals(4000.0, settlements.sumOf { it.amount }, 0.01)
 
-        // Now simulate settling one of the refund transactions (Common Fund refunds 2000 to Emon)
+        // Now simulate settling one of the refund transactions (Group Fund refunds 2000 to Emon)
         val settledRecord = com.example.data.entity.SettlementRecordEntity(
             tripId = 1,
             fromMemberId = SettlementEngine.COMMON_FUND_ID,
@@ -153,7 +153,7 @@ class SettlementEngineTest {
             settledRecords = listOf(settledRecord)
         )
 
-        // Only 1 settlement left: Common Fund -> Shakib 2000
+        // Only 1 settlement left: Group Fund -> Shakib 2000
         assertEquals(1, remainingSettlements.size)
         assertEquals(2L, remainingSettlements[0].toMemberId)
         assertEquals(2000.0, remainingSettlements[0].amount, 0.01)

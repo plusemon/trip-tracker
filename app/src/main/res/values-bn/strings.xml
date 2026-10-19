@@ -18,10 +18,10 @@
 
     <!-- Welcome / Dashboard -->
     <string name="welcome_title">ট্রিপস্প্লিট বিডি-তে স্বাগতম</string>
-    <string name="welcome_subtitle">গ্রুপ ভ্রমণের খরচ ট্র্যাকিং, সাধারণ ফান্ড ওয়ালেট, সহজ ভাগাভাগি এবং তাৎক্ষণিক দেনা-পাওনা নিষ্পত্তির সেরা ডিজিটাল সহকারী।</string>
+    <string name="welcome_subtitle">গ্রুপ ভ্রমণের খরচ ট্র্যাকিং, গ্রুপ ফান্ড ওয়ালেট, সহজ ভাগাভাগি এবং তাৎক্ষণিক দেনা-পাওনা নিষ্পত্তির সেরা ডিজিটাল সহকারী।</string>
     <string name="create_first_tour">আপনার প্রথম ট্যুর শুরু করুন</string>
     <string name="travelers_count">%1$d জন ভ্রমণকারী</string>
-    <string name="common_fund_pool">সাধারণ ফান্ড</string>
+    <string name="common_fund_pool">গ্রুপ ফান্ড ব্যালেন্স</string>
     <string name="cash_in_hand">হাতে নগদ</string>
     <string name="fund_deficit">ফান্ড ঘাটতি</string>
     <string name="available_balance">অবশিষ্ট জমা</string>
@@ -37,15 +37,25 @@
     <string name="no_expenses_logged">এখনও কোনো খরচ যুক্ত করা হয়নি</string>
     <string name="no_expenses_subtitle">ট্যুরের খরচ হিসাব রাখতে \'খরচ যুক্ত করুন\' বা \'ফান্ডে জমা\' বাটনে চাপুন!</string>
 
+    <!-- Group Fund Core Strings -->
+    <string name="group_fund">গ্রুপ ফান্ড</string>
+    <string name="group_fund_balance">গ্রুপ ফান্ড ব্যালেন্স</string>
+    <string name="group_fund_deposit">গ্রুপ ফান্ডে জমা</string>
+    <string name="paid_from_group_fund">গ্রুপ ফান্ড থেকে পরিশোধিত</string>
+    <string name="deposit_to_group_fund">গ্রুপ ফান্ডে জমা নিশ্চিত করুন</string>
+
+    <!-- Filter & Categories -->
+    <string name="filter_incomes_deposits">জমা ও অন্যান্য প্রাপ্তি</string>
+
     <!-- Fund & Income -->
-    <string name="enter_income_title">ফান্ড / জমা এন্ট্রি</string>
+    <string name="enter_income_title">গ্রুপ ফান্ড জমা এন্ট্রি</string>
     <string name="member_deposit">সদস্যের জমা</string>
     <string name="external_inflow">অন্যান্য প্রাপ্তি</string>
     <string name="select_contributor">সদস্য নির্বাচন করুন</string>
     <string name="source_contributor_name">উৎস / দাতার নাম</string>
     <string name="source_placeholder">যেমন: স্পনসর, রিসোর্ট রিফান্ড, ব্যক্তিগত ভাতা</string>
     <string name="income_category">জমার ধরন</string>
-    <string name="common_fund_deposit">সাধারণ ফান্ডে জমা</string>
+    <string name="common_fund_deposit">গ্রুপ ফান্ডে জমা</string>
     <string name="tour_sponsorship">ট্যুর স্পনসর / উপহার</string>
     <string name="booking_refund">বুকিং ফেরত / রিফান্ড</string>
     <string name="travel_allowance">ব্যক্তিগত ভ্রমণ ভাতা</string>
@@ -53,7 +63,7 @@
     <string name="amount_taka">টাকার পরিমাণ (৳)</string>
     <string name="notes_method">নোট / মাধ্যম</string>
     <string name="notes_placeholder">যেমন: বিকাশ, নগদ, ব্যাংক ট্রান্সফার</string>
-    <string name="confirm_deposit">ফান্ডে নিশ্চিত করুন</string>
+    <string name="confirm_deposit">গ্রুপ ফান্ডে জমা নিশ্চিত করুন</string>
 
     <!-- Log Expense -->
     <string name="log_expense_title">গ্রুপের খরচ যুক্ত করুন</string>
@@ -62,10 +72,10 @@
     <string name="category_label">ক্যাটাগরি</string>
     <string name="custom_category">কাস্টম ক্যাটাগরি</string>
     <string name="paid_by">পরিশোধকারী</string>
-    <string name="common_fund">সাধারণ ফান্ড</string>
+    <string name="common_fund">গ্রুপ ফান্ড</string>
     <string name="single_member">একক সদস্য</string>
     <string name="joint_split">যৌথ পরিশোধ</string>
-    <string name="paid_directly_common_fund">সরাসরি সাধারণ ফান্ড থেকে পরিশোধিত। হাতের নগদ টাকা থেকে বাদ যাবে।</string>
+    <string name="paid_directly_common_fund">সরাসরি গ্রুপ ফান্ড থেকে পরিশোধিত। ফান্ডের ব্যালেন্স থেকে বাদ যাবে।</string>
     <string name="split_between">ভাগাভাগি</string>
     <string name="equal_all">সবার সমান</string>
     <string name="selective">নির্দিষ্ট কয়েকজন</string>
@@ -86,11 +96,11 @@
     <!-- Expenses Screen -->
     <string name="filter_all">সব (%1$d)</string>
     <string name="filter_expenses">খরচসমূহ (%1$d)</string>
-    <string name="filter_incomes">জমা ফান্ড (%1$d)</string>
+    <string name="filter_incomes">জমা ও প্রাপ্তি (%1$d)</string>
     <string name="all_categories">সকল ক্যাটাগরি</string>
-    <string name="fund_deposits_inflows">ফান্ড জমা ও প্রাপ্তি</string>
+    <string name="fund_deposits_inflows">গ্রুপ ফান্ড জমা ও প্রাপ্তি</string>
     <string name="from_contributor">প্রদানকারী: %1$s • %2$s</string>
-    <string name="paid_from_common_fund">পরিশোধ: সাধারণ ফান্ড থেকে</string>
+    <string name="paid_from_common_fund">গ্রুপ ফান্ড থেকে পরিশোধিত</string>
     <string name="paid_by_member">পরিশোধ করেছেন: %1$s</string>
     <string name="jointly_paid">%1$d জন যৌথভাবে দিয়েছেন</string>
     <string name="delete_expense_title">খরচ মুছে ফেলবেন?</string>
@@ -108,7 +118,7 @@
     <string name="settled_history">পরিশোধিত ইতিহাস</string>
     <string name="payment_instructions">লেনদেনের নির্দেশনা</string>
     <string name="all_accounts_settled">সব হিসাব নিষ্পত্তি সম্পন্ন!</string>
-    <string name="no_pending_debts">কোনো সদস্য বা সাধারণ ফান্ডের মধ্যে বকেয়া নেই।</string>
+    <string name="no_pending_debts">কোনো সদস্য বা গ্রুপ ফান্ডের মধ্যে বকেয়া নেই।</string>
     <string name="mark_as_settled">পরিশোধ সম্পন্ন করুন</string>
     <string name="individual_balances">সদস্যদের হিসাবের খাতা</string>
     <string name="gets_back">পাবেন</string>
@@ -128,8 +138,8 @@
     <string name="over_budget">বাজেট অতিক্রম করেছে</string>
 
     <!-- Settings Screen -->
-    <string name="language_setting">ভাষা / Language</string>
-    <string name="english">English</string>
+    <string name="language_setting">ভাষা</string>
+    <string name="english">ইংরেজি</string>
     <string name="bangla">বাংলা</string>
     <string name="multi_trip_management">মাল্টি-ট্যুর ব্যবস্থাপনা</string>
     <string name="new_trip">নতুন ট্যুর</string>
@@ -165,10 +175,10 @@
     <string name="tour_manager">ট্যুর পরিচালক / লিড</string>
     <string name="add_member">+ সদস্য যুক্ত করুন</string>
     <string name="member_name">সদস্যের নাম</string>
-    <string name="initial_deposit_optional">প্রাথমিক জমা / চাঁদা (ঐচ্ছিক)</string>
-    <string name="advance_common_fund">অগ্রিম সাধারণ ফান্ড</string>
-    <string name="collect_advance_fund">প্রতি সদস্যের কাছ থেকে প্রাথমিক চাঁদা সংগ্রহ</string>
-    <string name="advance_per_member">প্রতি সদস্যের চাঁদা (৳)</string>
+    <string name="initial_deposit_optional">প্রাথমিক জমা (ঐচ্ছিক)</string>
+    <string name="advance_common_fund">অগ্রিম গ্রুপ ফান্ড</string>
+    <string name="collect_advance_fund">প্রতি সদস্যের কাছ থেকে প্রাথমিক জমা সংগ্রহ</string>
+    <string name="advance_per_member">প্রতি সদস্যের জমা (৳)</string>
     <string name="launch_trip">ট্যুর শুরু ও ট্র্যাকিং চালু করুন</string>
 
     <!-- Export PDF -->
@@ -188,4 +198,3 @@
     <string name="sync_now">এখনই সিঙ্ক করুন</string>
     <string name="syncing">সিঙ্ক হচ্ছে...</string>
 </resources>
-

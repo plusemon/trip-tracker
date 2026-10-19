@@ -18,10 +18,10 @@
 
     <!-- Welcome / Dashboard -->
     <string name="welcome_title">Welcome to TripSplit BD</string>
-    <string name="welcome_subtitle">Your elite companion for group travel expense tracking, common fund wallets, multi-currency splitting, and instant debt simplification.</string>
+    <string name="welcome_subtitle">Your elite companion for group travel expense tracking, group fund wallets, multi-currency splitting, and instant debt simplification.</string>
     <string name="create_first_tour">Create Your First Tour</string>
     <string name="travelers_count">%1$d Travelers</string>
-    <string name="common_fund_pool">Common Fund Pool</string>
+    <string name="common_fund_pool">Group Fund Balance</string>
     <string name="cash_in_hand">Cash in Hand</string>
     <string name="fund_deficit">Fund Deficit</string>
     <string name="available_balance">Available Balance</string>
@@ -37,6 +37,16 @@
     <string name="no_expenses_logged">No expenses logged yet</string>
     <string name="no_expenses_subtitle">Tap \'Add Expense\' or \'Deposit\' to start tracking tour spending!</string>
 
+    <!-- Group Fund Core Strings -->
+    <string name="group_fund">Group Fund</string>
+    <string name="group_fund_balance">Group Fund Balance</string>
+    <string name="group_fund_deposit">Group Fund Deposit</string>
+    <string name="paid_from_group_fund">Paid from: Group Fund</string>
+    <string name="deposit_to_group_fund">Deposit to Group Fund</string>
+
+    <!-- Filter & Categories -->
+    <string name="filter_incomes_deposits">Deposits / Inflow</string>
+
     <!-- Fund & Income -->
     <string name="enter_income_title">Enter Income / Fund</string>
     <string name="member_deposit">Member Deposit</string>
@@ -45,7 +55,7 @@
     <string name="source_contributor_name">Source / Contributor Name</string>
     <string name="source_placeholder">e.g., Tour Sponsor, Resort Refund, Personal Allowance</string>
     <string name="income_category">Income Category</string>
-    <string name="common_fund_deposit">Common Fund Deposit</string>
+    <string name="common_fund_deposit">Group Fund Deposit</string>
     <string name="tour_sponsorship">Tour Sponsorship / Gift</string>
     <string name="booking_refund">Vendor / Booking Refund</string>
     <string name="travel_allowance">Personal Travel Allowance</string>
@@ -53,7 +63,7 @@
     <string name="amount_taka">Amount (৳)</string>
     <string name="notes_method">Notes / Method</string>
     <string name="notes_placeholder">e.g., bKash, Cash, Bank Transfer</string>
-    <string name="confirm_deposit">Confirm Deposit into Fund</string>
+    <string name="confirm_deposit">Deposit to Group Fund</string>
 
     <!-- Log Expense -->
     <string name="log_expense_title">Log Group Expense</string>
@@ -62,10 +72,10 @@
     <string name="category_label">Category</string>
     <string name="custom_category">Custom Category</string>
     <string name="paid_by">Paid By</string>
-    <string name="common_fund">Common Fund</string>
+    <string name="common_fund">Group Fund</string>
     <string name="single_member">Single Member</string>
     <string name="joint_split">Joint / Split</string>
-    <string name="paid_directly_common_fund">Paid directly from the Common Fund. Deducts cash in hand.</string>
+    <string name="paid_directly_common_fund">Paid directly from the Group Fund. Deducts available balance.</string>
     <string name="split_between">Split Between</string>
     <string name="equal_all">Equal All</string>
     <string name="selective">Selective</string>
@@ -86,11 +96,11 @@
     <!-- Expenses Screen -->
     <string name="filter_all">All (%1$d)</string>
     <string name="filter_expenses">Expenses (%1$d)</string>
-    <string name="filter_incomes">Incomes / Deposits (%1$d)</string>
+    <string name="filter_incomes">Deposits / Inflow (%1$d)</string>
     <string name="all_categories">All Categories</string>
-    <string name="fund_deposits_inflows">Fund Deposits &amp; Inflows</string>
+    <string name="fund_deposits_inflows">Group Fund Deposits &amp; Inflows</string>
     <string name="from_contributor">From: %1$s • %2$s</string>
-    <string name="paid_from_common_fund">Paid from: Common Fund</string>
+    <string name="paid_from_common_fund">Paid from: Group Fund</string>
     <string name="paid_by_member">Paid by: %1$s</string>
     <string name="jointly_paid">Jointly paid by %1$d members</string>
     <string name="delete_expense_title">Delete Expense?</string>
@@ -108,7 +118,7 @@
     <string name="settled_history">Settled History</string>
     <string name="payment_instructions">Payment Instructions</string>
     <string name="all_accounts_settled">All accounts are settled!</string>
-    <string name="no_pending_debts">No pending debts among members or common fund.</string>
+    <string name="no_pending_debts">No pending debts among members or group fund.</string>
     <string name="mark_as_settled">Mark as Settled</string>
     <string name="individual_balances">Individual Member Balances</string>
     <string name="gets_back">Gets Back</string>
@@ -128,9 +138,9 @@
     <string name="over_budget">Over Budget</string>
 
     <!-- Settings Screen -->
-    <string name="language_setting">Language / ভাষা</string>
+    <string name="language_setting">Language</string>
     <string name="english">English</string>
-    <string name="bangla">বাংলা</string>
+    <string name="bangla">Bangla</string>
     <string name="multi_trip_management">Multi-Trip Management</string>
     <string name="new_trip">New Trip</string>
     <string name="switch_trip">Switch</string>
@@ -166,7 +176,7 @@
     <string name="add_member">+ Add Member</string>
     <string name="member_name">Member Name</string>
     <string name="initial_deposit_optional">Initial Deposit / Fund (Optional)</string>
-    <string name="advance_common_fund">Advance Common Fund</string>
+    <string name="advance_common_fund">Advance Group Fund</string>
     <string name="collect_advance_fund">Collect initial advance fund per member</string>
     <string name="advance_per_member">Advance Per Member (৳)</string>
     <string name="launch_trip">Launch Trip &amp; Start Tracking</string>
@@ -188,4 +198,3 @@
     <string name="sync_now">Sync Now</string>
     <string name="syncing">Syncing...</string>
 </resources>
-

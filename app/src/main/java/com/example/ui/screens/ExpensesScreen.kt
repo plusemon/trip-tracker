@@ -132,7 +132,7 @@ fun ExpensesScreen(
             FilterChip(
                 selected = selectedTabFilter == 2,
                 onClick = { selectedTabFilter = 2 },
-                label = { Text("Incomes / Deposits (${deposits.size})") }
+                label = { Text("${stringResource(R.string.filter_incomes_deposits)} (${deposits.size})") }
             )
         }
 
@@ -177,7 +177,7 @@ fun ExpensesScreen(
             if (selectedTabFilter != 1 && filteredDeposits.isNotEmpty()) {
                 item {
                     Text(
-                        text = "Fund Deposits & Inflows",
+                        text = stringResource(R.string.fund_deposits_inflows),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.secondary
@@ -214,8 +214,18 @@ fun ExpensesScreen(
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
+                                val isDefaultDeposit = deposit.categoryName.isBlank() ||
+                                    deposit.categoryName.equals("Common Fund Deposit", ignoreCase = true) ||
+                                    deposit.categoryName.equals("Group Fund Deposit", ignoreCase = true) ||
+                                    deposit.categoryName.contains("চাঁদা") ||
+                                    deposit.categoryName.contains("সাধারণ ফান্ড")
+                                val depositTitle = if (isDefaultDeposit) {
+                                    stringResource(id = R.string.group_fund_deposit)
+                                } else {
+                                    deposit.categoryName
+                                }
                                 Text(
-                                    text = deposit.categoryName,
+                                    text = depositTitle,
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -358,7 +368,7 @@ fun ExpensesScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 val payerText = when (expense.payerType) {
-                                    PayerType.COMMON_FUND -> stringResource(id = R.string.paid_from_common_fund)
+                                    PayerType.COMMON_FUND -> stringResource(id = R.string.paid_from_group_fund)
                                     PayerType.MEMBER -> {
                                         val payerName = memberMap[expense.payerMemberId]?.name ?: "Member"
                                         stringResource(id = R.string.paid_by_member, payerName)

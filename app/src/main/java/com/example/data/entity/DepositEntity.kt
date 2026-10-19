@@ -33,7 +33,7 @@ data class DepositEntity(
     val memberId: Long? = null,
     val contributorName: String = "",
     val amount: Double,
-    val categoryName: String = "Common Fund Deposit",
+    val categoryName: String = "Group Fund Deposit",
     val date: Long = System.currentTimeMillis(),
     val notes: String = ""
 )

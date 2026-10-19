@@ -88,9 +88,9 @@ object PdfReportGenerator {
         val colW = (pageWidth - 60) / 4f
 
         val kpis = listOf(
-            "Common Fund Pool" to CurrencyFormatter.formatTaka(totalDeposits, trip.currencySymbol),
-            "Pool Spent" to CurrencyFormatter.formatTaka(commonFundSpent, trip.currencySymbol),
-            "Cash in Hand" to CurrencyFormatter.formatTaka(remainingCommonFund, trip.currencySymbol),
+            "Group Fund Deposits" to CurrencyFormatter.formatTaka(totalDeposits, trip.currencySymbol),
+            "Group Fund Spent" to CurrencyFormatter.formatTaka(commonFundSpent, trip.currencySymbol),
+            "Group Fund Balance" to CurrencyFormatter.formatTaka(remainingCommonFund, trip.currencySymbol),
             "Total Expenses" to CurrencyFormatter.formatTaka(totalSpentOverall, trip.currencySymbol)
         )
 
@@ -215,7 +215,7 @@ object PdfReportGenerator {
             canvas.drawText(shortTitle, 110f, y + 12f, paint)
             canvas.drawText(e.category.displayName, 330f, y + 12f, paint)
 
-            val payerText = if (e.payerType == PayerType.COMMON_FUND) "Common Pool" else "Member Pocket"
+            val payerText = if (e.payerType == PayerType.COMMON_FUND) "Group Fund" else "Member Pocket"
             canvas.drawText(payerText, 440f, y + 12f, paint)
 
             paint.color = Color.parseColor("#006C4C")

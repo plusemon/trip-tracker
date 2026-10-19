@@ -36,9 +36,9 @@ object ShareSummaryFormatter {
         sb.appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━")
         sb.appendLine()
 
-        sb.appendLine("💰 *COMMON FUND POOL*")
+        sb.appendLine("💰 *GROUP FUND BALANCE*")
         sb.appendLine("• Total Collected: ${CurrencyFormatter.formatTaka(totalDeposits, trip.currencySymbol)}")
-        sb.appendLine("• Paid from Common Fund: ${CurrencyFormatter.formatTaka(commonFundSpent, trip.currencySymbol)}")
+        sb.appendLine("• Paid from Group Fund: ${CurrencyFormatter.formatTaka(commonFundSpent, trip.currencySymbol)}")
         val fundStatus = if (remainingCommonFund >= 0) "Cash in Hand" else "Deficit"
         sb.appendLine("• Remaining Balance: ${CurrencyFormatter.formatTaka(remainingCommonFund, trip.currencySymbol)} ($fundStatus)")
         sb.appendLine("• Total Trip Expenses: ${CurrencyFormatter.formatTaka(totalSpentOverall, trip.currencySymbol)}")

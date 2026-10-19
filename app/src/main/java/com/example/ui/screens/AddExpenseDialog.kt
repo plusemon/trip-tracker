@@ -286,7 +286,7 @@ fun AddExpenseDialog(
                         onClick = { payerType = PayerType.COMMON_FUND },
                         shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3)
                     ) {
-                        Text("Common Fund", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.group_fund), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     }
                     SegmentedButton(
                         selected = payerType == PayerType.MEMBER,

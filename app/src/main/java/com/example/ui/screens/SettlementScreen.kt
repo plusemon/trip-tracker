@@ -23,7 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import com.example.data.entity.SettlementRecordEntity
+import com.example.domain.engine.SettlementEngine
 import com.example.domain.model.CurrencyFormatter
 import com.example.domain.model.MemberBalance
 import com.example.domain.model.SettlementTransaction
@@ -219,13 +222,13 @@ fun SettlementScreen(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "All accounts are settled!",
+                                    text = stringResource(R.string.all_accounts_settled),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF1B6D24)
                                 )
                                 Text(
-                                    text = "No pending debts among members or common fund.",
+                                    text = stringResource(R.string.no_pending_debts),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.outline,
                                     textAlign = TextAlign.Center
@@ -245,6 +248,8 @@ fun SettlementScreen(
                                 onRecordSettlement(st.fromMemberId, st.toMemberId, st.fromMemberName, st.toMemberName, st.amount)
                             },
                             isReadOnly = isReadOnly,
+                            fromMemberId = st.fromMemberId,
+                            toMemberId = st.toMemberId,
                             modifier = Modifier.testTag("settlement_step_${st.fromMemberId}_to_${st.toMemberId}")
                         )
                     }
@@ -377,8 +382,19 @@ fun SettlementScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                val historyTitle = if (record.fromMemberName.isNotBlank() && record.toMemberName.isNotBlank()) {
-                                    "${record.fromMemberName} ➡️ ${record.toMemberName}"
+                                val isFromFund = record.fromMemberId == SettlementEngine.COMMON_FUND_ID ||
+                                    record.fromMemberName.contains("Common Fund", ignoreCase = true) ||
+                                    record.fromMemberName.contains("Group Fund", ignoreCase = true) ||
+                                    record.fromMemberName.contains("গ্রুপ ফান্ড")
+                                val isToFund = record.toMemberId == SettlementEngine.COMMON_FUND_ID ||
+                                    record.toMemberName.contains("Common Fund", ignoreCase = true) ||
+                                    record.toMemberName.contains("Group Fund", ignoreCase = true) ||
+                                    record.toMemberName.contains("গ্রুপ ফান্ড")
+                                val displayFrom = if (isFromFund) stringResource(R.string.group_fund) else record.fromMemberName
+                                val displayTo = if (isToFund) stringResource(R.string.group_fund) else record.toMemberName
+
+                                val historyTitle = if (displayFrom.isNotBlank() && displayTo.isNotBlank()) {
+                                    "$displayFrom ➡️ $displayTo"
                                 } else {
                                     "Settlement Payment Cleared"
                                 }

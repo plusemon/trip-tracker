@@ -405,7 +405,7 @@ fun DashboardScreen(
                                     }
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
-                                        text = stringResource(id = R.string.common_fund_pool),
+                                        text = stringResource(id = R.string.group_fund_balance),
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White,
@@ -421,7 +421,7 @@ fun DashboardScreen(
                                     color = if (remainingFund >= 0) Color(0xFFC8E6C9) else Color(0xFFFFCDD2)
                                 ) {
                                     Text(
-                                        text = if (remainingFund >= 0) "Cash in Hand" else "Fund Deficit",
+                                        text = if (remainingFund >= 0) stringResource(R.string.cash_in_hand) else stringResource(R.string.fund_deficit),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = if (remainingFund >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
                                         fontWeight = FontWeight.Bold,
@@ -741,7 +741,7 @@ fun DashboardScreen(
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     val payerLabel = when (expense.payerType) {
-                                        PayerType.COMMON_FUND -> "Common Fund"
+                                        PayerType.COMMON_FUND -> stringResource(R.string.group_fund)
                                         PayerType.MEMBER -> "Member Pocket"
                                         PayerType.MULTI_PAYER -> "Joint Payer"
                                     }

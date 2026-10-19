@@ -17,7 +17,8 @@ import kotlin.math.roundToInt
 object SettlementEngine {
 
     const val COMMON_FUND_ID = -1L
-    const val COMMON_FUND_NAME = "Common Fund (Cash in Hand)"
+    const val COMMON_FUND_NAME = "Group Fund"
+    const val GROUP_FUND_NAME = "Group Fund"
     const val COMMON_FUND_COLOR = "#FFBA35"
 
     /**
@@ -97,7 +98,7 @@ object SettlementEngine {
         val memberBalances = calculateMemberBalances(members, deposits, expenses, splits, payers)
         val memberMap = members.associateBy { it.id }
 
-        // Total cash remaining in Common Fund
+        // Total cash remaining in Group Fund
         val totalDeposits = deposits.sumOf { it.amount }
         val commonFundSpent = expenses.filter { !it.isIncome && it.payerType == PayerType.COMMON_FUND }.sumOf { it.amount }
         val remainingCommonFund = totalDeposits - commonFundSpent
@@ -108,9 +109,9 @@ object SettlementEngine {
             netMap[mb.member.id] = mb.netBalance
         }
 
-        // Include Common Fund entity if there is remaining cash or deficit in the common wallet
+        // Include Group Fund entity if there is remaining cash or deficit in the group wallet
         if (abs(remainingCommonFund) > 0.5) {
-            // If Common Fund has leftover cash (+R), it owes R back to members (-R in balance terms)
+            // If Group Fund has leftover cash (+R), it owes R back to members (-R in balance terms)
             netMap[COMMON_FUND_ID] = -remainingCommonFund
         }
 
