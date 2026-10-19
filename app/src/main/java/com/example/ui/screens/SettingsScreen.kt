@@ -32,7 +32,14 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FreeBreakfast
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.ui.res.stringResource
+import com.example.R
+import com.example.util.LanguageManager
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
@@ -106,6 +113,65 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+        // Language Settings Card
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("language_settings_card")
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Language,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.language_setting),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                val currentLang = LanguageManager.getSavedLanguage(context)
+
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = currentLang == "en",
+                        onClick = {
+                            if (currentLang != "en") {
+                                LanguageManager.setAppLocale(context, "en")
+                            }
+                        },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        modifier = Modifier.testTag("lang_btn_en")
+                    ) {
+                        Text(stringResource(id = R.string.english), fontWeight = FontWeight.Bold)
+                    }
+                    SegmentedButton(
+                        selected = currentLang == "bn",
+                        onClick = {
+                            if (currentLang != "bn") {
+                                LanguageManager.setAppLocale(context, "bn")
+                            }
+                        },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        modifier = Modifier.testTag("lang_btn_bn")
+                    ) {
+                        Text(stringResource(id = R.string.bangla), fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+
         // Multi-Trip Switcher & Management Card
         Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),

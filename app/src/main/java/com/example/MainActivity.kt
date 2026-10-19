@@ -85,13 +85,18 @@ import com.example.ui.theme.TripSplitTheme
 import com.example.updater.ui.AppUpdateDialog
 import com.example.updater.ui.UpdateViewModel
 
-class MainActivity : ComponentActivity() {
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.res.stringResource
+import com.example.util.LanguageManager
+
+class MainActivity : AppCompatActivity() {
 
     private val viewModel: TripSplitViewModel by viewModels()
     private val updateViewModel: UpdateViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LanguageManager.applySavedLocale(this)
         enableEdgeToEdge()
         setContent {
             TripSplitTheme {
@@ -194,7 +199,7 @@ fun TripSplitApp(
                                 color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Text(
-                                    text = "OFFLINE SYNCED",
+                                    text = stringResource(id = R.string.offline_synced),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                                     fontSize = 9.sp,
@@ -221,7 +226,7 @@ fun TripSplitApp(
                             onClick = { viewModel.openDialog(ActiveDialog.EXPORT) },
                             modifier = Modifier.testTag("top_share_button")
                         ) {
-                            Icon(Icons.Default.Share, contentDescription = "Share Report")
+                            Icon(Icons.Default.Share, contentDescription = stringResource(id = R.string.share_report))
                         }
 
                         // Trip switcher menu
@@ -230,7 +235,7 @@ fun TripSplitApp(
                                 onClick = { tripMenuExpanded = true },
                                 modifier = Modifier.testTag("trip_switcher_button")
                             ) {
-                                Icon(Icons.Default.CardTravel, contentDescription = "Switch Trips")
+                                Icon(Icons.Default.CardTravel, contentDescription = stringResource(id = R.string.switch_trips))
                             }
 
                             DropdownMenu(
@@ -238,7 +243,7 @@ fun TripSplitApp(
                                 onDismissRequest = { tripMenuExpanded = false }
                             ) {
                                 Text(
-                                    text = "Switch Active Trip",
+                                    text = stringResource(id = R.string.switch_active_trip),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -254,7 +259,7 @@ fun TripSplitApp(
                                     )
                                 }
                                 DropdownMenuItem(
-                                    text = { Text("+ Create New Trip", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
+                                    text = { Text(stringResource(id = R.string.create_new_trip), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
                                     onClick = {
                                         tripMenuExpanded = false
                                         viewModel.openDialog(ActiveDialog.CREATE_TRIP)
@@ -282,10 +287,10 @@ fun TripSplitApp(
                         icon = {
                             Icon(
                                 if (uiState.selectedTab == 0) Icons.Default.Dashboard else Icons.Outlined.Dashboard,
-                                contentDescription = "Dashboard"
+                                contentDescription = stringResource(id = R.string.nav_dashboard)
                             )
                         },
-                        label = { Text("Dashboard", fontWeight = if (uiState.selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                        label = { Text(stringResource(id = R.string.nav_dashboard), fontWeight = if (uiState.selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_dashboard")
                     )
 
@@ -295,10 +300,10 @@ fun TripSplitApp(
                         icon = {
                             Icon(
                                 if (uiState.selectedTab == 1) Icons.Default.ReceiptLong else Icons.Outlined.ReceiptLong,
-                                contentDescription = "Expenses"
+                                contentDescription = stringResource(id = R.string.nav_expenses)
                             )
                         },
-                        label = { Text("Expenses", fontWeight = if (uiState.selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                        label = { Text(stringResource(id = R.string.nav_expenses), fontWeight = if (uiState.selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_expenses")
                     )
 
@@ -308,10 +313,10 @@ fun TripSplitApp(
                         icon = {
                             Icon(
                                 if (uiState.selectedTab == 2) Icons.Default.SwapHoriz else Icons.Outlined.SwapHoriz,
-                                contentDescription = "Settle Up"
+                                contentDescription = stringResource(id = R.string.nav_settle_up)
                             )
                         },
-                        label = { Text("Settle Up", fontWeight = if (uiState.selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
+                        label = { Text(stringResource(id = R.string.nav_settle_up), fontWeight = if (uiState.selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_settle")
                     )
 
@@ -321,10 +326,10 @@ fun TripSplitApp(
                         icon = {
                             Icon(
                                 if (uiState.selectedTab == 3) Icons.Default.PieChart else Icons.Outlined.PieChart,
-                                contentDescription = "Analytics"
+                                contentDescription = stringResource(id = R.string.nav_analytics)
                             )
                         },
-                        label = { Text("Analytics", fontWeight = if (uiState.selectedTab == 3) FontWeight.Bold else FontWeight.Normal) },
+                        label = { Text(stringResource(id = R.string.nav_analytics), fontWeight = if (uiState.selectedTab == 3) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_analytics")
                     )
 
@@ -334,10 +339,10 @@ fun TripSplitApp(
                         icon = {
                             Icon(
                                 if (uiState.selectedTab == 4) Icons.Default.Settings else Icons.Outlined.Settings,
-                                contentDescription = "Settings"
+                                contentDescription = stringResource(id = R.string.nav_settings)
                             )
                         },
-                        label = { Text("Settings", fontWeight = if (uiState.selectedTab == 4) FontWeight.Bold else FontWeight.Normal) },
+                        label = { Text(stringResource(id = R.string.nav_settings), fontWeight = if (uiState.selectedTab == 4) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_settings")
                     )
                 }

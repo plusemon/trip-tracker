@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -94,7 +96,7 @@ fun DashboardScreen(
                     }
 
                     Text(
-                        text = "Welcome to TripSplit BD",
+                        text = stringResource(id = R.string.welcome_title),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
@@ -102,7 +104,7 @@ fun DashboardScreen(
                     )
 
                     Text(
-                        text = "Your elite companion for group travel expense tracking, common fund (\"চাঁদা\") wallets, multi-currency splitting, and instant debt simplification.",
+                        text = stringResource(id = R.string.welcome_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -246,7 +248,7 @@ fun DashboardScreen(
                 }
             }
 
-            // Hero Card 1: Common Fund Pool ("চাঁদা") with Vibrant Gradient Background & Quick Deposit
+            // Hero Card 1: Common Fund Pool with Vibrant Gradient Background & Quick Deposit
             item {
                 Card(
                     modifier = Modifier
@@ -291,7 +293,7 @@ fun DashboardScreen(
                                     }
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
-                                        text = "Common Fund Pool (\"চাঁদা\")",
+                                        text = stringResource(id = R.string.common_fund_pool),
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White,

@@ -47,6 +47,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.entity.CategoryIconHelper
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import com.example.data.entity.DepositEntity
 import com.example.data.entity.ExpenseCategory
 import com.example.data.entity.ExpenseEntity
@@ -353,13 +355,13 @@ fun ExpensesScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 val payerText = when (expense.payerType) {
-                                    PayerType.COMMON_FUND -> "Paid from: Common Fund (\"চাঁদা\")"
+                                    PayerType.COMMON_FUND -> stringResource(id = R.string.paid_from_common_fund)
                                     PayerType.MEMBER -> {
                                         val payerName = memberMap[expense.payerMemberId]?.name ?: "Member"
-                                        "Paid by: $payerName"
+                                        stringResource(id = R.string.paid_by_member, payerName)
                                     }
                                     PayerType.MULTI_PAYER -> {
-                                        "Jointly paid by ${expPayers.size} members"
+                                        stringResource(id = R.string.jointly_paid, expPayers.size)
                                     }
                                 }
                                 Text(

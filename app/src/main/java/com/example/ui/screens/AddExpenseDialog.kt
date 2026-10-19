@@ -67,6 +67,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import com.example.data.entity.CategoryEntity
 import com.example.data.entity.CategoryIconHelper
 import com.example.data.entity.ExpenseCategory
@@ -310,7 +312,7 @@ fun AddExpenseDialog(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "Paid directly from the group Common Fund pool (\"চাঁদা\"). Deducts cash in hand.",
+                                text = stringResource(id = R.string.paid_directly_common_fund),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier.padding(12.dp)

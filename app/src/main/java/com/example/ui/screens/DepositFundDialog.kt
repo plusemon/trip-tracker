@@ -51,6 +51,9 @@ import com.example.data.entity.MemberEntity
 import com.example.domain.model.formatBDT
 import com.example.ui.components.MemberAvatar
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DepositFundDialog(
@@ -73,7 +76,7 @@ fun DepositFundDialog(
     var externalContributor by remember { mutableStateOf("") }
 
     var amountText by remember { mutableStateOf("") }
-    var selectedCategoryName by remember { mutableStateOf("Common Fund Deposit (\"চাঁদা\")") }
+    var selectedCategoryName by remember { mutableStateOf("Common Fund Deposit") }
     var notes by remember { mutableStateOf("") }
 
     val quickAmounts = listOf("1000", "2000", "3000", "5000", "10000")
@@ -111,7 +114,7 @@ fun DepositFundDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Enter Income / Fund Pool",
+                        text = stringResource(id = R.string.enter_income_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -129,13 +132,13 @@ fun DepositFundDialog(
                 FilterChip(
                     selected = isFromMember,
                     onClick = { isFromMember = true },
-                    label = { Text("Member Deposit (\"চাঁদা\")") },
+                    label = { Text(stringResource(id = R.string.member_deposit)) },
                     modifier = Modifier.weight(1f)
                 )
                 FilterChip(
                     selected = !isFromMember,
                     onClick = { isFromMember = false },
-                    label = { Text("External / Inflow") },
+                    label = { Text(stringResource(id = R.string.external_inflow)) },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -143,7 +146,7 @@ fun DepositFundDialog(
             // Member Selector or External Name
             if (isFromMember) {
                 Text(
-                    text = "Select Contributor",
+                    text = stringResource(id = R.string.select_contributor),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -167,8 +170,8 @@ fun DepositFundDialog(
                 OutlinedTextField(
                     value = externalContributor,
                     onValueChange = { externalContributor = it },
-                    label = { Text("Source / Contributor Name") },
-                    placeholder = { Text("e.g., Tour Sponsor, Resort Refund, Personal Allowance") },
+                    label = { Text(stringResource(id = R.string.source_contributor_name)) },
+                    placeholder = { Text(stringResource(id = R.string.source_placeholder)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -176,13 +179,20 @@ fun DepositFundDialog(
 
             // Income Category Chips
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Income Category", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.income_category), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                val defaultIncomeCatResIds = listOf(
+                    R.string.common_fund_deposit,
+                    R.string.tour_sponsorship,
+                    R.string.booking_refund,
+                    R.string.travel_allowance,
+                    R.string.other_inflow
+                )
                 val defaultIncomeCats = listOf(
-                    "Common Fund Deposit (\"চাঁদা\")",
-                    "Tour Sponsorship / Gift",
-                    "Vendor / Booking Refund",
-                    "Personal Travel Allowance",
-                    "Other Inflow"
+                    stringResource(id = R.string.common_fund_deposit),
+                    stringResource(id = R.string.tour_sponsorship),
+                    stringResource(id = R.string.booking_refund),
+                    stringResource(id = R.string.travel_allowance),
+                    stringResource(id = R.string.other_inflow)
                 )
                 val customIncomes = categories.filter { it.isIncome }.map { it.name }
                 val allInflowCats = (defaultIncomeCats + customIncomes).distinct()
@@ -288,7 +298,7 @@ fun DepositFundDialog(
             ) {
                 Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Confirm Deposit into Fund", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(stringResource(id = R.string.confirm_deposit), fontWeight = FontWeight.Bold, fontSize = 15.sp)
             }
         }
     }

@@ -1,3 +1,173 @@
 <resources>
     <string name="app_name">TripSplit BD</string>
+    <string name="offline_synced">OFFLINE SYNCED</string>
+    
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_expenses">Expenses</string>
+    <string name="nav_settle_up">Settle Up</string>
+    <string name="nav_analytics">Analytics</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Header Actions -->
+    <string name="switch_active_trip">Switch Active Trip</string>
+    <string name="create_new_trip">+ Create New Trip</string>
+    <string name="share_report">Share Report</string>
+    <string name="switch_trips">Switch Trips</string>
+    <string name="add_expense">Add Expense</string>
+
+    <!-- Welcome / Dashboard -->
+    <string name="welcome_title">Welcome to TripSplit BD</string>
+    <string name="welcome_subtitle">Your elite companion for group travel expense tracking, common fund wallets, multi-currency splitting, and instant debt simplification.</string>
+    <string name="create_first_tour">Create Your First Tour</string>
+    <string name="travelers_count">%1$d Travelers</string>
+    <string name="common_fund_pool">Common Fund Pool</string>
+    <string name="cash_in_hand">Cash in Hand</string>
+    <string name="fund_deficit">Fund Deficit</string>
+    <string name="available_balance">Available Balance</string>
+    <string name="total_inflows">Total Inflows</string>
+    <string name="spent_from_fund">Spent from Fund</string>
+    <string name="overall_trip_budget">Overall Trip Budget</string>
+    <string name="budget_used">%1$d%% Used</string>
+    <string name="spent_label">Spent: %1$s</string>
+    <string name="budget_label">Budget: %1$s</string>
+    <string name="settle_debts">Settle Debts</string>
+    <string name="recent_activity">Recent Activity</string>
+    <string name="view_all">View All (%1$d)</string>
+    <string name="no_expenses_logged">No expenses logged yet</string>
+    <string name="no_expenses_subtitle">Tap \'Add Expense\' or \'Deposit\' to start tracking tour spending!</string>
+
+    <!-- Fund & Income -->
+    <string name="enter_income_title">Enter Income / Fund</string>
+    <string name="member_deposit">Member Deposit</string>
+    <string name="external_inflow">External / Inflow</string>
+    <string name="select_contributor">Select Contributor</string>
+    <string name="source_contributor_name">Source / Contributor Name</string>
+    <string name="source_placeholder">e.g., Tour Sponsor, Resort Refund, Personal Allowance</string>
+    <string name="income_category">Income Category</string>
+    <string name="common_fund_deposit">Common Fund Deposit</string>
+    <string name="tour_sponsorship">Tour Sponsorship / Gift</string>
+    <string name="booking_refund">Vendor / Booking Refund</string>
+    <string name="travel_allowance">Personal Travel Allowance</string>
+    <string name="other_inflow">Other Inflow</string>
+    <string name="amount_taka">Amount (৳)</string>
+    <string name="notes_method">Notes / Method</string>
+    <string name="notes_placeholder">e.g., bKash, Cash, Bank Transfer</string>
+    <string name="confirm_deposit">Confirm Deposit into Fund</string>
+
+    <!-- Log Expense -->
+    <string name="log_expense_title">Log Group Expense</string>
+    <string name="expense_title_hint">Expense Title</string>
+    <string name="expense_title_placeholder">e.g., Resort Cottage, Bamboo Chicken, Fuel</string>
+    <string name="category_label">Category</string>
+    <string name="custom_category">Custom Category</string>
+    <string name="paid_by">Paid By</string>
+    <string name="common_fund">Common Fund</string>
+    <string name="single_member">Single Member</string>
+    <string name="joint_split">Joint / Split</string>
+    <string name="paid_directly_common_fund">Paid directly from the Common Fund. Deducts cash in hand.</string>
+    <string name="split_between">Split Between</string>
+    <string name="equal_all">Equal All</string>
+    <string name="selective">Selective</string>
+    <string name="custom">Custom</string>
+    <string name="receipt_photos">Receipt Photos &amp; Memories</string>
+    <string name="add_photos">Add Photos</string>
+    <string name="notes_description_optional">Notes / Description (Optional)</string>
+    <string name="save_expense">Save Expense</string>
+
+    <!-- Categories -->
+    <string name="category_transportation">Transportation</string>
+    <string name="category_lodging">Lodging &amp; Resort</string>
+    <string name="category_food">Food &amp; Dining</string>
+    <string name="category_snacks">Snacks &amp; Refreshment</string>
+    <string name="category_sightseeing">Sightseeing &amp; Tickets</string>
+    <string name="category_guide">Guide &amp; Permissions</string>
+
+    <!-- Expenses Screen -->
+    <string name="filter_all">All (%1$d)</string>
+    <string name="filter_expenses">Expenses (%1$d)</string>
+    <string name="filter_incomes">Incomes / Deposits (%1$d)</string>
+    <string name="all_categories">All Categories</string>
+    <string name="fund_deposits_inflows">Fund Deposits &amp; Inflows</string>
+    <string name="from_contributor">From: %1$s • %2$s</string>
+    <string name="paid_from_common_fund">Paid from: Common Fund</string>
+    <string name="paid_by_member">Paid by: %1$s</string>
+    <string name="jointly_paid">Jointly paid by %1$d members</string>
+    <string name="delete_expense_title">Delete Expense?</string>
+    <string name="delete_expense_confirm">Are you sure you want to remove \'%1$s\' (%2$s)? Debts will be recalculated.</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Settlement Screen -->
+    <string name="smart_debt_settlement">Smart Debt Settlement</string>
+    <string name="optimized_cash_flow">Optimized via Minimum Cash Flow Algorithm</string>
+    <string name="transfers_to_clear">Transfers to Clear</string>
+    <string name="pending_transfers">%1$d Pending</string>
+    <string name="total_remaining">Total Remaining</string>
+    <string name="pending">Pending</string>
+    <string name="settled_history">Settled History</string>
+    <string name="payment_instructions">Payment Instructions</string>
+    <string name="all_accounts_settled">All accounts are settled!</string>
+    <string name="no_pending_debts">No pending debts among members or common fund.</string>
+    <string name="mark_as_settled">Mark as Settled</string>
+    <string name="individual_balances">Individual Member Balances</string>
+    <string name="gets_back">Gets Back</string>
+    <string name="owes">Owes</string>
+    <string name="settled">Settled</string>
+    <string name="settlement_history_log">Settlement History Log (%1$d)</string>
+
+    <!-- Analytics Screen -->
+    <string name="tour_analytics_insights">Tour Analytics &amp; Insights</string>
+    <string name="spending_breakdown_ratios">Spending Breakdown &amp; Member Ratios</string>
+    <string name="category_breakdown">Category Breakdown</string>
+    <string name="member_consumption_vs_paid">Member Consumption vs Paid</string>
+    <string name="tour_financial_health">Tour Financial Health</string>
+    <string name="budget_health">Budget Health</string>
+    <string name="fund_health">Fund Health</string>
+    <string name="within_budget">Within Budget</string>
+    <string name="over_budget">Over Budget</string>
+
+    <!-- Settings Screen -->
+    <string name="language_setting">Language / ভাষা</string>
+    <string name="english">English</string>
+    <string name="bangla">বাংলা</string>
+    <string name="multi_trip_management">Multi-Trip Management</string>
+    <string name="new_trip">New Trip</string>
+    <string name="switch_trip">Switch</string>
+    <string name="no_trips_created">No trips created yet. Tap \'New Trip\' to get started!</string>
+    <string name="status_label">Status:</string>
+    <string name="configurations_categories">Configurations &amp; Categories</string>
+    <string name="custom_categories_icons">Custom Categories &amp; Icons</string>
+    <string name="offline_json_backup">Offline JSON Backup &amp; Transfer</string>
+    <string name="offline_backup_description">Backup your complete trip (members, splits, rates, categories) to a local JSON string. Share it via Nearby Share, Bluetooth, or SD card to restore on another phone.</string>
+    <string name="export_json">Export JSON</string>
+    <string name="import_json">Import JSON</string>
+    <string name="app_version_updates">App Version &amp; Updates</string>
+    <string name="check_for_updates">Check for Updates</string>
+    <string name="checking_releases">Checking GitHub Releases...</string>
+    <string name="about_tripsplit_bd">About TripSplit BD</string>
+    <string name="about_description">TripSplit BD v1.0 • 100% Offline-First Architecture\nDesigned for Bangladeshi group expeditions (Sajek, Bandarban, Sylhet, Cox\'s Bazar) &amp; international travel. Built with Jetpack Compose &amp; Room Database.</string>
+    <string name="tip_jar_title">Buy the Developer a Hill Chai ☕</string>
+    <string name="tip_chai">Tip Chai</string>
+    <string name="delete_trip_title">Delete This Trip?</string>
+    <string name="delete_trip_confirm">Are you sure you want to delete \'%1$s\'? All member ledgers, expenses, and records will be permanently removed.</string>
+    <string name="import_trip_backup">Import Trip Backup</string>
+
+    <!-- Trip Setup Wizard -->
+    <string name="tour_setup_wizard">Tour Setup Wizard</string>
+    <string name="tour_basics">1. Tour Basics</string>
+    <string name="member_roster">2. Member Roster</string>
+    <string name="advance_fund">3. Advance Fund</string>
+    <string name="confirm_setup">4. Confirm Setup</string>
+    <string name="tour_name">Tour Name</string>
+    <string name="destination">Destination</string>
+    <string name="target_budget">Target Budget (৳)</string>
+    <string name="tour_manager">Tour Manager / Lead</string>
+    <string name="add_member">+ Add Member</string>
+    <string name="member_name">Member Name</string>
+    <string name="initial_deposit_optional">Initial Deposit / Fund (Optional)</string>
+    <string name="advance_common_fund">Advance Common Fund</string>
+    <string name="collect_advance_fund">Collect initial advance fund per member</string>
+    <string name="advance_per_member">Advance Per Member (৳)</string>
+    <string name="launch_trip">Launch Trip &amp; Start Tracking</string>
 </resources>

@@ -53,6 +53,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -152,7 +154,7 @@ fun TripSetupScreen(
     var managerName by remember { mutableStateOf("") }
     val memberList = remember { mutableStateListOf<NewMemberInfo>() }
 
-    // Step 3: Advance Fund ("চাঁদা") State
+    // Step 3: Advance Fund State
     var collectAdvanceFund by remember { mutableStateOf(false) }
     var advanceDepositAmountText by remember { mutableStateOf("") }
 
@@ -1023,7 +1025,7 @@ private fun TripReviewStep(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Shared Fund ("চাঁদা") Setup Card
+        // Shared Fund Setup Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -1039,7 +1041,7 @@ private fun TripReviewStep(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Advance Common Fund (\"চাঁদা\" Pool)",
+                        text = stringResource(id = R.string.advance_common_fund),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.secondary
@@ -1220,7 +1222,7 @@ private fun TripReviewStep(
                         Text(CurrencyFormatter.formatTaka(totalBudget, currencySymbol), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                     }
                     Column {
-                        Text("Pooled Cash (\"চাঁদা\")", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(id = R.string.common_fund_pool), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                         Text(
                             CurrencyFormatter.formatTaka(totalInitialFund, currencySymbol),
                             style = MaterialTheme.typography.bodyMedium,

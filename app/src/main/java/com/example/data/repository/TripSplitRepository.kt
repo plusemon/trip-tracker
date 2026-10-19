@@ -86,7 +86,7 @@ class TripSplitRepository(private val db: AppDatabase) {
                         contributorName = info.name,
                         amount = info.initialDeposit,
                         categoryName = "Common Fund Deposit",
-                        notes = "Initial Advance চাঁদা"
+                        notes = "Initial Advance Deposit"
                     )
                 )
             }

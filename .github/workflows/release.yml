@@ -38,7 +38,7 @@ jobs:
         run: ./gradlew testDebugUnitTest --no-daemon --stacktrace
 
       - name: Extract Version from build.gradle.kts
-        id: extract_version
+        id: get_version
         run: |
           VERSION_NAME=$(grep -o 'versionName = "[^"]*"' app/build.gradle.kts | head -1 | cut -d'"' -f2)
           if [ -z "$VERSION_NAME" ]; then
@@ -48,16 +48,21 @@ jobs:
           RELEASE_TAG="v${VERSION_NAME}.${{ github.run_number }}"
           echo "Extracted Version: $VERSION_NAME"
           echo "Generated Tag: $RELEASE_TAG"
+          echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
           echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace -Djava.awt.headless=true
+      - name: Build Minified Release APK
+        run: |
+          ./gradlew assembleRelease --no-daemon --stacktrace \
+            -PversionName="${{ steps.get_version.outputs.version }}" \
+            -PversionCode="${{ github.run_number }}" \
+            -Djava.awt.headless=true
 
       - name: Prepare APK Asset for Release
         run: |
-          APK_DIR="app/build/outputs/apk/debug"
-          SOURCE_APK="$APK_DIR/app-debug.apk"
+          APK_DIR="app/build/outputs/apk/release"
+          SOURCE_APK="$APK_DIR/app-release.apk"
           TARGET_APK="$APK_DIR/TripSplitBD-${RELEASE_TAG}.apk"
           if [ -f "$SOURCE_APK" ]; then
             cp "$SOURCE_APK" "$TARGET_APK"
@@ -76,6 +81,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            app/build/outputs/apk/debug/TripSplitBD-*.apk
+            app/build/outputs/apk/release/TripSplitBD-*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
