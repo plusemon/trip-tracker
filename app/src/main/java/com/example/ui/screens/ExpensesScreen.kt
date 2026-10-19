@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -101,7 +102,15 @@ fun ExpensesScreen(
         else deposits
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .widthIn(max = 600.dp)
+        ) {
         // Tab Filter: All, Expenses, Incomes
         Row(
             modifier = Modifier
@@ -434,6 +443,7 @@ fun ExpensesScreen(
             item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }
+}
 
     // Delete Confirmation
     if (expenseToDelete != null) {
