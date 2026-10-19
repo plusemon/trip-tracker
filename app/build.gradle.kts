@@ -16,7 +16,7 @@ android {
   val customVersionCode = project.findProperty("versionCode")?.toString()?.toInt() ?: 1
 
   defaultConfig {
-    applicationId = "com.aistudio.tripsplitbd.rzkq"
+    applicationId = "com.plusemon.trip"
     minSdk = 24
     targetSdk = 36
     versionCode = customVersionCode

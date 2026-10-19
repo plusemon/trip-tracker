@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "444588890798",
+    "firebase_url": "https://trip-tracker-e602d-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "trip-tracker-e602d",
+    "storage_bucket": "trip-tracker-e602d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444588890798:android:4483ee9480e302a745ab3f",
+        "android_client_info": {
+          "package_name": "com.plusemon.trip"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnGNoO-5Lfww7JeFOfS69erjFIhElcDLg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
