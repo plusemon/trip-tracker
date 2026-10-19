@@ -10,8 +10,10 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         try {
-            // Ensure Firebase is initialized first before accessing Firebase services
-            FirebaseApp.initializeApp(this)
+            // Ensure Firebase is initialized first before accessing Firebase services if configured
+            if (FirebaseApp.getApps(this).isEmpty()) {
+                FirebaseApp.initializeApp(this)
+            }
 
             // Initialize Firebase Realtime Database with explicit URL and disk persistence
             val database = FirebaseDatabase.getInstance(FIREBASE_DB_URL).apply {
@@ -19,7 +21,7 @@ class MainApplication : Application() {
             }
             Log.d(TAG, "Firebase Realtime Database initialized with offline persistence: $FIREBASE_DB_URL")
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize Firebase Realtime Database persistence: ${e.message}")
+            Log.w(TAG, "Firebase not configured or initialization skipped (running in 100% offline local Room mode): ${e.message}")
         }
     }
 

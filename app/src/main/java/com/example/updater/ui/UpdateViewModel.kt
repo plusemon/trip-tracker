@@ -117,7 +117,7 @@ class UpdateViewModel(application: Application) : AndroidViewModel(application) 
                                 isChecking = false,
                                 isUpToDate = true,
                                 lastCheckStatus = "App is up to date (v${BuildConfig.VERSION_NAME})",
-                                userMessage = if (manual) "You are using the latest version of TripSplit BD (v${BuildConfig.VERSION_NAME})! 🎉" else null
+                                userMessage = if (manual) "You are using the latest version of Trip Tracker (v${BuildConfig.VERSION_NAME})! 🎉" else null
                             )
                         }
                     }

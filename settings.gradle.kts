@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "TripSplit BD"
+rootProject.name = "Trip Tracker"
 
 include(":app")

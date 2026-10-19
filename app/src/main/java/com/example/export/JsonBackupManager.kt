@@ -31,7 +31,7 @@ object JsonBackupManager {
     fun exportTripToJson(bundle: TripBackupBundle): String {
         val root = JSONObject()
         root.put("version", 1)
-        root.put("appName", "TripSplit BD")
+        root.put("appName", "Trip Tracker")
         root.put("exportedAt", System.currentTimeMillis())
 
         // Trip

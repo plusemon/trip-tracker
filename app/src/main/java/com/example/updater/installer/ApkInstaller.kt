@@ -58,7 +58,7 @@ object ApkInstaller {
             }
 
             val request = DownloadManager.Request(Uri.parse(apkUrl)).apply {
-                setTitle("TripSplit BD Update")
+                setTitle("Trip Tracker Update")
                 setDescription("Downloading version $versionTag")
                 setMimeType("application/vnd.android.package-archive")
                 setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)

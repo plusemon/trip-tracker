@@ -50,7 +50,7 @@ object PdfReportGenerator {
         paint.color = Color.WHITE
         paint.textSize = 20f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        canvas.drawText("TripSplit BD — Tour Settlement Report", 30f, 42f, paint)
+        canvas.drawText("Trip Tracker — Tour Settlement Report", 30f, 42f, paint)
 
         paint.textSize = 10f
         paint.typeface = Typeface.DEFAULT
@@ -232,7 +232,7 @@ object PdfReportGenerator {
         paint.color = Color.parseColor("#888888")
         paint.textSize = 8f
         val generatedAt = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(Date())
-        canvas.drawText("Generated on $generatedAt by TripSplit BD (Offline Mode)  |  Page 1 of 1", 30f, pageHeight - 20f, paint)
+        canvas.drawText("Generated on $generatedAt by Trip Tracker (Offline Mode)  |  Page 1 of 1", 30f, pageHeight - 20f, paint)
 
         pdfDocument.finishPage(page)
 

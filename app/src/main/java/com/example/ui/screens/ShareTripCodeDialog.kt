@@ -44,11 +44,11 @@ fun ShareTripCodeDialog(
     var copied by remember { mutableStateOf(false) }
 
     val tripCode = trip.tripCode.ifBlank { "PENDING" }
-    val shareMessage = "Join our tour '${trip.name}' on TripSplit BD with Trip Code: *$tripCode* to see live expenses, common fund balances, and debt calculations in real-time!"
+    val shareMessage = "Join our tour '${trip.name}' on Trip Tracker with Trip Code: *$tripCode* to see live expenses, common fund balances, and debt calculations in real-time!"
 
     fun copyToClipboard() {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("TripSplit Code", tripCode)
+        val clip = ClipData.newPlainText("Trip Code", tripCode)
         clipboard.setPrimaryClip(clip)
         copied = true
         Toast.makeText(context, "Code '$tripCode' copied to clipboard!", Toast.LENGTH_SHORT).show()

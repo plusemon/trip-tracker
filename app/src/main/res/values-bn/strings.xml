@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ট্রিপস্প্লিট বিডি</string>
+    <string name="app_name">ট্রিপ ট্র্যাকার</string>
     <string name="offline_synced">অফলাইন সিঙ্কড</string>
     
     <!-- Navigation -->
@@ -17,7 +17,7 @@
     <string name="add_expense">খরচ যুক্ত করুন</string>
 
     <!-- Welcome / Dashboard -->
-    <string name="welcome_title">ট্রিপস্প্লিট বিডি-তে স্বাগতম</string>
+    <string name="welcome_title">ট্রিপ ট্র্যাকার-এ স্বাগতম</string>
     <string name="welcome_subtitle">গ্রুপ ভ্রমণের খরচ ট্র্যাকিং, গ্রুপ ফান্ড ওয়ালেট, সহজ ভাগাভাগি এবং তাৎক্ষণিক দেনা-পাওনা নিষ্পত্তির সেরা ডিজিটাল সহকারী।</string>
     <string name="create_first_tour">আপনার প্রথম ট্যুর শুরু করুন</string>
     <string name="travelers_count">%1$d জন ভ্রমণকারী</string>
@@ -155,8 +155,8 @@
     <string name="app_version_updates">অ্যাপ ভার্সন ও আপডেট</string>
     <string name="check_for_updates">আপডেট চেক করুন</string>
     <string name="checking_releases">আপডেট চেক করা হচ্ছে...</string>
-    <string name="about_tripsplit_bd">ট্রিপস্প্লিট বিডি সম্পর্কে</string>
-    <string name="about_description">ট্রিপস্প্লিট বিডি v১.০ • ১০০% অফলাইন আর্কিটেকচার\nবাংলাদেশি ট্যুর গ্রুপ (সাজেক, বান্দরবান, সিলেট, কক্সবাজার) ও আন্তর্জাতিক ভ্রমণের জন্য বিশেষভাবে নির্মিত।</string>
+    <string name="about_tripsplit_bd">ট্রিপ ট্র্যাকার সম্পর্কে</string>
+    <string name="about_description">ট্রিপ ট্র্যাকার v১.০ • ১০০% অফলাইন আর্কিটেকচার\nগ্রুপ ভ্রমণের খরচ ট্র্যাকিং ও হিসাব ব্যবস্থাপনার জন্য বিশেষভাবে নির্মিত।</string>
     <string name="tip_jar_title">ডেভেলপারকে পাহাড়ি চা প্রীতি ☕</string>
     <string name="tip_chai">চা প্রীতি</string>
     <string name="delete_trip_title">ট্যুর মুছে ফেলবেন?</string>

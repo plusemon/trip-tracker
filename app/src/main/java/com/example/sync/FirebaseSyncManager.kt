@@ -23,16 +23,13 @@ import com.google.firebase.database.ValueEventListener
 object FirebaseSyncManager {
     private const val TAG = "FirebaseSyncManager"
 
-    private val database: FirebaseDatabase by lazy {
-        FirebaseDatabase.getInstance(MainApplication.FIREBASE_DB_URL)
-    }
-
-    private fun getTripsRef(): DatabaseReference {
-        return database.reference.child("trips")
-    }
-
-    private fun getTripNodeRef(tripCode: String): DatabaseReference {
-        return getTripsRef().child(tripCode.uppercase().trim())
+    private fun getDatabaseSafely(): FirebaseDatabase? {
+        return try {
+            FirebaseDatabase.getInstance(MainApplication.FIREBASE_DB_URL)
+        } catch (e: Exception) {
+            Log.w(TAG, "Firebase not available: ${e.message}")
+            null
+        }
     }
 
     /**
@@ -51,6 +48,12 @@ object FirebaseSyncManager {
         val code = trip.tripCode.uppercase().trim()
         if (code.isBlank()) {
             Log.w(TAG, "Cannot sync trip with empty tripCode")
+            return
+        }
+
+        val db = getDatabaseSafely()
+        if (db == null) {
+            onError?.invoke(Exception("Firebase Realtime Sync requires google-services.json configuration."))
             return
         }
 
@@ -122,7 +125,7 @@ object FirebaseSyncManager {
             settlements = cloudSettlements
         )
 
-        getTripNodeRef(code).setValue(cloudTrip)
+        db.reference.child("trips").child(code).setValue(cloudTrip)
             .addOnSuccessListener {
                 Log.d(TAG, "Trip $code successfully synced to Firebase RTDB")
                 onSuccess?.invoke()
@@ -142,7 +145,13 @@ object FirebaseSyncManager {
         onError: (Exception) -> Unit
     ) {
         val code = tripCode.uppercase().trim()
-        getTripNodeRef(code).addListenerForSingleValueEvent(object : ValueEventListener {
+        val db = getDatabaseSafely()
+        if (db == null) {
+            onError(Exception("Firebase Realtime Sync requires google-services.json configuration."))
+            return
+        }
+
+        db.reference.child("trips").child(code).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     try {
@@ -192,17 +201,28 @@ object FirebaseSyncManager {
                 onError(error.toException())
             }
         }
-        getTripNodeRef(code).addValueEventListener(listener)
+
+        val db = getDatabaseSafely()
+        if (db == null) {
+            onError(Exception("Firebase Realtime Sync requires google-services.json configuration."))
+            return listener
+        }
+
+        db.reference.child("trips").child(code).addValueEventListener(listener)
         return listener
     }
 
     fun removeTripObserver(tripCode: String, listener: ValueEventListener) {
         val code = tripCode.uppercase().trim()
-        getTripNodeRef(code).removeEventListener(listener)
+        try {
+            val db = getDatabaseSafely()
+            db?.reference?.child("trips")?.child(code)?.removeEventListener(listener)
+        } catch (e: Exception) {
+            Log.w(TAG, "Error removing observer: ${e.message}")
+        }
     }
 
     private fun parseCloudTrip(snapshot: DataSnapshot): CloudTrip {
-        // Parse metadata
         val metaSnap = snapshot.child("metadata")
         val metadata = TripCloudMetadata(
             tripId = metaSnap.child("tripId").getValue(String::class.java) ?: "",
@@ -214,7 +234,6 @@ object FirebaseSyncManager {
             updatedAt = metaSnap.child("updatedAt").getValue(Long::class.java) ?: 0L
         )
 
-        // Parse members list
         val membersList = mutableListOf<CloudMember>()
         val membersSnap = snapshot.child("members")
         for (mChild in membersSnap.children) {
@@ -224,7 +243,6 @@ object FirebaseSyncManager {
             membersList.add(CloudMember(id = id, name = name, deposited = deposited))
         }
 
-        // Parse transactions map
         val txMap = mutableMapOf<String, CloudTransaction>()
         val txSnap = snapshot.child("transactions")
         for (tChild in txSnap.children) {
@@ -242,7 +260,6 @@ object FirebaseSyncManager {
             )
         }
 
-        // Parse settlements
         val settlementsList = mutableListOf<CloudSettlement>()
         val setSnap = snapshot.child("settlements")
         for (sChild in setSnap.children) {

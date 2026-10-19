@@ -3,36 +3,60 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Travel backpack / wallet badge back -->
-    <path
-        android:fillColor="#E0F2E9"
-        android:pathData="M32,32 h44 c4.4,0 8,3.6 8,8 v30 c0,4.4 -3.6,8 -8,8 h-44 c-4.4,0 -8,-3.6 -8,-8 v-30 c0,-4.4 3.6,-8 8,-8 z" />
     
-    <!-- Top flap -->
+    <!-- Travel Background Stack / Papers / Folders -->
     <path
-        android:fillColor="#B7E1CD"
-        android:pathData="M24,40 c0,-4.4 3.6,-8 8,-8 h44 c4.4,0 8,3.6 8,8 v4 c-15,10 -45,10 -60,0 z" />
-
-    <!-- Mountain expedition peak inside badge -->
+        android:fillColor="#34A853"
+        android:fillAlpha="0.4"
+        android:pathData="M28,26 h48 c4.4,0 8,3.6 8,8 v50 c0,4.4 -3.6,8 -8,8 h-48 c-4.4,0 -8,-3.6 -8,-8 v-50 c0,-4.4 3.6,-8 8,-8 z" />
     <path
-        android:fillColor="#006C4C"
-        android:pathData="M30,68 L44,48 L56,64 L66,52 L78,68 Z" />
+        android:fillColor="#81C995"
+        android:fillAlpha="0.6"
+        android:pathData="M32,30 h44 c4.4,0 8,3.6 8,8 v46 c0,4.4 -3.6,8 -8,8 h-44 c-4.4,0 -8,-3.6 -8,-8 v-46 c0,-4.4 3.6,-8 8,-8 z" />
 
-    <!-- Golden Coin Badge with Taka ৳ Symbol -->
+    <!-- Main Suitcase Body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M35,40 h38 c3.3,0 6,2.7 6,6 v42 c0,3.3 -2.7,6 -6,6 h-38 c-3.3,0 -6,-2.7 -6,-6 v-42 c0,-3.3 2.7,-6 6,-6 z" />
+    <path
+        android:fillColor="#E8F5E9"
+        android:pathData="M35,40 h38 c3.3,0 6,2.7 6,6 v15 h-50 v-15 c0,-3.3 2.7,-6 6,-6 z" />
+
+    <!-- Suitcase Handle -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M44,40 v-8 c0,-2.2 1.8,-4 4,-4 h12 c2.2,0 4,1.8 4,4 v8" />
+
+    <!-- Winding Travel Route / Road across Suitcase -->
+    <path
+        android:strokeColor="#0B4A34"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M32,84 Q48,70 54,60 T76,46" />
+
+    <!-- Golden Compass Coin in Bottom Right -->
     <path
         android:fillColor="#FFD54F"
-        android:pathData="M64,54 m-11,0 a11,11 0 1,1 22,0 a11,11 0 1,1 -22,0" />
+        android:pathData="M78,74 m-15,0 a15,15 0 1,1 30,0 a15,15 0 1,1 -30,0" />
     <path
-        android:fillColor="#FFA000"
-        android:pathData="M64,54 m-9,0 a9,9 0 1,1 18,0 a9,9 0 1,1 -18,0" />
+        android:fillColor="#FFB300"
+        android:pathData="M78,74 m-13,0 a13,13 0 1,1 26,0 a13,13 0 1,1 -26,0" />
 
-    <!-- ৳ (Taka) glyph lines -->
-    <!-- Top bar and curve -->
+    <!-- Compass Needle -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M61,48 h6 v2 h-3 v3 c2.2,0 4,1.8 4,4 c0,2.2 -1.8,4 -4,4 c-1.5,0 -2.8,-0.8 -3.5,-2 l1.8,-1 c0.4,0.6 1,1 1.7,1 c1.1,0 2,-0.9 2,-2 c0,-1.1 -0.9,-2 -2,-2 h-2 v-6 z" />
-    <!-- Horizontal strike through the vertical stem -->
+        android:fillColor="#D32F2F"
+        android:pathData="M78,63 L82,74 L78,74 Z" />
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M59,53 h6 v1.8 h-6 z" />
+        android:fillColor="#1565C0"
+        android:pathData="M78,85 L82,74 L78,74 Z" />
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M78,63 L74,74 L78,74 Z" />
+    <path
+        android:fillColor="#B28900"
+        android:pathData="M78,85 L74,74 L78,74 Z" />
 </vector>

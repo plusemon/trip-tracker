@@ -1,5 +1,5 @@
 {
-  "name": "TripSplit BD",
+  "name": "Trip Tracker",
   "description": "Offline-first group travel expense and shared wallet manager with Group Fund tracking, dynamic splitting, and debt simplification.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

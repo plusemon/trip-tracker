@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TripSplit BD</string>
+    <string name="app_name">Trip Tracker</string>
     <string name="offline_synced">OFFLINE SYNCED</string>
     
     <!-- Navigation -->
@@ -17,7 +17,7 @@
     <string name="add_expense">Add Expense</string>
 
     <!-- Welcome / Dashboard -->
-    <string name="welcome_title">Welcome to TripSplit BD</string>
+    <string name="welcome_title">Welcome to Trip Tracker</string>
     <string name="welcome_subtitle">Your elite companion for group travel expense tracking, group fund wallets, multi-currency splitting, and instant debt simplification.</string>
     <string name="create_first_tour">Create Your First Tour</string>
     <string name="travelers_count">%1$d Travelers</string>
@@ -155,8 +155,8 @@
     <string name="app_version_updates">App Version &amp; Updates</string>
     <string name="check_for_updates">Check for Updates</string>
     <string name="checking_releases">Checking GitHub Releases...</string>
-    <string name="about_tripsplit_bd">About TripSplit BD</string>
-    <string name="about_description">TripSplit BD v1.0 • 100% Offline-First Architecture\nDesigned for Bangladeshi group expeditions (Sajek, Bandarban, Sylhet, Cox\'s Bazar) &amp; international travel. Built with Jetpack Compose &amp; Room Database.</string>
+    <string name="about_tripsplit_bd">About Trip Tracker</string>
+    <string name="about_description">Trip Tracker v1.0 • 100% Offline-First Architecture\nDesigned for group expeditions &amp; international travel. Built with Jetpack Compose &amp; Room Database.</string>
     <string name="tip_jar_title">Buy the Developer a Hill Chai ☕</string>
     <string name="tip_chai">Tip Chai</string>
     <string name="delete_trip_title">Delete This Trip?</string>
