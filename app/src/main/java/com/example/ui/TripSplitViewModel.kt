@@ -21,7 +21,6 @@ import com.example.data.entity.TripEntity
 import com.example.data.entity.TripStatus
 import com.example.data.repository.TripSplitRepository
 import com.example.data.util.ImageStorageManager
-import com.example.domain.engine.SampleDataProvider
 import com.example.domain.engine.SettlementEngine
 import com.example.domain.model.CategorySpending
 import com.example.domain.model.NewMemberInfo
@@ -546,17 +545,4 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun loadDemoBandarbanTour() {
-        viewModelScope.launch {
-            val db = AppDatabase.getInstance(getApplication())
-            val tripId = SampleDataProvider.populateBandarbanTour(
-                tripDao = db.tripDao(),
-                memberDao = db.memberDao(),
-                depositDao = db.depositDao(),
-                expenseDao = db.expenseDao()
-            )
-            _currentTripId.value = tripId
-            showMessage("Bandarban Expedition demo loaded!")
-        }
-    }
 }

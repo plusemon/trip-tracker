@@ -160,10 +160,6 @@ fun TripSplitApp(
                     members = members
                 )
             },
-            onLoadSample = {
-                viewModel.loadDemoBandarbanTour()
-                viewModel.closeDialog()
-            },
             canCancel = uiState.currentTrip != null,
             onDismiss = {
                 viewModel.closeDialog()
@@ -378,8 +374,7 @@ fun TripSplitApp(
                     onViewAllExpensesClick = {},
                     onNewTripClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
                     onOpenExchangeRates = {},
-                    onOpenSettleDebts = {},
-                    onLoadDemoTrip = { viewModel.loadDemoBandarbanTour() }
+                    onOpenSettleDebts = {}
                 )
             } else {
                 when (uiState.selectedTab) {
@@ -393,8 +388,7 @@ fun TripSplitApp(
                         onViewAllExpensesClick = { viewModel.setSelectedTab(1) },
                         onNewTripClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
                         onOpenExchangeRates = { viewModel.openDialog(ActiveDialog.MANAGE_EXCHANGE_RATES) },
-                        onOpenSettleDebts = { viewModel.setSelectedTab(2) },
-                        onLoadDemoTrip = { viewModel.loadDemoBandarbanTour() }
+                        onOpenSettleDebts = { viewModel.setSelectedTab(2) }
                     )
                     1 -> ExpensesScreen(
                         expenses = uiState.expenses,
@@ -433,7 +427,6 @@ fun TripSplitApp(
                         onOpenCustomCategories = { viewModel.openDialog(ActiveDialog.CREATE_CATEGORY) },
                         onExportJson = { viewModel.exportJsonBackup() },
                         onImportJson = { viewModel.importJsonBackup(it) },
-                        onLoadDemo = { viewModel.loadDemoBandarbanTour() },
                         isCheckingUpdates = updateUiState.isChecking,
                         updateStatus = updateUiState.lastCheckStatus,
                         onCheckForUpdates = { updateViewModel.checkForUpdates(manual = true) }

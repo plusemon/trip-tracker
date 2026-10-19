@@ -130,7 +130,6 @@ fun TripSetupScreen(
         managerName: String,
         members: List<NewMemberInfo>
     ) -> Unit,
-    onLoadSample: () -> Unit,
     modifier: Modifier = Modifier,
     canCancel: Boolean = false,
     onDismiss: (() -> Unit)? = null
@@ -215,25 +214,6 @@ fun TripSetupScreen(
                         ) {
                             Icon(Icons.Default.Close, contentDescription = "Cancel Setup")
                         }
-                    }
-                },
-                actions = {
-                    TextButton(
-                        onClick = onLoadSample,
-                        modifier = Modifier.testTag("load_sample_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "Sample Tour",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -392,7 +372,6 @@ fun TripSetupScreen(
                         onDurationDaysChange = { durationDays = it },
                         startDate = startDate,
                         endDate = endDate,
-                        onLoadSample = onLoadSample,
                         managerName = managerName,
                         onManagerNameChange = { managerName = it }
                     )
@@ -526,7 +505,6 @@ private fun TripDetailsStep(
     onDurationDaysChange: (Int) -> Unit,
     startDate: Long,
     endDate: Long,
-    onLoadSample: () -> Unit,
     managerName: String,
     onManagerNameChange: (String) -> Unit
 ) {
@@ -540,58 +518,6 @@ private fun TripDetailsStep(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Sample Tour Card Banner
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("sample_trip_card"),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Sample",
-                        tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Quick Start: Bandarban Tour",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Explore with 8 members, Chander Gari & sample deposits",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-                Button(
-                    onClick = onLoadSample,
-                    modifier = Modifier.testTag("load_sample_button"),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                ) {
-                    Text("Explore", fontSize = 12.sp)
-                }
-            }
-        }
 
         // Popular Destinations Chips
         Column {

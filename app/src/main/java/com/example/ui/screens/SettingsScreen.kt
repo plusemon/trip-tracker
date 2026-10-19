@@ -89,7 +89,6 @@ fun SettingsScreen(
     onOpenCustomCategories: () -> Unit,
     onExportJson: () -> String,
     onImportJson: (String) -> Unit,
-    onLoadDemo: () -> Unit,
     isCheckingUpdates: Boolean = false,
     updateStatus: String? = null,
     onCheckForUpdates: () -> Unit = {},

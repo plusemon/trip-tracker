@@ -53,7 +53,6 @@ fun DashboardScreen(
     onNewTripClick: () -> Unit,
     onOpenExchangeRates: () -> Unit,
     onOpenSettleDebts: () -> Unit,
-    onLoadDemoTrip: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (trip == null) {
@@ -127,18 +126,6 @@ fun DashboardScreen(
                         Text("Create Your First Tour", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
 
-                    OutlinedButton(
-                        onClick = onLoadDemoTrip,
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .testTag("welcome_load_demo_button")
-                    ) {
-                        Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Explore Sajek / Bandarban Demo", fontWeight = FontWeight.SemiBold)
-                    }
                 }
             }
         }
