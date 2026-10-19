@@ -59,12 +59,30 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             repository.allTrips.collectLatest { trips ->
                 _uiState.update { it.copy(allTrips = trips, isLoading = false) }
-                if (_currentTripId.value == null && trips.isNotEmpty()) {
+                if (trips.isEmpty()) {
+                    val context = getApplication<Application>()
+                    val backupFile = File(context.filesDir, "TripTracker_AutoBackup.json")
+                    if (backupFile.exists() && backupFile.length() > 0) {
+                        runCatching {
+                            val jsonString = backupFile.readText()
+                            val bundle = JsonBackupManager.parseTripFromJson(jsonString)
+                            if (bundle != null) {
+                                val newId = repository.importTripBundle(bundle)
+                                _currentTripId.value = newId
+                                Log.i("TripSplitVM", "Successfully auto-restored trip from local backup after update/reinstall!")
+                            } else {
+                                tryRestoreFromFirebase(context)
+                            }
+                        }.onFailure {
+                            tryRestoreFromFirebase(context)
+                        }
+                    } else {
+                        tryRestoreFromFirebase(context)
+                    }
+                } else if (_currentTripId.value == null) {
                     // Default to first active trip or first trip
                     val activeTrip = trips.find { it.status == TripStatus.ACTIVE } ?: trips.first()
                     _currentTripId.value = activeTrip.id
-                } else if (trips.isEmpty()) {
-                    _currentTripId.value = null
                 }
             }
         }
@@ -154,6 +172,16 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
 
                         val trip = calculated.currentTrip
                         if (trip != null) {
+                            exportAndSaveAutoBackup(
+                                trip = trip,
+                                members = calculated.members,
+                                deposits = calculated.deposits,
+                                expenses = calculated.expenses,
+                                splits = calculated.splits,
+                                payers = calculated.payers,
+                                categories = calculated.categories,
+                                settlements = calculated.settlements
+                            )
                             if (trip.isReadOnly) {
                                 setupRemoteTripObserver(trip)
                             } else {
@@ -177,6 +205,36 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private fun exportAndSaveAutoBackup(
+        trip: TripEntity,
+        members: List<MemberEntity>,
+        deposits: List<DepositEntity>,
+        expenses: List<ExpenseEntity>,
+        splits: List<ExpenseSplitEntity>,
+        payers: List<ExpensePayerEntity>,
+        categories: List<CategoryEntity>,
+        settlements: List<SettlementRecordEntity>
+    ) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching {
+                val bundle = TripBackupBundle(
+                    trip = trip,
+                    members = members,
+                    deposits = deposits,
+                    expenses = expenses,
+                    splits = splits,
+                    payers = payers,
+                    categories = categories,
+                    settlements = settlements
+                )
+                val json = JsonBackupManager.exportTripToJson(bundle)
+                val context = getApplication<Application>()
+                val backupFile = File(context.filesDir, "TripTracker_AutoBackup.json")
+                backupFile.writeText(json)
             }
         }
     }
@@ -645,6 +703,73 @@ class TripSplitViewModel(application: Application) : AndroidViewModel(applicatio
             onError = { ex ->
                 _uiState.update { it.copy(isSyncing = false) }
                 onComplete(false, "Network error: ${ex.message}")
+            }
+        )
+    }
+
+    private fun tryRestoreFromFirebase(context: android.content.Context) {
+        FirebaseSyncManager.fetchAllCloudTrips(
+            onResult = { cloudTrips ->
+                if (cloudTrips.isNotEmpty()) {
+                    viewModelScope.launch {
+                        var lastId = 0L
+                        for (cloudTrip in cloudTrips) {
+                            runCatching {
+                                val id = repository.syncRemoteTripToLocal(cloudTrip)
+                                lastId = id
+                            }
+                        }
+                        if (lastId > 0) {
+                            _currentTripId.value = lastId
+                        }
+                        showMessage("Successfully restored trip(s) from Firebase cloud!")
+                    }
+                } else {
+                    _currentTripId.value = null
+                }
+            },
+            onError = { ex ->
+                Log.w("TripSplitVM", "Cloud restoration failed: ${ex.message}")
+                _currentTripId.value = null
+            }
+        )
+    }
+
+    fun restoreAllTripsWithAdminPassword(password: String, onComplete: (Boolean, String) -> Unit) {
+        if (password.trim() != "plusemon") {
+            onComplete(false, "Incorrect super admin password.")
+            return
+        }
+
+        _uiState.update { it.copy(isSyncing = true) }
+        FirebaseSyncManager.fetchAllCloudTrips(
+            onResult = { cloudTrips ->
+                if (cloudTrips.isNotEmpty()) {
+                    viewModelScope.launch {
+                        try {
+                            var lastId = 0L
+                            for (cloudTrip in cloudTrips) {
+                                val id = repository.syncRemoteTripToLocal(cloudTrip)
+                                lastId = id
+                            }
+                            if (lastId > 0) {
+                                _currentTripId.value = lastId
+                            }
+                            _uiState.update { it.copy(isSyncing = false) }
+                            onComplete(true, "Successfully force-restored ${cloudTrips.size} trip(s) with super admin password!")
+                        } catch (e: Exception) {
+                            _uiState.update { it.copy(isSyncing = false) }
+                            onComplete(false, "Failed saving restored trips: ${e.message}")
+                        }
+                    }
+                } else {
+                    _uiState.update { it.copy(isSyncing = false) }
+                    onComplete(false, "No trips found in Firebase cloud database.")
+                }
+            },
+            onError = { ex ->
+                _uiState.update { it.copy(isSyncing = false) }
+                onComplete(false, "Cloud connection error: ${ex.message}")
             }
         )
     }

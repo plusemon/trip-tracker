@@ -527,6 +527,7 @@ fun TripSplitApp(
                         onOpenCustomCategories = { viewModel.openDialog(ActiveDialog.CREATE_CATEGORY) },
                         onExportJson = { viewModel.exportJsonBackup() },
                         onImportJson = { viewModel.importJsonBackup(it) },
+                        onAdminRestore = { pwd, cb -> viewModel.restoreAllTripsWithAdminPassword(pwd, cb) },
                         currentThemeMode = currentThemeMode,
                         onThemeModeChange = onThemeModeChange,
                         isCheckingUpdates = updateUiState.isChecking,

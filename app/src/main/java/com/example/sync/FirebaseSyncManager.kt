@@ -137,6 +137,39 @@ object FirebaseSyncManager {
     }
 
     /**
+     * Fetch all cloud trips from Firebase (for super admin force restoration across any device).
+     */
+    fun fetchAllCloudTrips(
+        onResult: (List<CloudTrip>) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val db = getDatabaseSafely()
+        if (db == null) {
+            onResult(emptyList())
+            return
+        }
+
+        db.reference.child("trips").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val restoredTrips = mutableListOf<CloudTrip>()
+                for (tripSnap in snapshot.children) {
+                    try {
+                        val cloudTrip = parseCloudTrip(tripSnap)
+                        restoredTrips.add(cloudTrip)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Error parsing trip for restoration: ${e.message}")
+                    }
+                }
+                onResult(restoredTrips)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                onError(error.toException())
+            }
+        })
+    }
+
+    /**
      * Fetch a trip snapshot once (used for validation before joining)
      */
     fun fetchTripOnce(

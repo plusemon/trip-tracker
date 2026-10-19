@@ -93,6 +93,7 @@ fun SettingsScreen(
     onOpenCustomCategories: () -> Unit,
     onExportJson: () -> String,
     onImportJson: (String) -> Unit,
+    onAdminRestore: (String, (Boolean, String) -> Unit) -> Unit = { _, _ -> },
     currentThemeMode: ThemeMode = ThemeMode.SYSTEM,
     onThemeModeChange: (ThemeMode) -> Unit = {},
     isCheckingUpdates: Boolean = false,
@@ -104,6 +105,9 @@ fun SettingsScreen(
     var showImportDialog by remember { mutableStateOf(false) }
     var importJsonText by remember { mutableStateOf("") }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showAdminRestoreDialog by remember { mutableStateOf(false) }
+    var adminPasswordInput by remember { mutableStateOf("") }
+    var isAdminRestoring by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -484,6 +488,48 @@ fun SettingsScreen(
             }
         }
 
+        // Super Admin Cloud Force Restore Card
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            modifier = Modifier.fillMaxWidth().testTag("admin_restore_card")
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Super Admin Cloud Force Restore",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Text(
+                    text = "Forcefully restore all data from Firebase cloud on any device using the super admin password.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Button(
+                    onClick = { showAdminRestoreDialog = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Admin Force Restore", fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
         // Over-the-Air App Updates Card
         Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -650,6 +696,57 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Super Admin Restore Dialog
+    if (showAdminRestoreDialog) {
+        AlertDialog(
+            onDismissRequest = { if (!isAdminRestoring) showAdminRestoreDialog = false },
+            title = { Text("Super Admin Force Restore") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = "Enter super admin password to forcefully restore all trips from Firebase cloud:",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    OutlinedTextField(
+                        value = adminPasswordInput,
+                        onValueChange = { adminPasswordInput = it },
+                        label = { Text("Admin Password") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        isAdminRestoring = true
+                        onAdminRestore(adminPasswordInput) { success, msg ->
+                            isAdminRestoring = false
+                            showAdminRestoreDialog = false
+                            adminPasswordInput = ""
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                        }
+                    },
+                    enabled = !isAdminRestoring && adminPasswordInput.isNotBlank()
+                ) {
+                    if (isAdminRestoring) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
+                    Text("Restore Now")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showAdminRestoreDialog = false },
+                    enabled = !isAdminRestoring
+                ) {
                     Text("Cancel")
                 }
             }

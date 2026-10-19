@@ -1,12 +1,10 @@
-# Room Database
+# Room Database & Entities
 -keep class * extends androidx.room.RoomDatabase
+-keep class com.example.data.entity.** { *; }
+-keep class com.example.data.dao.** { *; }
+-keep class com.example.data.db.** { *; }
 -dontwarn androidx.room.paging.**
 
-# Kotlin Coroutines & Serialization
--keepclassmembers class * {
-    @androidx.room.Entity *;
-    @androidx.room.PrimaryKey *;
-}
 
 # Retain Retrofit, Gson, and Moshi reflection/attributes
 -dontwarn retrofit2.**
