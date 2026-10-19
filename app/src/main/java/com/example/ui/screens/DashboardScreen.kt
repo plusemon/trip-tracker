@@ -24,11 +24,10 @@ import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.CurrencyExchange
-import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Handshake
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material.icons.filled.Share
@@ -36,9 +35,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -65,11 +62,11 @@ import com.example.domain.model.TripSummary
 import com.example.ui.components.CategoryChip
 import com.example.ui.components.CustomCategoryChip
 import com.example.ui.components.TripStatusBadge
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.example.ui.theme.AmberGradientEnd
+import com.example.ui.theme.AmberGradientStart
+import com.example.ui.theme.HeroGradientEnd
+import com.example.ui.theme.HeroGradientStart
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     trip: TripEntity?,
@@ -90,13 +87,13 @@ fun DashboardScreen(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(20.dp),
             contentAlignment = Alignment.Center
         ) {
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -106,40 +103,46 @@ fun DashboardScreen(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(72.dp)
+                            .size(76.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(HeroGradientStart, HeroGradientEnd)
+                                )
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Explore,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(40.dp)
+                            tint = Color.White,
+                            modifier = Modifier.size(42.dp)
                         )
                     }
 
                     Text(
                         text = "Welcome to TripSplit BD",
                         style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
-                        text = "Your offline-first companion for group travel expense tracking, common fund (\"চাঁদা\") management, multi-currency conversion, and minimal-debt settlements.",
+                        text = "Your intelligent companion for group travel expense tracking, common fund (\"চাঁদা\") wallets, multi-currency splitting, and instant debt simplification.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Button(
                         onClick = onNewTripClick,
+                        shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp)
+                            .height(52.dp)
                             .testTag("welcome_create_trip_button")
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
@@ -149,6 +152,7 @@ fun DashboardScreen(
 
                     OutlinedButton(
                         onClick = onLoadDemoTrip,
+                        shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
@@ -180,154 +184,191 @@ fun DashboardScreen(
         item {
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Trip Header Card
+            // Trip Header Card with Gradient Accent Line
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = trip.name,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            TripStatusBadge(status = trip.status)
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = trip.destination,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = " • ${summary?.memberCount ?: 0} Travelers",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.outline
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // Hero Card 1: Common Fund Pool ("চাঁদা")
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("common_fund_hero_card"),
-                shape = RoundedCornerShape(22.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.AccountBalanceWallet,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Common Fund Pool (\"চাঁদা\")",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
-                        ) {
-                            Text(
-                                text = if (remainingFund >= 0) "Cash in Hand" else "Deficit",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = if (remainingFund >= 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Text(
-                        text = CurrencyFormatter.formatCurrency(remainingFund, trip.currencySymbol),
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(
-                                text = "Total Inflows / Deposits",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
-                            )
-                            Text(
-                                text = CurrencyFormatter.formatCurrency(totalDeposits, trip.currencySymbol),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                text = "Spent from Pool",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
-                            )
-                            Text(
-                                text = CurrencyFormatter.formatCurrency(commonFundSpent, trip.currencySymbol),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = trip.name,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                TripStatusBadge(status = trip.status)
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = trip.destination,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Group,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${summary?.memberCount ?: 0} Travelers",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }
             }
         }
 
-        // Hero Card 2: Budget Progress
+        // Hero Card 1: Common Fund Pool ("চাঁদা") with Vibrant Gradient Background
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("common_fund_hero_card"),
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(HeroGradientStart, HeroGradientEnd)
+                            )
+                        )
+                        .padding(20.dp)
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White.copy(alpha = 0.2f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.AccountBalanceWallet,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = "Common Fund Pool (\"চাঁদা\")",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
+
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (remainingFund >= 0) Color(0xFFC8E6C9) else Color(0xFFFFCDD2)
+                            ) {
+                                Text(
+                                    text = if (remainingFund >= 0) "Cash in Hand" else "Fund Deficit",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (remainingFund >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
+                                    fontWeight = FontWeight.ExtraBold,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = CurrencyFormatter.formatCurrency(remainingFund, trip.currencySymbol),
+                            style = MaterialTheme.typography.displaySmall,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        // Stats Summary Box
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.White.copy(alpha = 0.15f)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column {
+                                    Text(
+                                        text = "Total Deposits / Inflows",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.White.copy(alpha = 0.8f)
+                                    )
+                                    Text(
+                                        text = CurrencyFormatter.formatCurrency(totalDeposits, trip.currencySymbol),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
+
+                                Column(horizontalAlignment = Alignment.End) {
+                                    Text(
+                                        text = "Spent from Fund",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.White.copy(alpha = 0.8f)
+                                    )
+                                    Text(
+                                        text = CurrencyFormatter.formatCurrency(commonFundSpent, trip.currencySymbol),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Hero Card 2: Overall Budget Progress
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
                     Row(
@@ -342,22 +383,22 @@ fun DashboardScreen(
                         )
                         Text(
                             text = "${(budgetProgress * 100).toInt()}% Used",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     LinearProgressIndicator(
-                        progress = { budgetProgress },
+                        progress = { budgetProgress.coerceIn(0f, 1f) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp)),
+                            .height(10.dp)
+                            .clip(RoundedCornerShape(5.dp)),
                         color = if (budgetProgress > 0.9f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -369,12 +410,12 @@ fun DashboardScreen(
                         Text(
                             text = "Spent: ${CurrencyFormatter.formatCurrency(totalSpentOverall, trip.currencySymbol)}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "Target: ${CurrencyFormatter.formatCurrency(budget, trip.currencySymbol)}",
+                            text = "Budget: ${CurrencyFormatter.formatCurrency(budget, trip.currencySymbol)}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -382,7 +423,7 @@ fun DashboardScreen(
             }
         }
 
-        // Quick Actions Row
+        // Quick Action Row
         item {
             Row(
                 modifier = Modifier
@@ -392,6 +433,7 @@ fun DashboardScreen(
             ) {
                 Button(
                     onClick = onAddExpenseClick,
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.testTag("dashboard_add_expense_btn")
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -401,30 +443,42 @@ fun DashboardScreen(
 
                 Button(
                     onClick = onAddDepositClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    ),
                     modifier = Modifier.testTag("dashboard_add_income_btn")
                 ) {
                     Icon(Icons.Default.Payments, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Enter Income", fontWeight = FontWeight.Bold)
+                    Text("Deposit Fund", fontWeight = FontWeight.Bold)
                 }
 
-                OutlinedButton(onClick = onOpenSettleDebts) {
+                OutlinedButton(
+                    onClick = onOpenSettleDebts,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Icon(Icons.Default.Handshake, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("Settle Debts")
                 }
 
-                OutlinedButton(onClick = onOpenExchangeRates) {
+                OutlinedButton(
+                    onClick = onOpenExchangeRates,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Icon(Icons.Default.CurrencyExchange, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Rates")
+                    Text("Currency Rates")
                 }
 
-                FilledTonalButton(onClick = onExportClick) {
+                OutlinedButton(
+                    onClick = onExportClick,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Share")
+                    Text("Share Summary")
                 }
             }
         }
@@ -437,7 +491,7 @@ fun DashboardScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Recent Transactions",
+                    text = "Recent Activity",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -445,7 +499,7 @@ fun DashboardScreen(
                     onClick = onViewAllExpensesClick,
                     modifier = Modifier.testTag("view_all_expenses_button")
                 ) {
-                    Text("View All (${summary?.expenseCount ?: 0})")
+                    Text("View All (${summary?.expenseCount ?: 0})", fontWeight = FontWeight.Bold)
                     Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(16.dp))
                 }
             }
@@ -456,7 +510,7 @@ fun DashboardScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f))
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
                 ) {
                     Column(
                         modifier = Modifier
@@ -467,13 +521,15 @@ fun DashboardScreen(
                         Text(
                             text = "No expenses logged yet",
                             style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.outline
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Tap 'Add Expense' or 'Enter Income' to start pooling and tracking!",
+                            text = "Tap 'Add Expense' or 'Deposit Fund' to start tracking tour spending!",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline
+                            color = MaterialTheme.colorScheme.outline,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -482,7 +538,7 @@ fun DashboardScreen(
             items(recentExpenses.take(5)) { expense ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
@@ -498,7 +554,7 @@ fun DashboardScreen(
 
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(44.dp)
                                 .clip(CircleShape)
                                 .background(iconColor.copy(alpha = 0.15f)),
                             contentAlignment = Alignment.Center
@@ -507,7 +563,7 @@ fun DashboardScreen(
                                 imageVector = CategoryIconHelper.getIconForName(iconName),
                                 contentDescription = null,
                                 tint = iconColor,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                         }
 
@@ -520,6 +576,7 @@ fun DashboardScreen(
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1
                             )
+                            Spacer(modifier = Modifier.height(2.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 val payerLabel = when (expense.payerType) {
                                     PayerType.COMMON_FUND -> "Common Fund"
@@ -530,7 +587,7 @@ fun DashboardScreen(
                                 Text(
                                     text = "$payerLabel • $catName",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.outline
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -551,3 +608,4 @@ fun DashboardScreen(
         }
     }
 }
+

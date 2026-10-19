@@ -170,21 +170,21 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                             Text(
                                 text = "TripSplit BD",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = FontWeight.Black,
                                 color = MaterialTheme.colorScheme.primary
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
                             Surface(
-                                shape = RoundedCornerShape(4.dp),
+                                shape = RoundedCornerShape(6.dp),
                                 color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Text(
-                                    text = "OFFLINE",
+                                    text = "OFFLINE SYNCED",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                                     fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                    fontWeight = FontWeight.ExtraBold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
                             }
                         }
@@ -192,6 +192,7 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                             Text(
                                 text = currentTrip.name,
                                 style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -222,7 +223,7 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                                 onDismissRequest = { tripMenuExpanded = false }
                             ) {
                                 Text(
-                                    text = "Switch Trip",
+                                    text = "Switch Active Trip",
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -230,7 +231,7 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                                 )
                                 uiState.allTrips.forEach { trip ->
                                     DropdownMenuItem(
-                                        text = { Text(trip.name) },
+                                        text = { Text(trip.name, fontWeight = if (trip.id == currentTrip.id) FontWeight.Bold else FontWeight.Normal) },
                                         onClick = {
                                             viewModel.selectTrip(trip.id)
                                             tripMenuExpanded = false
@@ -238,7 +239,7 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                                     )
                                 }
                                 DropdownMenuItem(
-                                    text = { Text("+ Create New Trip", fontWeight = FontWeight.Bold) },
+                                    text = { Text("+ Create New Trip", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
                                     onClick = {
                                         tripMenuExpanded = false
                                         viewModel.openDialog(ActiveDialog.CREATE_TRIP)
@@ -256,7 +257,9 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
         bottomBar = {
             if (currentTrip != null) {
                 NavigationBar(
-                    modifier = Modifier.testTag("bottom_nav_bar")
+                    modifier = Modifier.testTag("bottom_nav_bar"),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 6.dp
                 ) {
                     NavigationBarItem(
                         selected = uiState.selectedTab == 0,
@@ -267,7 +270,7 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                                 contentDescription = "Dashboard"
                             )
                         },
-                        label = { Text("Dashboard") },
+                        label = { Text("Dashboard", fontWeight = if (uiState.selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_dashboard")
                     )
 
@@ -280,7 +283,7 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                                 contentDescription = "Expenses"
                             )
                         },
-                        label = { Text("Expenses") },
+                        label = { Text("Expenses", fontWeight = if (uiState.selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_expenses")
                     )
 
@@ -293,7 +296,7 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                                 contentDescription = "Settle Up"
                             )
                         },
-                        label = { Text("Settle Up") },
+                        label = { Text("Settle Up", fontWeight = if (uiState.selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_settle")
                     )
 
@@ -306,7 +309,7 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                                 contentDescription = "Analytics"
                             )
                         },
-                        label = { Text("Analytics") },
+                        label = { Text("Analytics", fontWeight = if (uiState.selectedTab == 3) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_analytics")
                     )
 
@@ -319,7 +322,7 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                                 contentDescription = "Settings"
                             )
                         },
-                        label = { Text("Settings") },
+                        label = { Text("Settings", fontWeight = if (uiState.selectedTab == 4) FontWeight.Bold else FontWeight.Normal) },
                         modifier = Modifier.testTag("nav_tab_settings")
                     )
                 }
@@ -334,15 +337,17 @@ fun TripSplitApp(viewModel: TripSplitViewModel) {
                     FloatingActionButton(
                         onClick = { viewModel.openDialog(ActiveDialog.ADD_INCOME) },
                         modifier = Modifier.testTag("fab_add_income"),
+                        shape = RoundedCornerShape(16.dp),
                         containerColor = MaterialTheme.colorScheme.secondary,
                         contentColor = MaterialTheme.colorScheme.onSecondary
                     ) {
-                        Icon(Icons.Default.Payments, contentDescription = "Enter Income")
+                        Icon(Icons.Default.Payments, contentDescription = "Deposit Fund")
                     }
 
                     FloatingActionButton(
                         onClick = { viewModel.openDialog(ActiveDialog.ADD_EXPENSE) },
                         modifier = Modifier.testTag("fab_add_expense"),
+                        shape = RoundedCornerShape(16.dp),
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     ) {

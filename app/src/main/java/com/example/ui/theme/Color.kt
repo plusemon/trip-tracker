@@ -2,47 +2,54 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Brand Primary: Forest Tour Emerald
-val EmeraldPrimaryLight = Color(0xFF006C4C)
+// Brand Primary: Forest Tour Emerald & Teal
+val EmeraldPrimaryLight = Color(0xFF00796B)
 val EmeraldOnPrimaryLight = Color(0xFFFFFFFF)
-val EmeraldPrimaryContainerLight = Color(0xFF89F8C7)
-val EmeraldOnPrimaryContainerLight = Color(0xFF002114)
+val EmeraldPrimaryContainerLight = Color(0xFFB2DFDB)
+val EmeraldOnPrimaryContainerLight = Color(0xFF002520)
 
-val EmeraldPrimaryDark = Color(0xFF6CDBAC)
-val EmeraldOnPrimaryDark = Color(0xFF003825)
-val EmeraldPrimaryContainerDark = Color(0xFF005138)
-val EmeraldOnPrimaryContainerDark = Color(0xFF89F8C7)
+val EmeraldPrimaryDark = Color(0xFF4DB6AC)
+val EmeraldOnPrimaryDark = Color(0xFF003731)
+val EmeraldPrimaryContainerDark = Color(0xFF004D40)
+val EmeraldOnPrimaryContainerDark = Color(0xFFB2DFDB)
 
-// Secondary: Warm Ochre (Common Fund / চাঁদা Pool)
-val OchreSecondaryLight = Color(0xFF835400)
+// Secondary: Warm Ochre & Sunset Amber (Common Fund / চাঁদা Pool)
+val OchreSecondaryLight = Color(0xFFE65100)
 val OchreOnSecondaryLight = Color(0xFFFFFFFF)
-val OchreSecondaryContainerLight = Color(0xFFFFDDB3)
-val OchreOnSecondaryContainerLight = Color(0xFF2A1800)
+val OchreSecondaryContainerLight = Color(0xFFFFE0B2)
+val OchreOnSecondaryContainerLight = Color(0xFF4E1D00)
 
-val OchreSecondaryDark = Color(0xFFFFB951)
-val OchreOnSecondaryDark = Color(0xFF452B00)
-val OchreSecondaryContainerDark = Color(0xFF633F00)
-val OchreOnSecondaryContainerDark = Color(0xFFFFDDB3)
+val OchreSecondaryDark = Color(0xFFFFB74D)
+val OchreOnSecondaryDark = Color(0xFF4E2600)
+val OchreSecondaryContainerDark = Color(0xFFE65100)
+val OchreOnSecondaryContainerDark = Color(0xFFFFE0B2)
 
-// Tertiary: River Indigo (Logistics & Transport)
-val RiverTertiaryLight = Color(0xFF00658E)
+// Tertiary: Ocean Azure (Logistics & Transport)
+val RiverTertiaryLight = Color(0xFF0288D1)
 val RiverOnTertiaryLight = Color(0xFFFFFFFF)
-val RiverTertiaryContainerLight = Color(0xFFC7E7FF)
-val RiverOnTertiaryContainerLight = Color(0xFF001E2E)
+val RiverTertiaryContainerLight = Color(0xFFB3E5FC)
+val RiverOnTertiaryContainerLight = Color(0xFF00293C)
 
-val RiverTertiaryDark = Color(0xFF83CFFF)
-val RiverOnTertiaryDark = Color(0xFF00344C)
-val RiverTertiaryContainerDark = Color(0xFF004C6C)
-val RiverOnTertiaryContainerDark = Color(0xFFC7E7FF)
+val RiverTertiaryDark = Color(0xFF81D4FA)
+val RiverOnTertiaryDark = Color(0xFF00344D)
+val RiverTertiaryContainerDark = Color(0xFF01579B)
+val RiverOnTertiaryContainerDark = Color(0xFFB3E5FC)
 
-// Error / Debt
-val DebtErrorLight = Color(0xFFBA1A1A)
-val DebtErrorDark = Color(0xFFFFB4AB)
+// Error / Debt Red
+val DebtErrorLight = Color(0xFFD32F2F)
+val DebtErrorDark = Color(0xFFEF9A9A)
 
-// Success / Refund
-val CreditSuccess = Color(0xFF1B6D24)
-val CreditSuccessDark = Color(0xFF6CDB75)
+// Success / Credit Green
+val CreditSuccess = Color(0xFF2E7D32)
+val CreditSuccessDark = Color(0xFF81C784)
 
 // Neutral surfaces
-val SurfaceLight = Color(0xFFFBFDF8)
-val SurfaceDark = Color(0xFF191C1A)
+val SurfaceLight = Color(0xFFF7F9F8)
+val SurfaceDark = Color(0xFF121816)
+
+// Gradient Brushes Color Pairs
+val HeroGradientStart = Color(0xFF004D40)
+val HeroGradientEnd = Color(0xFF00796B)
+val AmberGradientStart = Color(0xFFF57C00)
+val AmberGradientEnd = Color(0xFFFFB74D)
+
