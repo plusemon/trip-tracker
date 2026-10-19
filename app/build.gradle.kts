@@ -119,6 +119,8 @@ dependencies {
   implementation(libs.androidx.room.runtime)
   implementation(libs.coil.compose)
   implementation(libs.converter.moshi)
+  implementation(libs.converter.gson)
+  implementation(libs.gson)
   implementation(libs.firebase.ai)
   implementation(libs.firebase.database)
   // Uncomment to use Firestore:

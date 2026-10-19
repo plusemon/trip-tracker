@@ -5,6 +5,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 
@@ -33,6 +34,7 @@ object GitHubApiClient {
         Retrofit.Builder()
             .baseUrl(GITHUB_BASE_URL)
             .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
     }
