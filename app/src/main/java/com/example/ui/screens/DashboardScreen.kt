@@ -44,6 +44,8 @@ import com.example.ui.components.TripStatusBadge
 import com.example.ui.theme.HeroGradientEnd
 import com.example.ui.theme.HeroGradientStart
 
+import androidx.compose.material.icons.filled.Settings
+
 @Composable
 fun DashboardScreen(
     trip: TripEntity?,
@@ -57,6 +59,7 @@ fun DashboardScreen(
     onOpenSettleDebts: () -> Unit,
     onShareCodeClick: () -> Unit = {},
     onJoinTripClick: () -> Unit = {},
+    onOpenSettingsClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     if (trip == null) {
@@ -141,6 +144,19 @@ fun DashboardScreen(
                         Icon(Icons.Default.CloudDownload, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Join Trip with Code", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    }
+
+                    OutlinedButton(
+                        onClick = onOpenSettingsClick,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .testTag("welcome_settings_button")
+                    ) {
+                        Icon(Icons.Default.Settings, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("App Settings & Data Restore", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                     }
 
                 }

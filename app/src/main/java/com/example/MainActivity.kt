@@ -355,11 +355,19 @@ fun TripSplitApp(
                             }
                         }
                     } else {
-                        IconButton(
-                            onClick = { viewModel.openJoinTripDialog() },
-                            modifier = Modifier.testTag("top_join_button")
-                        ) {
-                            Icon(Icons.Default.CloudDownload, contentDescription = "Join Trip", tint = MaterialTheme.colorScheme.primary)
+                        Row {
+                            IconButton(
+                                onClick = { viewModel.openJoinTripDialog() },
+                                modifier = Modifier.testTag("top_join_button")
+                            ) {
+                                Icon(Icons.Default.CloudDownload, contentDescription = "Join Trip", tint = MaterialTheme.colorScheme.primary)
+                            }
+                            IconButton(
+                                onClick = { viewModel.setSelectedTab(4) },
+                                modifier = Modifier.testTag("top_settings_button")
+                            ) {
+                                Icon(Icons.Default.Settings, contentDescription = "Settings", tint = MaterialTheme.colorScheme.primary)
+                            }
                         }
                     }
                 },
@@ -440,6 +448,27 @@ fun TripSplitApp(
                         modifier = Modifier.testTag("nav_tab_settings")
                     )
                 }
+            } else {
+                NavigationBar(
+                    modifier = Modifier.testTag("bottom_nav_bar_empty"),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 6.dp
+                ) {
+                    NavigationBarItem(
+                        selected = uiState.selectedTab == 0,
+                        onClick = { viewModel.setSelectedTab(0) },
+                        icon = { Icon(Icons.Default.Dashboard, contentDescription = "Dashboard") },
+                        label = { Text("Dashboard", fontWeight = if (uiState.selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                        modifier = Modifier.testTag("nav_tab_empty_dashboard")
+                    )
+                    NavigationBarItem(
+                        selected = uiState.selectedTab == 4,
+                        onClick = { viewModel.setSelectedTab(4) },
+                        icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                        label = { Text("Settings", fontWeight = if (uiState.selectedTab == 4) FontWeight.Bold else FontWeight.Normal) },
+                        modifier = Modifier.testTag("nav_tab_empty_settings")
+                    )
+                }
             }
         },
         floatingActionButton = {
@@ -462,18 +491,39 @@ fun TripSplitApp(
                 .padding(innerPadding)
         ) {
             if (currentTrip == null) {
-                DashboardScreen(
-                    trip = null,
-                    summary = null,
-                    recentExpenses = emptyList(),
-                    onAddExpenseClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
-                    onAddDepositClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
-                    onExportClick = {},
-                    onViewAllExpensesClick = {},
-                    onNewTripClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
-                    onOpenSettleDebts = {},
-                    onJoinTripClick = { viewModel.openJoinTripDialog() }
-                )
+                if (uiState.selectedTab == 4) {
+                    SettingsScreen(
+                        currentTrip = null,
+                        allTrips = uiState.allTrips,
+                        onSelectTrip = { viewModel.selectTrip(it) },
+                        onUpdateTripStatus = { trip, status -> viewModel.updateTripStatus(trip, status) },
+                        onCreateNewTrip = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
+                        onDeleteTrip = { viewModel.deleteCurrentTrip() },
+                        onOpenCustomCategories = { viewModel.openDialog(ActiveDialog.CREATE_CATEGORY) },
+                        onExportJson = { viewModel.exportJsonBackup() },
+                        onImportJson = { viewModel.importJsonBackup(it) },
+                        onAdminRestore = { pwd, cb -> viewModel.restoreAllTripsWithAdminPassword(pwd, cb) },
+                        currentThemeMode = currentThemeMode,
+                        onThemeModeChange = onThemeModeChange,
+                        isCheckingUpdates = updateUiState.isChecking,
+                        updateStatus = updateUiState.lastCheckStatus,
+                        onCheckForUpdates = { updateViewModel.checkForUpdates(manual = true) }
+                    )
+                } else {
+                    DashboardScreen(
+                        trip = null,
+                        summary = null,
+                        recentExpenses = emptyList(),
+                        onAddExpenseClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
+                        onAddDepositClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
+                        onExportClick = {},
+                        onViewAllExpensesClick = {},
+                        onNewTripClick = { viewModel.openDialog(ActiveDialog.CREATE_TRIP) },
+                        onOpenSettleDebts = {},
+                        onJoinTripClick = { viewModel.openJoinTripDialog() },
+                        onOpenSettingsClick = { viewModel.setSelectedTab(4) }
+                    )
+                }
             } else {
                 when (uiState.selectedTab) {
                     0 -> DashboardScreen(
