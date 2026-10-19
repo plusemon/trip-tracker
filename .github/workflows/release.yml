@@ -44,12 +44,13 @@ jobs:
           if [ -z "$VERSION_NAME" ]; then
             VERSION_NAME="1.0"
           fi
-          # Generate a clean, semantic release tag combining version and run number
+          # Generate a clean, semantic release tag and version combining base version and run number
           RELEASE_TAG="v${VERSION_NAME}.${{ github.run_number }}"
+          FULL_VERSION_NAME="${VERSION_NAME}.${{ github.run_number }}"
           echo "Extracted Version: $VERSION_NAME"
           echo "Generated Tag: $RELEASE_TAG"
-          echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "version=$FULL_VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION_NAME=$FULL_VERSION_NAME" >> $GITHUB_ENV
           echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
 
       - name: Build Minified Release APK

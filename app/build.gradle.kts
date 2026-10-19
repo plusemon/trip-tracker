@@ -12,12 +12,15 @@ android {
   namespace = "com.example"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
+  val customVersionName = project.findProperty("versionName")?.toString() ?: "1.0"
+  val customVersionCode = project.findProperty("versionCode")?.toString()?.toInt() ?: 1
+
   defaultConfig {
     applicationId = "com.aistudio.tripsplitbd.rzkq"
     minSdk = 24
     targetSdk = 36
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = customVersionCode
+    versionName = customVersionName
 
     buildConfigField("String", "GITHUB_REPO_OWNER", "\"plusemon\"")
     buildConfigField("String", "GITHUB_REPO_NAME", "\"trip-tracker\"")

@@ -83,7 +83,11 @@ class UpdateViewModel(application: Application) : AndroidViewModel(application) 
 
                     val apkAsset = release.findApkAsset()
 
-                    if (isNewer && apkAsset != null) {
+                    val prefs = getApplication<Application>().getSharedPreferences("updater_prefs", Context.MODE_PRIVATE)
+                    val skippedTag = prefs.getString("skipped_tag", null)
+                    val shouldShow = isNewer && apkAsset != null && (manual || release.tagName != skippedTag)
+
+                    if (shouldShow) {
                         val info = UpdateInfo(
                             tagName = release.tagName,
                             title = release.name ?: release.tagName,
@@ -203,6 +207,12 @@ class UpdateViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun dismissDialog() {
+        _uiState.update { it.copy(showDialog = false) }
+    }
+
+    fun skipVersion(tagName: String) {
+        val prefs = getApplication<Application>().getSharedPreferences("updater_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putString("skipped_tag", tagName).apply()
         _uiState.update { it.copy(showDialog = false) }
     }
 

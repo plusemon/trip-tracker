@@ -53,6 +53,7 @@ fun AppUpdateDialog(
     needsInstallPermission: Boolean,
     onStartDownload: () -> Unit,
     onRequestPermission: () -> Unit,
+    onSkipVersion: () -> Unit,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
@@ -266,12 +267,23 @@ fun AppUpdateDialog(
         },
         dismissButton = {
             if (!isDownloading) {
-                OutlinedButton(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.testTag("dialog_update_later_btn")
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Later")
+                    TextButton(
+                        onClick = onSkipVersion,
+                        modifier = Modifier.testTag("dialog_skip_version_btn")
+                    ) {
+                        Text("Skip Version", color = MaterialTheme.colorScheme.error)
+                    }
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.testTag("dialog_update_later_btn")
+                    ) {
+                        Text("Later")
+                    }
                 }
             }
         }

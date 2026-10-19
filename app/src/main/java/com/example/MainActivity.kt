@@ -643,6 +643,7 @@ fun TripSplitApp(
             needsInstallPermission = updateUiState.needsInstallPermission,
             onStartDownload = { updateViewModel.startUpdateDownload(context) },
             onRequestPermission = { updateViewModel.openPermissionSettings(context) },
+            onSkipVersion = { updateViewModel.skipVersion(updateUiState.updateInfo!!.tagName) },
             onDismiss = { updateViewModel.dismissDialog() }
         )
     }
