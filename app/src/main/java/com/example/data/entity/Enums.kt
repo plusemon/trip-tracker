@@ -1,24 +1,42 @@
 package com.example.data.entity
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.ConfirmationNumber
+import androidx.compose.material.icons.filled.DirectionsBoat
+import androidx.compose.material.icons.filled.DirectionsBus
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Fastfood
+import androidx.compose.material.icons.filled.Flight
+import androidx.compose.material.icons.filled.Hiking
+import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.LocalCafe
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Terrain
 import androidx.compose.ui.graphics.vector.ImageVector
+
+fun getCategoryIcon(categoryName: String): ImageVector {
+    return when (categoryName.lowercase().trim()) {
+        "transportation", "transport", "bus", "car" -> Icons.Default.DirectionsBus
+        "lodging", "hotel", "resort" -> Icons.Default.Hotel
+        "food & dining", "food", "dinner", "lunch" -> Icons.Default.Restaurant
+        "snacks & refreshment", "snacks", "tea" -> Icons.Default.LocalCafe
+        "sightseeing & tickets", "tickets" -> Icons.Default.ConfirmationNumber
+        "guide & permissions", "guide" -> Icons.Default.Hiking
+        "common fund deposit", "deposit", "fund" -> Icons.Default.AccountBalanceWallet
+        "settle debts", "settle", "transfer" -> Icons.Default.SwapHoriz
+        "income", "cash" -> Icons.Default.Payments
+        else -> Icons.Default.Category // Never default to Star
+    }
+}
 
 enum class TripStatus(val displayName: String) {
     ACTIVE("Active"),
@@ -121,25 +139,26 @@ object CategoryIconHelper {
     )
 
     fun getIconForName(name: String): ImageVector {
-        return when (name.lowercase()) {
-            "bus" -> Icons.Default.Star
-            "flight" -> Icons.Default.Star
-            "car" -> Icons.Default.Star
-            "boat" -> Icons.Default.Star
-            "hotel" -> Icons.Default.Star
-            "food" -> Icons.Default.Star
-            "cafe" -> Icons.Default.Star
-            "snack" -> Icons.Default.Star
+        val cleanName = name.lowercase().trim()
+        return when (cleanName) {
+            "bus" -> Icons.Default.DirectionsBus
+            "flight" -> Icons.Default.Flight
+            "car" -> Icons.Default.DirectionsCar
+            "boat" -> Icons.Default.DirectionsBoat
+            "hotel" -> Icons.Default.Hotel
+            "food" -> Icons.Default.Restaurant
+            "cafe" -> Icons.Default.LocalCafe
+            "snack" -> Icons.Default.Fastfood
             "shopping" -> Icons.Default.ShoppingCart
-            "ticket" -> Icons.Default.Star
-            "policy" -> Icons.Default.Star
-            "gas" -> Icons.Default.Star
-            "camera" -> Icons.Default.Star
-            "nature" -> Icons.Default.Star
-            "hospital" -> Icons.Default.Star
-            "gift" -> Icons.Default.Star
-            "money" -> Icons.Default.Star
-            else -> Icons.Default.Star
+            "ticket" -> Icons.Default.ConfirmationNumber
+            "policy" -> Icons.Default.Hiking
+            "gas" -> Icons.Default.LocalGasStation
+            "camera" -> Icons.Default.PhotoCamera
+            "nature" -> Icons.Default.Terrain
+            "hospital" -> Icons.Default.MedicalServices
+            "gift" -> Icons.Default.CardGiftcard
+            "money" -> Icons.Default.Payments
+            else -> getCategoryIcon(cleanName)
         }
     }
 }

@@ -21,18 +21,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.CardTravel
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.outlined.Dashboard
+import androidx.compose.material.icons.outlined.PieChart
+import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -231,7 +231,7 @@ fun TripSplitApp(
                                 onClick = { tripMenuExpanded = true },
                                 modifier = Modifier.testTag("trip_switcher_button")
                             ) {
-                                Icon(Icons.Default.Star, contentDescription = "Switch Trips")
+                                Icon(Icons.Default.CardTravel, contentDescription = "Switch Trips")
                             }
 
                             DropdownMenu(
@@ -282,7 +282,7 @@ fun TripSplitApp(
                         onClick = { viewModel.setSelectedTab(0) },
                         icon = {
                             Icon(
-                                if (uiState.selectedTab == 0) Icons.Default.Star else Icons.Outlined.Star,
+                                if (uiState.selectedTab == 0) Icons.Default.Dashboard else Icons.Outlined.Dashboard,
                                 contentDescription = "Dashboard"
                             )
                         },
@@ -295,7 +295,7 @@ fun TripSplitApp(
                         onClick = { viewModel.setSelectedTab(1) },
                         icon = {
                             Icon(
-                                if (uiState.selectedTab == 1) Icons.Default.Star else Icons.Outlined.Star,
+                                if (uiState.selectedTab == 1) Icons.Default.ReceiptLong else Icons.Outlined.ReceiptLong,
                                 contentDescription = "Expenses"
                             )
                         },
@@ -308,7 +308,7 @@ fun TripSplitApp(
                         onClick = { viewModel.setSelectedTab(2) },
                         icon = {
                             Icon(
-                                if (uiState.selectedTab == 2) Icons.Default.Star else Icons.Outlined.Star,
+                                if (uiState.selectedTab == 2) Icons.Default.SwapHoriz else Icons.Outlined.SwapHoriz,
                                 contentDescription = "Settle Up"
                             )
                         },
@@ -321,7 +321,7 @@ fun TripSplitApp(
                         onClick = { viewModel.setSelectedTab(3) },
                         icon = {
                             Icon(
-                                if (uiState.selectedTab == 3) Icons.Default.Star else Icons.Outlined.Star,
+                                if (uiState.selectedTab == 3) Icons.Default.PieChart else Icons.Outlined.PieChart,
                                 contentDescription = "Analytics"
                             )
                         },

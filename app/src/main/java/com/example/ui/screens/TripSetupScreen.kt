@@ -34,20 +34,20 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.CardTravel
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -294,7 +294,7 @@ fun TripSetupScreen(
                                 .height(48.dp)
                                 .testTag("create_trip_button")
                         ) {
-                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.RocketLaunch, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Start Trip & Open Wallet", fontWeight = FontWeight.Bold)
                         }
@@ -536,7 +536,7 @@ private fun TripDetailsStep(
                         },
                         label = { Text(place, fontSize = 12.sp) },
                         leadingIcon = {
-                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(14.dp))
+                            Icon(Icons.Default.Place, contentDescription = null, modifier = Modifier.size(14.dp))
                         },
                         colors = InputChipDefaults.inputChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
@@ -564,7 +564,7 @@ private fun TripDetailsStep(
                     value = tripName,
                     onValueChange = onTripNameChange,
                     label = { Text("Trip / Tour Name") },
-                    leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
+                    leadingIcon = { Icon(Icons.Default.CardTravel, contentDescription = null) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("trip_name_input"),
@@ -575,7 +575,7 @@ private fun TripDetailsStep(
                     value = destination,
                     onValueChange = onDestinationChange,
                     label = { Text("Destination (e.g. Bandarban, Sajek)") },
-                    leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
+                    leadingIcon = { Icon(Icons.Default.Place, contentDescription = null) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("destination_input"),
@@ -654,7 +654,7 @@ private fun TripDetailsStep(
                     value = budgetText,
                     onValueChange = onBudgetTextChange,
                     label = { Text("Target Tour Budget ($currencySymbol)") },
-                    leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
+                    leadingIcon = { Icon(Icons.Default.AccountBalanceWallet, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1048,7 +1048,7 @@ private fun TripReviewStep(
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.Star,
+                        imageVector = Icons.Default.Savings,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(24.dp)
@@ -1097,7 +1097,7 @@ private fun TripReviewStep(
                         value = advanceDepositAmountText,
                         onValueChange = onAdvanceDepositAmountChange,
                         label = { Text("Advance Contribution per Member ($currencySymbol)") },
-                        leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Default.Payments, contentDescription = null) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1183,7 +1183,7 @@ private fun TripReviewStep(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Star,
+                            imageVector = Icons.Default.CardTravel,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(28.dp)
